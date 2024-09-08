@@ -70,27 +70,22 @@ def convert_xlsx_to_txt(data):
 
     return file_name
 
-def check_number(data):
+def check_number(path):
     numbers = []
-    logging.info(f"Membaca file VCF: {data}")
-    
+
     try:
         with open(path, 'r', encoding='utf-8') as file:
             lines = file.readlines()
-        
-        logging.info(f"Total baris yang dibaca dari file VCF: {len(lines)}")
 
         for line in lines:
-            logging.info(f"Membaca baris: {line.strip()}")
-            line = line.strip().replace('+', '')  # Menghapus simbol +
-            if line.isdigit():  # Cek jika baris adalah angka (nomor telepon)
+            line = line.strip().replace('+', '')
+            if line.isdigit():
                 numbers.append(line)
-
-        logging.info(f"Nomor telepon yang ditemukan: {numbers}")
-        return numbers
     except Exception as e:
-        logging.error(f"Kesalahan saat membaca file VCF: {e}")
-        return []
+        logging.error(f"Kesalahan saat membaca file: {e}")
+    
+    return numbers
+
 
 def pecah_vcf(data):
     with open(data['filename'], 'r', encoding='utf-8') as file:
@@ -126,39 +121,24 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    logging.info(f"Mulai mengonversi file VCF: {data['filename']}")
-
-    # Membaca nomor telepon dari file VCF
-    numbers = check_number(data['filename'])
-    if not numbers:
-        logging.error("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
-        return None
-    
-    logging.info(f"Nomor yang ditemukan: {numbers}")
-    
-    split_number = split(numbers, data['totalc'])
-    
-    countc = 0
-    countf = 0
-    txt_file_name = f"files/{data['name']}.txt"
-    
-    logging.info(f"File TXT akan disimpan sebagai: {txt_file_name}")
-    
     try:
+        # Membaca file VCF dan mengekstrak nomor telepon
+        numbers = check_number(data['filename'])
+        
+        if not numbers:
+            logging.warning("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
+            return None
+        
+        # Menulis nomor telepon ke file TXT
+        txt_file_name = f"files/{data['name']}.txt"
         with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
-            for numbers in split_number:
-                for number in numbers:
-                    countc += 1
-                    logging.info(f"Menambahkan nomor: {number}")
-                    txt_file.write(f"{number}\n")
-                countf += 1
-                if countf >= data['totalf']:
-                    break
-
-        logging.info(f"File TXT {txt_file_name} berhasil dibuat.")
+            for number in numbers:
+                txt_file.write(f"{number}\n")
+        
+        logging.info(f"File TXT berhasil dibuat: {txt_file_name}")
         return txt_file_name
     except Exception as e:
-        logging.error(f"Kesalahan saat membuat file TXT: {e}")
+        logging.error(f"Kesalahan saat mengonversi VCF ke TXT: {e}")
         return None
     
 def split(arr, num):
