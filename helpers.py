@@ -122,11 +122,6 @@ def pecah_vcf(data):
 
 def convert_vcf_to_txt(data):
     try:
-        # Memastikan file VCF ada dan dapat diakses
-        if not os.path.exists(data['filename']):
-            logging.error(f"File VCF tidak ditemukan: {data['filename']}")
-            return None
-
         # Membaca file VCF dan mengekstrak nomor telepon
         numbers = check_number(data['filename'])
         
