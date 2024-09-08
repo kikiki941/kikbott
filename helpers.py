@@ -136,14 +136,14 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    # Convert VCF file to TXT format
+    # Membaca file VCF dan mengekstrak nomor telepon
     numbers = check_number(data['filename'])
     split_number = split(numbers, data['totalc'])
-
+    
     countc = 0
     countf = 0
     txt_file_name = f"files/{data['name']}.txt"
-
+    
     with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
         for numbers in split_number:
             for number in numbers:
@@ -152,10 +152,9 @@ def convert_vcf_to_txt(data):
             countf += 1
             if countf >= data['totalf']:
                 break
-    
+
     return txt_file_name
-
-
+    
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
 
