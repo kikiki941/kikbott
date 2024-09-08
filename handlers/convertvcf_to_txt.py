@@ -16,6 +16,7 @@ async def convert_vcf_to_txt_command(message):
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.filename, message.chat.id)
         await bot.reply_to(message, txt_convert_vcf_to_txt)
+        logging.info("State set to ConvertVcfToTxtState.filename")
     except Exception as e:
         logging.error("Error in /convertvcf_to_txt command: ", exc_info=True)
 
@@ -37,6 +38,7 @@ async def vcf_file_get(message: Message):
             new_file.write(downloaded_file)
 
         await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file txt yang akan dihasilkan:')
+        logging.info(f"Received file {filename} and set state to ConvertVcfToTxtState.name")
     except Exception as e:
         logging.error("Error in vcf_file_get handler: ", exc_info=True)
 
@@ -52,5 +54,6 @@ async def vcf_to_txt_name_get(message: Message):
                 os.remove(txt_file)
             os.remove(data['filename'])
         await bot.delete_state(message.from_user.id, message.chat.id)
+        logging.info(f"Converted VCF to TXT and sent {txt_file}")
     except Exception as e:
         logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
