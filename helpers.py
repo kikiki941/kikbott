@@ -72,18 +72,21 @@ def convert_xlsx_to_txt(data):
 
 def check_number(path):
     numbers = []
+
     try:
         with open(path, 'r', encoding='utf-8') as file:
-            content = file.read()
+            lines = file.readlines()
         
-        numbers = re.findall(r'TEL:\s*\+(\d+)', content)
-        
-        if not numbers:
-            logging.warning("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
-    except Exception as e:
-        logging.error(f"Kesalahan saat membaca file: {e}")
+        for line in lines:
+            line = line.strip().replace('+', '')
+            if line.isdigit():
+                numbers.append(line)
 
-    return numbers
+        logging.info(f"Nomor-nomor yang ditemukan: {numbers}")
+        return numbers
+    except Exception as e:
+        logging.error(f"Kesalahan saat memeriksa nomor: {e}")
+        return []
 
 def pecah_vcf(data):
     with open(data['filename'], 'r', encoding='utf-8') as file:
