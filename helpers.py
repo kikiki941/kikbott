@@ -122,27 +122,16 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    try:
-        logging.info(f"Memproses file {data['filename']}")
-        numbers = check_number(data['filename'])
-        logging.info(f"Nomor yang ditemukan: {numbers}")
-        
-        if not numbers:
-            logging.warning("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
-            return None
-        
-        txt_file_name = f"files/{data['name']}.txt"
-        logging.info(f"Membuat file TXT: {txt_file_name}")
-        
-        with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
-            for number in numbers:
-                txt_file.write(f"{number}\n")
-        
-        logging.info(f"File TXT berhasil dibuat: {txt_file_name}")
-        return txt_file_name
-    except Exception as e:
-        logging.error(f"Kesalahan saat mengonversi VCF ke TXT: {e}")
-        return None
+    vcf_file = data['filename']
+    txt_file = f"files/{data['name']}.txt"
+
+    with open(vcf_file, 'r') as vcf_file:
+        vcf_data = vcf_file.read()
+    
+    with open(txt_file, 'w') as txt_file:
+        txt_file.write(vcf_data)
+    
+    return txt_file
     
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
