@@ -177,30 +177,21 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def create_vcf(contact_name, phone_numbers):
-    """
-    Creates a VCF file for the given contact name and list of phone numbers.
+def create_vcf(contact_name: str, phone_numbers: list) -> str:
+    vcf = ''
+    for idx, phone_number in enumerate(phone_numbers):
+        vcf += f"BEGIN:VCARD\n"
+        vcf += f"VERSION:3.0\n"
+        vcf += f"N:Nama_{idx+1};;;\n"
+        vcf += f"FN:Nama_{idx+1}\n"
+        vcf += f"TEL;TYPE=CELL:+{phone_number}\n"
+        vcf += f"END:VCARD\n"
+    return vcf
 
-    Args:
-    contact_name (str): The name of the contact.
-    phone_numbers (list): List of phone numbers associated with the contact.
-
-    Returns:
-    str: The path to the created VCF file.
-    """
-    # Define the VCF file path
-    file_path = os.path.join('files', f"{contact_name}.vcf")
-    
-    # Create and write the VCF content
+def save_vcf(content: str, filename: str) -> str:
+    file_path = f"files/{filename}.vcf"
     with open(file_path, 'w') as vcf_file:
-        for phone_number in phone_numbers:
-            vcf_file.write(f"BEGIN:VCARD\n")
-            vcf_file.write(f"VERSION:3.0\n")
-            vcf_file.write(f"N:{contact_name};;;\n")
-            vcf_file.write(f"FN:{contact_name}\n")
-            vcf_file.write(f"TEL;TYPE=CELL:{phone_number}\n")
-            vcf_file.write(f"END:VCARD\n")
-    
+        vcf_file.write(content)
     return file_path
 
 def split(arr, num):
