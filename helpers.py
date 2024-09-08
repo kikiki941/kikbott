@@ -122,22 +122,32 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    vcf_file = data['filename']
-    txt_file = f"files/{data['name']}.txt"
+    vcf_file = data.get('filename')
+    txt_file = f"files/{data.get('name')}.txt"
+
+    if not vcf_file or not os.path.isfile(vcf_file):
+        raise FileNotFoundError(f"File VCF tidak ditemukan: {vcf_file}")
 
     try:
-        with open(vcf_file, 'r') as vcf_file_content:
+        with open(vcf_file, 'r', encoding='utf-8') as vcf_file_content:
             vcf_data = vcf_file_content.read()
-        
-        with open(txt_file, 'w') as txt_file_content:
-            txt_file_content.write(vcf_data)
-        
-        logging.info(f"File VCF dikonversi menjadi {txt_file}")
+
+        # Memproses data VCF untuk mengekstrak nama dan nomor telepon
+        lines = vcf_data.split('END:VCARD')
+        with open(txt_file, 'w', encoding='utf-8') as txt_file_content:
+            for line in lines:
+                if 'FN:' in line and 'TEL:' in line:
+                    
+                    tel = line.split('TEL:')[1].split('\n')[0].strip()
+                    tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
+
+                    txt_file_content.write(f"{tel}\n")
+
         return txt_file
     except Exception as e:
         logging.error("Error converting VCF to TXT: ", exc_info=True)
         raise
-    
+
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
 
