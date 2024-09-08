@@ -32,4 +32,3 @@ class PecahVcfState(StatesGroup):
 
 class ConvertVcfToTxtState(StatesGroup):
     filename = State()
-    name = State()
