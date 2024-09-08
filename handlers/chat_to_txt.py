@@ -78,10 +78,3 @@ async def handle_done_txt(message: Message):
     except Exception as e:
         logging.error("Error in handle_done_txt: ", exc_info=True)
         await bot.send_message(message.chat.id, "Terjadi kesalahan saat membuat file TXT.")
-
-# Fungsi untuk menyimpan teks ke file TXT
-def save_txt(text, filename):
-    file_path = os.path.join('files', filename)
-    with open(file_path, 'w') as file:
-        file.write(text)
-    return file_path
