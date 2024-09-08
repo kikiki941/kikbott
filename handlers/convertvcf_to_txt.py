@@ -31,10 +31,15 @@ async def vcf_file_get(message: Message):
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
         
+        # Pastikan folder files ada
+        if not os.path.exists('files'):
+            os.makedirs('files')
+
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.name, message.chat.id)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['filename'] = filename
 
+        # Download file dan simpan
         downloaded_file = await bot.download_file(file.file_path)
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
@@ -49,7 +54,9 @@ async def vcf_to_txt_name_get(message: Message):
         await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
-            txt_file = convert_vcf_to_txt(data)
+            txt_file = convert_vcf_to_txt(data)  # Konversi file
+
+            # Pastikan file berhasil dikonversi dan ada
             if os.path.exists(txt_file):
                 while True:
                     try:
@@ -57,7 +64,7 @@ async def vcf_to_txt_name_get(message: Message):
                         os.remove(txt_file)
                         break
                     except ApiTelegramException as e:
-                        if "Too Many Requests" == e.description:
+                        if "Too Many Requests" in e.description:
                             delay = int(findall(r'\d+', e.description)[0])
                             await sleep(delay)
                         else:
@@ -69,6 +76,7 @@ async def vcf_to_txt_name_get(message: Message):
             else:
                 await bot.send_message(message.chat.id, "Gagal mengonversi file.")
                 
+            # Hapus file VCF asli setelah konversi selesai
             os.remove(data['filename'])
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
