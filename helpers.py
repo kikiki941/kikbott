@@ -136,24 +136,37 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    # Membaca file VCF dan mengekstrak nomor telepon
+    logging.info(f"Mulai mengonversi file VCF: {data['filename']}")
+
+    # Membaca nomor telepon dari file VCF
     numbers = check_number(data['filename'])
+    if not numbers:
+        logging.error("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
+        return None
+    
     split_number = split(numbers, data['totalc'])
     
     countc = 0
     countf = 0
     txt_file_name = f"files/{data['name']}.txt"
     
-    with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
-        for numbers in split_number:
-            for number in numbers:
-                countc += 1
-                txt_file.write(f"{number}\n")
-            countf += 1
-            if countf >= data['totalf']:
-                break
+    logging.info(f"File TXT akan disimpan sebagai: {txt_file_name}")
+    
+    try:
+        with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
+            for numbers in split_number:
+                for number in numbers:
+                    countc += 1
+                    txt_file.write(f"{number}\n")
+                countf += 1
+                if countf >= data['totalf']:
+                    break
 
-    return txt_file_name
+        logging.info(f"File TXT {txt_file_name} berhasil dibuat.")
+        return txt_file_name
+    except Exception as e:
+        logging.error(f"Kesalahan saat membuat file TXT: {e}")
+        return None
     
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
