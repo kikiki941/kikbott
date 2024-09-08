@@ -119,14 +119,18 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    
     try:
+        logging.info(f"Memproses file {data['filename']}")
         numbers = check_number(data['filename'])
+        logging.info(f"Nomor yang ditemukan: {numbers}")
+        
         if not numbers:
             logging.warning("Tidak ada nomor telepon yang ditemukan dalam file VCF.")
             return None
         
         txt_file_name = f"files/{data['name']}.txt"
+        logging.info(f"Membuat file TXT: {txt_file_name}")
+        
         with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
             for number in numbers:
                 txt_file.write(f"{number}\n")
