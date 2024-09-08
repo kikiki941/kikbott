@@ -57,6 +57,7 @@ async def vcf_to_txt_name_get(message: Message):
                 logging.error(f"File {data['filename']} tidak ditemukan.")
                 return
 
+            logging.info(f"File VCF ditemukan. Memulai konversi...")
             txt_file = convert_vcf_to_txt(data)
             
             if txt_file and os.path.exists(txt_file):
