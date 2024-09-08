@@ -63,7 +63,7 @@ async def vcf_to_txt_name_get(message: Message):
                         break
                     except ApiTelegramException as e:
                         if "Too Many Requests" == e.description:
-                            delay = int(findall(r'\d+', e.description)[0])
+                            delay = int(findall('\d+', e.description)[0])
                             await sleep(delay)
                         else:
                             logging.error("API error: %s", e)
