@@ -177,10 +177,11 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def save_txt(content: str, filename: str) -> str:
-    file_path = f"files/{filename}"
-    with open(file_path, 'w') as txt_file:
-        txt_file.write(content)
+# Fungsi untuk menyimpan teks ke file TXT
+def save_txt(text, filename):
+    file_path = os.path.join('files', filename)
+    with open(file_path, 'w') as file:
+        file.write(text)
     return file_path
 
 def split(arr, num):
