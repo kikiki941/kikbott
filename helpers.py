@@ -177,43 +177,30 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-# Fungsi untuk membersihkan string (misalnya nama kontak atau nama file)
+# Fungsi untuk membersihkan string
 def clean_string(input_string: str) -> str:
-    # Hapus karakter yang tidak diinginkan dari string (selain huruf, angka, dan spasi)
     return re.sub(r'[^A-Za-z0-9 ]+', '', input_string).strip()
 
-# Fungsi untuk membersihkan nomor telepon dari karakter non-angka
+# Fungsi untuk membersihkan nomor telepon
 def clean_phone_number(phone_number: str) -> str:
-    # Hanya menyimpan angka, menghapus karakter lain
     cleaned_number = re.sub(r'[^0-9]+', '', phone_number)
-    
-    # Tambahkan format internasional (misal +62 untuk Indonesia) jika perlu
     if cleaned_number.startswith('0'):
         cleaned_number = '+62' + cleaned_number[1:]
-    
     return cleaned_number
 
 # Fungsi untuk membuat file VCF dengan beberapa nomor telepon
 def create_vcf(contact_name: str, phone_numbers: list, file_name: str) -> str:
-    # Tentukan path file
     file_path = os.path.join('files', f"{file_name}.vcf")
-    
-    # Buat konten VCF
     vcf_content = "BEGIN:VCARD\nVERSION:3.0\n"
     vcf_content += f"FN:{contact_name}\n"
-    
-    # Tambahkan setiap nomor telepon ke VCF
     for phone_number in phone_numbers:
         vcf_content += f"TEL;TYPE=CELL:{phone_number}\n"
-    
     vcf_content += "END:VCARD\n"
     
-    # Tulis konten VCF ke file
     with open(file_path, 'w') as vcf_file:
         vcf_file.write(vcf_content)
     
     return file_path
-
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
