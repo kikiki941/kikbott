@@ -80,6 +80,19 @@ txt_convert_vcf_to_txt = """
 Selamat menggunakan ~!
 """
 
+txt_gabung_vcf =  """
+<b>Tutorial Gabung VCF</b>
+
+● Berapa yang ingin anda gabungkan pilih 1 dll
+
+1. Kirim file .vcf yang berisi daftar nomor telepon
+2. Bot akan menanyakan detail file satu per satu
+  - Nama File
+3. Setelah itu bot akan di gabungkan file yang anda kirim dan akan dikirimkan kepada Anda.
+4. Untuk memulai menggabungkan kembali kirim perintah /gabungvcf
+
+Selamat menggunakan ~!
+"""
 txt_start = """
 <b>Selamat datang di Bot Convert VCF! 🎉</b>
 
@@ -90,4 +103,5 @@ txt_start = """
 /convertxlsx - Mengonversi file dari format XLSX ke TXT.
 /convertvcf - Mengonversi file dari format XLSX ke VCF.
 /convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
+/gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
 """
