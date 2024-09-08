@@ -5,9 +5,9 @@ from asyncio import sleep
 from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
-from bot import *
+from bot import bot
 from message import txt_convert_vcf_to_txt
-from helpers import *
+from helpers import convert_vcf_to_txt
 from state import ConvertVcfToTxtState
 
 @bot.message_handler(commands='convertvcf_to_txt')
@@ -41,47 +41,40 @@ async def vcf_file_get(message: Message):
     except Exception as e:
         logging.error("Error in vcf_file_get handler: ", exc_info=True)
 
+@bot.message_handler(state=ConvertVcfToTxtState.filename)
+async def not_vcf(message: Message):
+    try:
+        await bot.send_message(message.chat.id, 'Kirim file .vcf')
+    except Exception as e:
+        logging.error("Error in not_vcf handler: ", exc_info=True)
+
 @bot.message_handler(state=ConvertVcfToTxtState.name)
-async def vcf_to_txt_name_get(message: Message):
+async def name_get(message: Message):
     try:
         await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
-            
-            # Verifikasi apakah file ada sebelum konversi
-            if not os.path.exists(data['filename']):
-                await bot.send_message(message.chat.id, "File tidak ditemukan.")
-                logging.error(f"File {data['filename']} tidak ditemukan.")
-                return
-
-            logging.info(f"File VCF ditemukan. Memulai konversi...")
-            txt_file = convert_vcf_to_txt(data)
-            
-            if txt_file and os.path.exists(txt_file):
-                logging.info(f"File TXT {txt_file} berhasil dibuat.")
-                while True:
-                    try:
-                        with open(txt_file, 'rb') as file:
-                            await bot.send_document(message.chat.id, file)
-                        os.remove(txt_file)
-                        logging.info(f"File TXT {txt_file} berhasil dikirim dan dihapus.")
-                        break
-                    except ApiTelegramException as e:
-                        if "Too Many Requests" == e.description:
-                            delay = int(findall(r'\d+', e.description)[0])
-                            await sleep(delay)
-                        else:
-                            logging.error("API error: %s", e)
-                            break
-                    except Exception as e:
-                        logging.error("Error sending document: %s", e)
-                        break
-            else:
-                await bot.send_message(message.chat.id, "Gagal mengonversi file.")
-                logging.error(f"File TXT {txt_file} tidak ditemukan atau gagal dibuat.")
-                
+            file = convert_vcf_to_txt(data)
             os.remove(data['filename'])
+
+            while True:
+                try:
+                    with open(file, 'rb') as f:
+                        await bot.send_document(message.chat.id, f)
+                    os.remove(file)
+                    break
+                except ApiTelegramException as e:
+                    if "Too Many Requests" in e.description:
+                        delay = int(findall(r'\d+', e.description)[0])
+                        await sleep(delay)
+                    else:
+                        logging.error("API error: %s", e)
+                        break
+                except Exception as e:
+                    logging.error("Error sending document: %s", e)
+                    break
+
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
+        logging.error("Error in name_get handler: ", exc_info=True)
