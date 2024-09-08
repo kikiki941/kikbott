@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import re
 import logging
-import vobject
 
 def convert(data):
     numbers = check_number(data['filename'])
