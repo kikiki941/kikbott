@@ -177,26 +177,29 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def clean_phone_number(phone_number):
-    # Clean phone number from unwanted characters
-    return ''.join(filter(str.isdigit, phone_number))
-
 def clean_string(text):
     # Clean the text to be used as a file name or safe string
     return ''.join(e for e in text if e.isalnum() or e in (' ', '_')).strip()
-
-def create_vcf(contact_name, phone_numbers, filename):
-    # Create a VCF file for the contact
-    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\n"
-    for number in phone_numbers:
-        vcf_content += f"TEL:{number}\n"
-    vcf_content += "END:VCARD\n"
     
-    file_path = f'files/{filename}.vcf'
+def create_vcf(contact_name, phone_numbers):
+    filename = f"{contact_name}.vcf"
+    file_path = os.path.join('files', filename)
+    
     with open(file_path, 'w') as vcf_file:
-        vcf_file.write(vcf_content)
+        vcf_file.write("BEGIN:VCARD\n")
+        vcf_file.write("VERSION:3.0\n")
+        vcf_file.write(f"FN:{contact_name}\n")
+        
+        for phone_number in phone_numbers:
+            vcf_file.write(f"TEL;TYPE=CELL:{phone_number}\n")
+        
+        vcf_file.write("END:VCARD\n")
     
     return file_path
+
+def clean_phone_number(phone_number):
+    return ''.join(filter(str.isdigit, phone_number))
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
