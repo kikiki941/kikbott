@@ -70,9 +70,9 @@ def convert_xlsx_to_txt(data):
 
     return file_name
 
-def check_number(path):
+def check_number(data):
     numbers = []
-    logging.info(f"Membaca file VCF: {path}")
+    logging.info(f"Membaca file VCF: {data}")
     
     try:
         with open(path, 'r', encoding='utf-8') as file:
