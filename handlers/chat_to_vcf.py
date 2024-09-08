@@ -5,7 +5,7 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_chat_to_vcf
-from helpers import create_vcf, clean_phone_number
+from helpers import create_vcf, clean_string, clean_phone_number
 from state import ChatToVcfState
 
 # Ensure the 'files' directory exists
