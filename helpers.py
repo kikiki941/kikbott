@@ -72,23 +72,15 @@ def convert_xlsx_to_txt(data):
 
     return file_name
 
-def check_number(path):
+def check_number(filename):
+    """Baca file dan ambil nomor telepon dari setiap baris."""
     numbers = []
-
-    try:
-        with open(path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-        
-        for line in lines:
-            line = line.strip().replace('+', '')
+    with open(filename, 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.strip()
             if line.isdigit():
                 numbers.append(line)
-
-        logging.info(f"Nomor-nomor yang ditemukan: {numbers}")
-        return numbers
-    except Exception as e:
-        logging.error(f"Kesalahan saat memeriksa nomor: {e}")
-        return []
+    return numbers
         
 def pecah_txt(data):
   numbers = check_number(data['filename'])
