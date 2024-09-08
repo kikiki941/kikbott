@@ -10,6 +10,10 @@ from message import txt_convert_vcf_to_txt
 from helpers import convert_vcf_to_txt
 from state import ConvertVcfToTxtState
 
+# Ensure the 'files' directory exists
+if not os.path.exists('files'):
+    os.makedirs('files')
+
 @bot.message_handler(commands='convertvcf_to_txt')
 async def convert_vcf_to_txt_command(message: Message):
     try:
@@ -17,7 +21,7 @@ async def convert_vcf_to_txt_command(message: Message):
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.filename, message.chat.id)
         await bot.reply_to(message, txt_convert_vcf_to_txt)
     except Exception as e:
-        logging.error("Error: ", exc_info=True)
+        logging.error("Error in convert_vcf_to_txt_command: ", exc_info=True)
 
 @bot.message_handler(state=ConvertVcfToTxtState.filename, content_types=['document'])
 async def handle_vcf_file(message: Message):
@@ -36,9 +40,12 @@ async def handle_vcf_file(message: Message):
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
+        if os.path.getsize(filename) == 0:
+            return await bot.send_message(message.chat.id, "File yang diunduh kosong. Coba lagi.")
+        
         await bot.send_message(message.chat.id, 'File diterima. Silakan masukan nama file txt yang akan dihasilkan:')
     except Exception as e:
-        logging.error("Error: ", exc_info=True)
+        logging.error("Error in handle_vcf_file: ", exc_info=True)
 
 @bot.message_handler(state=ConvertVcfToTxtState.name)
 async def handle_txt_name(message: Message):
@@ -49,9 +56,13 @@ async def handle_txt_name(message: Message):
             file = convert_vcf_to_txt(data)
             os.remove(data['filename'])
 
+            if not os.path.exists(file):
+                return await bot.send_message(message.chat.id, "File hasil konversi tidak ditemukan. Coba lagi.")
+            
             while True:
                 try:
-                    await bot.send_document(message.chat.id, open(file, 'rb'))
+                    with open(file, 'rb') as doc:
+                        await bot.send_document(message.chat.id, doc)
                     os.remove(file)
                     break
                 except Throttled as e:
@@ -59,6 +70,7 @@ async def handle_txt_name(message: Message):
                         delay = int(findall(r'\d+', str(e))[0])
                         await sleep(delay)
                     else:
+                        logging.error("Throttling issue: ", exc_info=True)
                         continue
                 except Exception as e:
                     logging.error("Error sending document: ", exc_info=True)
@@ -67,4 +79,4 @@ async def handle_txt_name(message: Message):
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error: ", exc_info=True)
+        logging.error("Error in handle_txt_name: ", exc_info=True)
