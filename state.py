@@ -39,5 +39,5 @@ class GabungVcfState(StatesGroup):
     name = State()
 
 class ChatToVcfState(StatesGroup):
-    waiting_for_contact_name = State()
     waiting_for_file_name = State()
+    waiting_for_phone_number = State()  
