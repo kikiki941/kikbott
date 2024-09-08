@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import re
 import logging
+import vobject
 
 def convert(data):
     numbers = check_number(data['filename'])
@@ -188,17 +189,26 @@ def clean_phone_number(phone_number: str) -> str:
         cleaned_number = '+62' + cleaned_number[1:]
     return cleaned_number
 
-# Fungsi untuk membuat file VCF dengan beberapa nomor telepon
-def create_vcf(contact_name: str, phone_numbers: list, file_name: str) -> str:
-    file_path = os.path.join('files', f"{file_name}.vcf")
-    vcf_content = "BEGIN:VCARD\nVERSION:3.0\n"
-    vcf_content += f"FN:{contact_name}\n"
-    for phone_number in phone_numbers:
-        vcf_content += f"TEL;TYPE=CELL:{phone_number}\n"
-    vcf_content += "END:VCARD\n"
-    
+def create_vcf(contact_name, phone_numbers, vcf_filename):
+    """
+    Membuat file VCF untuk kontak dengan nama dan beberapa nomor telepon.
+    """
+    vcf = vobject.vCard()
+
+    # Set nama kontak
+    vcf.add('fn')
+    vcf.fn.value = contact_name
+
+    # Tambahkan setiap nomor telepon ke vCard
+    for phone in phone_numbers:
+        tel = vcf.add('tel')
+        tel.value = phone
+        tel.type_param = 'CELL'  # Set sebagai nomor seluler
+
+    # Simpan file VCF
+    file_path = f'files/{vcf_filename}.vcf'
     with open(file_path, 'w') as vcf_file:
-        vcf_file.write(vcf_content)
+        vcf_file.write(vcf.serialize())
     
     return file_path
 
