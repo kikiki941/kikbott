@@ -72,16 +72,30 @@ def convert_xlsx_to_txt(data):
 
 def check_number(path):
     numbers = []
+    logging.info(f"Membaca file: {path}")
 
-    with open(path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
 
-    for line in lines:
-        line = line.strip().replace('+', '')
-        if line.isdigit():
-            numbers.append(line)
+        for line in lines:
+            line = line.strip()
+            if line.startswith('TEL'):
+                number = line.split(':')[-1].replace('+', '').replace(' ', '')
+                logging.info(f"Nomor ditemukan: {number}")
+                if number.isdigit():
+                    numbers.append(number)
 
+    except Exception as e:
+        logging.error(f"Kesalahan saat membaca file: {e}")
+
+    if not numbers:
+        logging.warning("Tidak ada nomor yang ditemukan dalam file.")
+        return None
+
+    logging.info(f"Jumlah nomor yang ditemukan: {len(numbers)}")
     return numbers
+
     
 def pecah_txt(data):
     numbers = check_number(data['filename'])
