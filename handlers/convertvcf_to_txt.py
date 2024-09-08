@@ -79,4 +79,5 @@ async def vcf_to_txt_name_get(message: Message):
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
+        logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True) 
+        
