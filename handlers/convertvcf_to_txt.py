@@ -3,20 +3,19 @@ import os
 from re import findall
 from asyncio import sleep
 from telebot.types import Message
-from telebot.apihelper import ApiTelegramException
+from telebot.apihelper import ApiTelegramException, Throttled
 
 from bot import bot
 from message import txt_convert_vcf_to_txt
 from helpers import convert_vcf_to_txt
 from state import ConvertVcfToTxtState
 
-
 @bot.message_handler(commands='convertvcf_to_txt')
 async def convert_vcf_to_txt_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.filename, message.chat.id)
-        await bot.reply_to(message, "Kirim file .vcf yang ingin dikonversi ke .txt")
+        await bot.reply_to(message, txt_convert_vcf_to_txt)
     except Exception as e:
         logging.error("Error: ", exc_info=True)
 
