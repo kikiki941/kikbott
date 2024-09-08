@@ -136,25 +136,24 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    with open(data['filename'], 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+    # Convert VCF file to TXT format
+    numbers = check_number(data['filename'])
+    split_number = split(numbers, data['totalc'])
 
-    contacts = []
-    current_contact = []
-    for line in lines:
-        if not line.strip():
-            continue
-        current_contact.append(line)
-        if line.strip() == 'END:VCARD':
-            contacts.append(current_contact)
-            current_contact = []
+    countc = 0
+    countf = 0
+    txt_file_name = f"files/{data['name']}.txt"
 
-    txt_name = f"files/{data['name']}.txt"
-    with open(txt_name, 'w', encoding='utf-8') as txt_file:
-        for contact in contacts:
-            txt_file.write("\n".join([line.strip() for line in contact]) + "\n\n")
-
-    return txt_name
+    with open(txt_file_name, 'w', encoding='utf-8') as txt_file:
+        for numbers in split_number:
+            for number in numbers:
+                countc += 1
+                txt_file.write(f"{number}\n")
+            countf += 1
+            if countf >= data['totalf']:
+                break
+    
+    return txt_file_name
 
 
 def split(arr, num):
