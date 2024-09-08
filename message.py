@@ -87,6 +87,7 @@ txt_start = """
 /convert - Mengonversi file dari format TXT ke VCF.
 /pecahvcf - Membagi satu file VCF menjadi beberapa file.
 /pecahtxt - Membagi satu file TXT menjadi beberapa file.
-/convertxlsx - Mengonversi file dari format XLSX ke TXT
-/convertvcf - Mengonversi file dari format XLSX ke VCF
+/convertxlsx - Mengonversi file dari format XLSX ke TXT.
+/convertvcf - Mengonversi file dari format XLSX ke VCF.
+/convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
 """
