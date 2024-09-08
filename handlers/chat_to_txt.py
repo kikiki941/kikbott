@@ -3,7 +3,8 @@ import logging
 from telebot.types import Message
 
 from bot import bot
-from message import txt_chat_to_vcf
+from message import txt_chat_to_txt
+from helpers import save_txt
 from state import ChatToTxtState
 
 # Pastikan direktori untuk menyimpan file ada
