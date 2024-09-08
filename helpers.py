@@ -177,21 +177,10 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def create_vcf(contact_name: str, phone_numbers: list) -> str:
-    vcf = ''
-    for idx, phone_number in enumerate(phone_numbers):
-        vcf += f"BEGIN:VCARD\n"
-        vcf += f"VERSION:3.0\n"
-        vcf += f"N:Nama_{idx+1};;;\n"
-        vcf += f"FN:Nama_{idx+1}\n"
-        vcf += f"TEL;TYPE=CELL:+{phone_number}\n"
-        vcf += f"END:VCARD\n"
-    return vcf
-
-def save_vcf(content: str, filename: str) -> str:
-    file_path = f"files/{filename}.vcf"
-    with open(file_path, 'w') as vcf_file:
-        vcf_file.write(content)
+def save_txt(content: str, filename: str) -> str:
+    file_path = f"files/{filename}"
+    with open(file_path, 'w') as txt_file:
+        txt_file.write(content)
     return file_path
 
 def split(arr, num):
