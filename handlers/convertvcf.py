@@ -94,7 +94,7 @@ async def name_get(message: Message):
           i+=1
         except ApiTelegramException as e:
           if "Too Many Requests" == e.description:
-            delay = int(findall('\d+', e.description)[0])
+            delay = int(findall(r'\d+', e.description)[0])
             await sleep(delay)
           else:
             continue
