@@ -50,6 +50,13 @@ async def vcf_to_txt_name_get(message: Message):
         await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
+            
+            # Verifikasi apakah file ada sebelum konversi
+            if not os.path.exists(data['filename']):
+                await bot.send_message(message.chat.id, "File tidak ditemukan.")
+                logging.error(f"File {data['filename']} tidak ditemukan.")
+                return
+
             txt_file = convert_vcf_to_txt(data)
             
             if txt_file and os.path.exists(txt_file):
@@ -79,5 +86,4 @@ async def vcf_to_txt_name_get(message: Message):
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True) 
-        
+        logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
