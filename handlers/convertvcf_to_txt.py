@@ -10,9 +10,6 @@ from message import txt_convert_vcf_to_txt
 from helpers import *
 from state import ConvertVcfToTxtState
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 @bot.message_handler(commands='convertvcf_to_txt')
 async def convert_vcf_to_txt_command(message):
     try:
