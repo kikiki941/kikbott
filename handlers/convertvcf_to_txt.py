@@ -5,9 +5,9 @@ from asyncio import sleep
 from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
-from bot import bot
+from bot import *
 from message import txt_convert_vcf_to_txt
-from helpers import convert_vcf_to_txt
+from helpers import *
 from state import ConvertVcfToTxtState
 
 # Configure logging
