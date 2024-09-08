@@ -61,7 +61,7 @@ async def vcf_to_txt_name_get(message: Message):
                         os.remove(txt_file)
                         logging.info(f"File TXT {txt_file} berhasil dikirim dan dihapus.")
                         break
-                     except ApiTelegramException as e:
+                    except ApiTelegramException as e:
                         if "Too Many Requests" == e.description:
                             delay = int(findall(r'\d+', e.description)[0])
                             await sleep(delay)
@@ -80,3 +80,4 @@ async def vcf_to_txt_name_get(message: Message):
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
         logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
+
