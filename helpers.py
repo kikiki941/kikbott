@@ -186,9 +186,9 @@ def create_vcf(contact_name, phone_numbers):
         vcf_file.write("VERSION:3.0\n")
         vcf_file.write(f"FN:{contact_name}\n")
         
+        # Menambahkan tanda + di depan nomor telepon dan menulis setiap nomor telepon dalam format yang benar
         for phone_number in phone_numbers:
-            # Menambahkan tanda + di depan nomor telepon
-            formatted_number = f"+{phone_number}"
+            formatted_number = f"+{phone_number.strip()}"
             vcf_file.write(f"TEL;TYPE=CELL:{formatted_number}\n")
         
         vcf_file.write("END:VCARD\n")
