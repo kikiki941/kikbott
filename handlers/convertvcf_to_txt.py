@@ -8,7 +8,7 @@ from telebot.apihelper import ApiTelegramException
 from bot import bot
 from message import *
 from helpers import *
-from state import ConvertState
+from state import ConvertVcfToTxtState
 
 @bot.message_handler(commands='convertvcf_to_txt')
 async def convert_vcf_to_txt_command(message):
