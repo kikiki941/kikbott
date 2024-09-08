@@ -93,6 +93,16 @@ txt_gabung_vcf =  """
 
 Selamat menggunakan ~!
 """
+txt_chat_to_vcf = """
+<b>Tutorial Chat to vcf</b>
+    "Anda dapat mengonversi kontak ke dalam format VCF dengan langkah berikut:\n\n"
+    "1. Kirim nama kontak yang ingin Anda konversi.\n"
+    "2. Kirim nomor telepon kontak tersebut.\n"
+    "3. Bot akan membuat file VCF dan mengirimkannya kepada Anda."
+    
+Selamat menggunakan -!
+"""
+
 txt_start = """
 <b>Selamat datang di Bot Convert VCF! 🎉</b>
 
