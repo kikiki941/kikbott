@@ -136,31 +136,26 @@ def pecah_vcf(data):
     return files
 
 def convert_vcf_to_txt(data):
-    contacts = []
-    
     with open(data['filename'], 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
-    contact = []
+    contacts = []
+    current_contact = []
     for line in lines:
-        line = line.strip()
-        if not line:
+        if not line.strip():
             continue
-        if line == 'END:VCARD':
-            contacts.append(contact)
-            contact = []
-        else:
-            contact.append(line)
+        current_contact.append(line)
+        if line.strip() == 'END:VCARD':
+            contacts.append(current_contact)
+            current_contact = []
 
-    file_name = f"files/{data['name']}.txt"
-    with open(file_name, 'w', encoding='utf-8') as file:
+    txt_name = f"files/{data['name']}.txt"
+    with open(txt_name, 'w', encoding='utf-8') as txt_file:
         for contact in contacts:
-            for line in contact:
-                if line.startswith('TEL;TYPE=CELL:'):
-                    number = line.split(':')[1].replace('+', '')
-                    file.write(number + '\n')
-    
-    return file_name
+            txt_file.write("\n".join([line.strip() for line in contact]) + "\n\n")
+
+    return txt_name
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
