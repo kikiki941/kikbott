@@ -61,7 +61,7 @@ async def vcf_to_txt_name_get(message: Message):
                         os.remove(txt_file)
                         logging.info(f"File TXT {txt_file} berhasil dikirim dan dihapus.")
                         break
-                    except ApiTelegramException as e:
+                     except ApiTelegramException as e:
                         if "Too Many Requests" == e.description:
                             delay = int(findall(r'\d+', e.description)[0])
                             await sleep(delay)
