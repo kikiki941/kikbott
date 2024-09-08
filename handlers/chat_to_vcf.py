@@ -5,15 +5,15 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_chat_to_vcf
-from helpers import create_vcf, clean_phone_number
+from helpers import create_vcf
 
 from state import ChatToVcfState
 
-# Ensure the 'files' directory exists
+# Pastikan direktori 'files' ada
 if not os.path.exists('files'):
     os.makedirs('files')
 
-# Start command for creating a VCF
+# Perintah untuk memulai pembuatan VCF
 @bot.message_handler(commands='chattovcf')
 async def chat_to_vcf_command(message: Message):
     try:
@@ -23,7 +23,7 @@ async def chat_to_vcf_command(message: Message):
     except Exception as e:
         logging.error("Error in chat_to_vcf_command: ", exc_info=True)
 
-# Handle the contact name input
+# Menangani input nama kontak
 @bot.message_handler(state=ChatToVcfState.waiting_for_contact_name)
 async def handle_contact_name(message: Message):
     try:
@@ -37,7 +37,7 @@ async def handle_contact_name(message: Message):
     except Exception as e:
         logging.error("Error in handle_contact_name: ", exc_info=True)
 
-# Handle phone numbers input
+# Menangani input nomor telepon
 @bot.message_handler(state=ChatToVcfState.waiting_for_phone_number)
 async def handle_phone_number(message: Message):
     try:
@@ -52,13 +52,13 @@ async def handle_phone_number(message: Message):
                 await bot.send_message(message.chat.id, "Anda belum memasukkan nomor telepon apa pun. Silakan tambahkan nomor.")
                 return
             
-            # Create VCF file with multiple numbers
+            # Membuat file VCF dengan beberapa nomor
             vcf_filename = f"{contact_name}.vcf"
             file_path = create_vcf(contact_name, phone_numbers)
             
             await bot.send_message(message.chat.id, f'File VCF berhasil dibuat dengan nama: {vcf_filename}')
             
-            # Send the VCF file
+            # Mengirim file VCF
             try:
                 with open(file_path, 'rb') as doc:
                     await bot.send_document(message.chat.id, doc)
@@ -69,11 +69,10 @@ async def handle_phone_number(message: Message):
             os.remove(file_path)
             await bot.delete_state(message.from_user.id, message.chat.id)
         else:
-            # Clean the phone number and add to the list
-            clean_phone = clean_phone_number(phone_number)
+            # Menambahkan nomor telepon apa adanya tanpa pembersihan
             async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                data['phone_numbers'].append(clean_phone)
+                data['phone_numbers'].append(phone_number)
             
-            await bot.send_message(message.chat.id, f'Nomor {clean_phone} ditambahkan. Tambahkan lagi, atau ketik /done jika sudah selesai.')
+            await bot.send_message(message.chat.id, f'Nomor {phone_number} ditambahkan. Tambahkan lagi, atau ketik /done jika sudah selesai.')
     except Exception as e:
         logging.error("Error in handle_phone_number: ", exc_info=True)
