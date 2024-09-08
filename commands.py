@@ -10,6 +10,7 @@ async def set_commands():
       BotCommand('pecahtxt', 'Membagi satu file TXT menjadi beberapa file'),
       BotCommand('convertxlsx', 'Mengonversi file dari format XLSX ke TXT'),
       BotCommand('convertvcf', 'Mengonversi file dari format XLSX ke VCF'),
+      BotCommand('convertvcftotxt', 'mengonversi file dari format vcf ke txt'),
       BotCommand('cancel', 'Membatalkan proses'),
     ],
   )
