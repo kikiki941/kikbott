@@ -177,29 +177,41 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def clean_string(s: str) -> str:
-    """
-    Menghapus spasi berlebih dan karakter yang tidak diinginkan dari string.
-    """
-    return re.sub(r'[^\w\s]', '', s).strip()
+# Fungsi untuk membersihkan string (misalnya nama kontak atau nama file)
+def clean_string(input_string: str) -> str:
+    # Hapus karakter yang tidak diinginkan dari string (selain huruf, angka, dan spasi)
+    return re.sub(r'[^A-Za-z0-9 ]+', '', input_string).strip()
 
+# Fungsi untuk membersihkan nomor telepon dari karakter non-angka
 def clean_phone_number(phone_number: str) -> str:
-    """
-    Menghapus karakter non-digit dari nomor telepon.
-    """
-    return re.sub(r'\D', '', phone_number)
+    # Hanya menyimpan angka, menghapus karakter lain
+    cleaned_number = re.sub(r'[^0-9]+', '', phone_number)
+    
+    # Tambahkan format internasional (misal +62 untuk Indonesia) jika perlu
+    if cleaned_number.startswith('0'):
+        cleaned_number = '+62' + cleaned_number[1:]
+    
+    return cleaned_number
 
-def create_vcf(name: str, phone_number: str) -> str:
-    """
-    Membuat format VCF dari nama dan nomor telepon.
-    """
-    return f"""
+# Fungsi untuk membuat file VCF
+def create_vcf(contact_name: str, phone_number: str, file_name: str) -> str:
+    # Tentukan path file
+    file_path = os.path.join('files', f"{file_name}.vcf")
+    
+    # Format isi file VCF
+    vcf_content = f"""
 BEGIN:VCARD
 VERSION:3.0
-FN:{name}
-TEL:{phone_number}
+FN:{contact_name}
+TEL;TYPE=CELL:{phone_number}
 END:VCARD
-    """.strip()
+"""
+    
+    # Tulis isi VCF ke file
+    with open(file_path, 'w') as vcf_file:
+        vcf_file.write(vcf_content)
+    
+    return file_path
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
