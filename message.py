@@ -95,11 +95,12 @@ Selamat menggunakan ~!
 """
 txt_chat_to_vcf = """
 <b>Tutorial Chat to vcf</b>
-    "Anda dapat mengonversi kontak ke dalam format VCF dengan langkah berikut:\n\n"
-    "1. Kirim nama kontak yang ingin Anda konversi.\n"
-    "2. Kirim nomor telepon kontak tersebut.\n"
-    "3. Bot akan membuat file VCF dan mengirimkannya kepada Anda."
+    Anda dapat mengonversi kontak ke dalam format VCF dengan langkah berikut:
     
+    1. Kirim nama kontak yang ingin Anda konversi.
+    2. Kirim nomor telepon kontak tersebut.
+    3. Bot akan membuat file VCF dan mengirimkannya kepada Anda."
+    /chattotxt
 Selamat menggunakan -!
 """
 
@@ -114,5 +115,5 @@ txt_start = """
 /convertvcf - Mengonversi file dari format XLSX ke VCF.
 /convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
 /gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
-/chat_to_vcf -mengonversi chat ke vcf.
+/chattotxt -mengonversi chat ke txt.
 """
