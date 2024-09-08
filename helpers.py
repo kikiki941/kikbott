@@ -73,19 +73,15 @@ def convert_xlsx_to_txt(data):
 def check_number(path):
     numbers = []
 
-    try:
-        with open(path, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
+    with open(path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
 
-        for line in lines:
-            line = line.strip().replace('+', '')
-            if line.isdigit():
-                numbers.append(line)
-    except Exception as e:
-        logging.error(f"Kesalahan saat membaca file: {e}")
-    
+    for line in lines:
+        line = line.strip().replace('+', '')
+        if line.isdigit():
+            numbers.append(line)
+
     return numbers
-
 
 def pecah_vcf(data):
     with open(data['filename'], 'r', encoding='utf-8') as file:
