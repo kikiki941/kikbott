@@ -74,35 +74,23 @@ def check_number(path):
     numbers = []
     logging.info(f"Membaca file VCF: {path}")
     
-    with open(path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+        
+        logging.info(f"Total baris yang dibaca dari file VCF: {len(lines)}")
 
-    for line in lines:
-        line = line.strip().replace('+', '')
-        if line.isdigit():
-            numbers.append(line)
+        for line in lines:
+            logging.info(f"Membaca baris: {line.strip()}")
+            line = line.strip().replace('+', '')  # Menghapus simbol +
+            if line.isdigit():  # Cek jika baris adalah angka (nomor telepon)
+                numbers.append(line)
 
-    logging.info(f"Nomor telepon yang ditemukan: {numbers}")
-    return numbers
-    
-def pecah_txt(data):
-    numbers = check_number(data['filename'])
-    split_number = split(numbers, data['totalc'])
-    countf = 0
-    files = []
-
-    for numbers in split_number:
-        countf += 1
-        txt_name = f"files/{data['name']}_{countf}.txt"
-        files.append(txt_name)
-
-        with open(txt_name, 'w', encoding='utf-8') as file:
-            file.write("\n".join(numbers) + "\n")
-
-        if countf == data['totalf']:
-            break
-    
-    return files
+        logging.info(f"Nomor telepon yang ditemukan: {numbers}")
+        return numbers
+    except Exception as e:
+        logging.error(f"Kesalahan saat membaca file VCF: {e}")
+        return []
 
 def pecah_vcf(data):
     with open(data['filename'], 'r', encoding='utf-8') as file:
