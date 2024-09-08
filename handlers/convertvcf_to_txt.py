@@ -3,7 +3,7 @@ import os
 from re import findall
 from asyncio import sleep
 from telebot.types import Message
-from telebot.apihelper import ApiTelegramException, Throttled
+from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_convert_vcf_to_txt
@@ -65,12 +65,12 @@ async def handle_txt_name(message: Message):
                         await bot.send_document(message.chat.id, doc)
                     os.remove(file)
                     break
-                except Throttled as e:
+                except ApiTelegramException as e:
                     if "Too Many Requests" in str(e):
                         delay = int(findall(r'\d+', str(e))[0])
                         await sleep(delay)
                     else:
-                        logging.error("Throttling issue: ", exc_info=True)
+                        logging.error("API exception: ", exc_info=True)
                         continue
                 except Exception as e:
                     logging.error("Error sending document: ", exc_info=True)
