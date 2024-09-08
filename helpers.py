@@ -193,25 +193,27 @@ def clean_phone_number(phone_number: str) -> str:
     
     return cleaned_number
 
-# Fungsi untuk membuat file VCF
-def create_vcf(contact_name: str, phone_number: str, file_name: str) -> str:
+# Fungsi untuk membuat file VCF dengan beberapa nomor telepon
+def create_vcf(contact_name: str, phone_numbers: list, file_name: str) -> str:
     # Tentukan path file
     file_path = os.path.join('files', f"{file_name}.vcf")
     
-    # Format isi file VCF
-    vcf_content = f"""
-BEGIN:VCARD
-VERSION:3.0
-FN:{contact_name}
-TEL;TYPE=CELL:{phone_number}
-END:VCARD
-"""
+    # Buat konten VCF
+    vcf_content = "BEGIN:VCARD\nVERSION:3.0\n"
+    vcf_content += f"FN:{contact_name}\n"
     
-    # Tulis isi VCF ke file
+    # Tambahkan setiap nomor telepon ke VCF
+    for phone_number in phone_numbers:
+        vcf_content += f"TEL;TYPE=CELL:{phone_number}\n"
+    
+    vcf_content += "END:VCARD\n"
+    
+    # Tulis konten VCF ke file
     with open(file_path, 'w') as vcf_file:
         vcf_file.write(vcf_content)
     
     return file_path
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
