@@ -139,16 +139,17 @@ def convert_vcf_to_txt(data):
         with open(txt_file, 'w', encoding='utf-8') as txt_file_content:
             for line in lines:
                 if 'FN:' in line and 'TEL:' in line:
-                    
-                    tel = line.split('TEL:')[1].split('\n')[0].strip()
-                    tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
-
-                    txt_file_content.write(f"{tel}\n")
+                    tel = re.search(r'TEL:(\+?\d+)', line)
+                    if tel:
+                        tel = tel.group(1).strip()
+                        tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
+                        txt_file_content.write(f"{tel}\n")
 
         return txt_file
     except Exception as e:
         logging.error("Error converting VCF to TXT: ", exc_info=True)
         raise
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
