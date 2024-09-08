@@ -35,5 +35,5 @@ class ConvertVcfToTxtState(StatesGroup):
     name = State()
 
 class GabungVcfState(StatesGroup):
-    filename = State()  
+    waiting_for_files = State()  
     name = State()
