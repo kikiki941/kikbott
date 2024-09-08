@@ -68,6 +68,18 @@ txt_pecah_vcf = """
 Selamat menggunakan ~!
 """
 
+txt_convert_vcf_to_txt = """
+<b>Tutorial Convert VCF to TXT</b>
+
+1. Kirim file .vcf yang berisi daftar nomor telepon
+2. Bot akan menanyakan detail file satu per satu
+  - Nama File
+3. Setelah itu bot akan mengonversi file .vcf menjadi file .txt sesuai pengaturan sebelumnya dan dikirimkan kepada Anda.
+4. Untuk memulai konversi kembali kirim perintah /convertvcf_to_txt
+
+Selamat menggunakan ~!
+"""
+
 txt_start = """
 <b>Selamat datang di Bot Convert VCF! 🎉</b>
 
