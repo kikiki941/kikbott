@@ -93,7 +93,7 @@ txt_gabung_vcf =  """
 
 Selamat menggunakan ~!
 """
-txt_chat_to_vcf = """
+txt_chat_to_txt = """
 <b>Tutorial Chat to vcf</b>
     Anda dapat mengonversi kontak ke dalam format VCF dengan langkah berikut:
     
