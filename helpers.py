@@ -178,20 +178,28 @@ def gabung_vcf(input_files, output_file):
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
 def create_vcf(contact_name, phone_numbers):
-    filename = f"{contact_name}.vcf"
-    file_path = os.path.join('files', filename)
+    """
+    Creates a VCF file for the given contact name and list of phone numbers.
+
+    Args:
+    contact_name (str): The name of the contact.
+    phone_numbers (list): List of phone numbers associated with the contact.
+
+    Returns:
+    str: The path to the created VCF file.
+    """
+    # Define the VCF file path
+    file_path = os.path.join('files', f"{contact_name}.vcf")
     
+    # Create and write the VCF content
     with open(file_path, 'w') as vcf_file:
-        vcf_file.write("BEGIN:VCARD\n")
-        vcf_file.write("VERSION:3.0\n")
-        vcf_file.write(f"FN:{contact_name}\n")
-        
-        # Menambahkan tanda + di depan nomor telepon dan menulis setiap nomor telepon dalam format yang benar
         for phone_number in phone_numbers:
-            formatted_number = f"+{phone_number.strip()}"
-            vcf_file.write(f"TEL;TYPE=CELL:{formatted_number}\n")
-        
-        vcf_file.write("END:VCARD\n")
+            vcf_file.write(f"BEGIN:VCARD\n")
+            vcf_file.write(f"VERSION:3.0\n")
+            vcf_file.write(f"N:{contact_name};;;\n")
+            vcf_file.write(f"FN:{contact_name}\n")
+            vcf_file.write(f"TEL;TYPE=CELL:{phone_number}\n")
+            vcf_file.write(f"END:VCARD\n")
     
     return file_path
 
