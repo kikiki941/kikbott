@@ -12,6 +12,7 @@ async def set_commands():
       BotCommand('convertvcf', 'Mengonversi file dari format XLSX ke VCF'),
       BotCommand('convertvcf_to_txt', 'mengonversi file dari format vcf ke txt'),
       BotCommand('gabungvcf', 'Menggabungkan beberapa file vcf menjadi 1'),
+      BotCommand('chat_to_vcf', 'Mengonversi chat ke vcf '),
       BotCommand('cancel', 'Membatalkan proses'),
     ],
   )
