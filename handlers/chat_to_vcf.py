@@ -13,7 +13,6 @@ from state import ChatToVcfState
 if not os.path.exists('files'):
     os.makedirs('files')
 
-# Perintah untuk memulai pembuatan VCF
 @bot.message_handler(commands='chattovcf')
 async def chat_to_vcf_command(message: Message):
     try:
@@ -23,7 +22,6 @@ async def chat_to_vcf_command(message: Message):
     except Exception as e:
         logging.error("Error in chat_to_vcf_command: ", exc_info=True)
 
-# Menangani input nama kontak
 @bot.message_handler(state=ChatToVcfState.waiting_for_contact_name)
 async def handle_contact_name(message: Message):
     try:
@@ -31,18 +29,19 @@ async def handle_contact_name(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             if 'contacts' not in data:
                 data['contacts'] = {}
-            if 'current_contact' not in data:
-                data['current_contact'] = contact_name
+            if 'contact_count' not in data:
+                data['contact_count'] = 1
             
-            if data['current_contact'] not in data['contacts']:
-                data['contacts'][data['current_contact']] = []
+            # Generate a unique name for the contact
+            unique_name = f"Nama {data['contact_count']}"
+            data['contacts'][unique_name] = []
+            data['contact_count'] += 1
         
         await bot.send_message(message.chat.id, 'Silakan masukkan nomor telepon kontak. Jika ingin menambah lagi, masukkan nomor lain, atau ketik /done jika sudah selesai:')
         await bot.set_state(message.from_user.id, ChatToVcfState.waiting_for_phone_number, message.chat.id)
     except Exception as e:
         logging.error("Error in handle_contact_name: ", exc_info=True)
 
-# Menangani input nomor telepon
 @bot.message_handler(state=ChatToVcfState.waiting_for_phone_number)
 async def handle_phone_number(message: Message):
     try:
@@ -78,9 +77,10 @@ async def handle_phone_number(message: Message):
             # Memproses nomor telepon yang mungkin dipisahkan oleh baris baru
             phone_numbers = [num.strip() for num in text.split('\n') if num.strip()]
             async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                current_contact = data.get('current_contact')
-                if current_contact:
-                    data['contacts'].setdefault(current_contact, []).extend(phone_numbers)
+                if 'contacts' in data and 'current_contact' in data:
+                    current_contact = data['current_contact']
+                    if current_contact:
+                        data['contacts'][current_contact].extend(phone_numbers)
             
             await bot.send_message(message.chat.id, f'Nomor(s) ditambahkan untuk {current_contact}. Tambahkan lagi, atau ketik /done jika sudah selesai.')
     except Exception as e:
