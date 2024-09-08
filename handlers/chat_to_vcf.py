@@ -42,46 +42,33 @@ async def handle_contact_name(message: Message):
     except Exception as e:
         logging.error("Error in handle_contact_name: ", exc_info=True)
 
-@bot.message_handler(state=ChatToVcfState.waiting_for_phone_number)
-async def handle_phone_number(message: Message):
+@bot.message_handler(commands=['done'])
+async def handle_done(message: Message):
     try:
-        text = message.text.strip()
-        
-        if text == "/done":
-            async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                if 'contacts' not in data or not data['contacts']:
-                    await bot.send_message(message.chat.id, "Anda belum memasukkan kontak atau nomor telepon.")
-                    return
-                
-                # Membuat file VCF untuk setiap kontak
-                for contact_name, phone_numbers in data['contacts'].items():
-                    vcf_filename = f"{contact_name}.vcf"
-                    file_path = create_vcf(contact_name, phone_numbers)
-                    
-                    await bot.send_message(message.chat.id, f'File VCF berhasil dibuat dengan nama: {vcf_filename}')
-                    
-                    # Mengirim file VCF
-                    try:
-                        with open(file_path, 'rb') as doc:
-                            await bot.send_document(message.chat.id, doc)
-                    except ApiTelegramException as e:
-                        logging.error("API exception: ", exc_info=True)
-                        await bot.send_message(message.chat.id, "Terjadi kesalahan saat mengirim file.")
-                    
-                    os.remove(file_path)
-                
-                # Menghapus data kontak dan mengatur ulang state
-                await bot.delete_state(message.from_user.id, message.chat.id)
-                await bot.send_message(message.chat.id, "Semua kontak telah diproses.")
-        else:
-            # Memproses nomor telepon yang mungkin dipisahkan oleh baris baru
-            phone_numbers = [num.strip() for num in text.split('\n') if num.strip()]
-            async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                if 'contacts' in data and 'current_contact' in data:
-                    current_contact = data['current_contact']
-                    if current_contact:
-                        data['contacts'][current_contact].extend(phone_numbers)
-            
-            await bot.send_message(message.chat.id, f'Nomor(s) ditambahkan untuk {current_contact}. Tambahkan lagi, atau ketik /done jika sudah selesai.')
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            contact_name = data.get('contact_name')
+            phone_numbers = data.get('phone_numbers', [])
+
+            if not contact_name or not phone_numbers:
+                return await bot.send_message(message.chat.id, "Kontak atau nomor telepon tidak ditemukan.")
+
+            vcf_content = ''
+            # Loop through phone numbers to create multiple contacts
+            for idx, phone_number in enumerate(phone_numbers):
+                vcf_content += create_vcf(f"Nama {idx + 1}", phone_number)
+
+            # Save VCF file
+            vcf_filename = f"{contact_name}_multiple_contacts"
+            file_path = save_vcf(vcf_content, vcf_filename)
+
+            await bot.send_message(message.chat.id, f'File VCF berhasil dibuat dengan nama: {vcf_filename}.vcf')
+
+            # Send VCF file to user
+            with open(file_path, 'rb') as doc:
+                await bot.send_document(message.chat.id, doc)
+
+            os.remove(file_path)
+            await bot.delete_state(message.from_user.id, message.chat.id)
+
     except Exception as e:
-        logging.error("Error in handle_phone_number: ", exc_info=True)
+        logging.error("Error in handle_done: ", exc_info=True)
