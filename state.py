@@ -37,3 +37,7 @@ class ConvertVcfToTxtState(StatesGroup):
 class GabungVcfState(StatesGroup):
     waiting_for_files = State()  
     name = State()
+
+class ChatToVcfState(StatesGroup):
+    waiting_for_name = State()
+    waiting_for_filename = State()
