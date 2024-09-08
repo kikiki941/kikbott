@@ -177,10 +177,6 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-def clean_string(text):
-    # Clean the text to be used as a file name or safe string
-    return ''.join(e for e in text if e.isalnum() or e in (' ', '_')).strip()
-    
 def create_vcf(contact_name, phone_numbers):
     filename = f"{contact_name}.vcf"
     file_path = os.path.join('files', filename)
@@ -191,15 +187,13 @@ def create_vcf(contact_name, phone_numbers):
         vcf_file.write(f"FN:{contact_name}\n")
         
         for phone_number in phone_numbers:
-            vcf_file.write(f"TEL;TYPE=CELL:{phone_number}\n")
+            # Menambahkan tanda + di depan nomor telepon
+            formatted_number = f"+{phone_number}"
+            vcf_file.write(f"TEL;TYPE=CELL:{formatted_number}\n")
         
         vcf_file.write("END:VCARD\n")
     
     return file_path
-
-def clean_phone_number(phone_number):
-    return ''.join(filter(str.isdigit, phone_number))
-
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
