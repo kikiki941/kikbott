@@ -1,4 +1,5 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
+from aiogram.dispatcher.filters.state
 
 class ConvertState(StatesGroup):
     filename = State()
@@ -32,4 +33,8 @@ class PecahVcfState(StatesGroup):
 
 class ConvertVcfToTxtState(StatesGroup):
     filename = State()
+    name = State()
+
+class GabungVcfState(StatesGroup):
+    waiting_for_files = State()  
     name = State()
