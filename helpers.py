@@ -121,8 +121,6 @@ def pecah_vcf(data):
 
     return files
 
-import vcf
-
 def convert_vcf_to_txt(data):
     vcf_file = data['filename']
     txt_file = f"files/{data['name']}.txt"
