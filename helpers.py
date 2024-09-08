@@ -89,6 +89,26 @@ def check_number(path):
     except Exception as e:
         logging.error(f"Kesalahan saat memeriksa nomor: {e}")
         return []
+        
+def pecah_txt(data):
+  numbers = check_number(data['filename'])
+  split_number = split(numbers, data['totaln'])
+  countf = 0
+  files = []
+
+  for numbers in split_number:
+    countf+=1
+    txt_name = f"files/{data['name']}_{countf}.txt"
+    files.append(txt_name)
+
+    with open(txt_name, 'w', encoding='utf-8') as file:
+      for number in numbers:
+        file.write(number + "\n")
+
+    if countf == data['totalf']:
+      break
+  
+  return files
 
 def pecah_vcf(data):
     with open(data['filename'], 'r', encoding='utf-8') as file:
