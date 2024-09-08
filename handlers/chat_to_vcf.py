@@ -41,7 +41,10 @@ async def handle_phone_number(message: Message):
     try:
         phone_number = clean_phone_number(message.text)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['phone_numbers'].append(phone_number)  # Tambah nomor ke list
+            # Tambahkan nomor telepon ke daftar
+            phone_numbers = data.get('phone_numbers', [])
+            phone_numbers.append(phone_number)
+            data['phone_numbers'] = phone_numbers  # Simpan kembali
         
         await bot.send_message(message.chat.id, 'Nomor telepon ditambahkan. Masukkan nomor lain, atau ketik /done jika sudah selesai.')
     except Exception as e:
@@ -51,8 +54,7 @@ async def handle_phone_number(message: Message):
 @bot.message_handler(commands=['done'], state=ChatToVcfState.waiting_for_phone_number)
 async def handle_done(message: Message):
     try:
-        # Log ini memastikan perintah /done dipanggil
-        logging.info("Command /done received")
+        logging.info("Command /done received")  # Log untuk melacak perintah
         
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             contact_name = data.get('contact_name')
@@ -61,10 +63,10 @@ async def handle_done(message: Message):
         # Cek apakah ada nomor telepon yang ditambahkan
         if not phone_numbers:
             return await bot.send_message(message.chat.id, "Anda belum menambahkan nomor telepon.")
-
+        
         # Buat file VCF dengan semua nomor telepon
         vcf_filename = clean_string(f"{contact_name}_contacts")
-        file_path = create_vcf(contact_name, phone_numbers, vcf_filename)  # Modifikasi create_vcf
+        file_path = create_vcf(contact_name, phone_numbers, vcf_filename)  # Modifikasi create_vcf agar bisa menangani banyak nomor telepon
         
         await bot.send_message(message.chat.id, f'File VCF berhasil dibuat dengan nama: {vcf_filename}.vcf')
 
