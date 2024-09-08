@@ -56,7 +56,8 @@ async def vcf_to_txt_name_get(message: Message):
                 logging.info(f"File TXT {txt_file} berhasil dibuat.")
                 while True:
                     try:
-                        await bot.send_document(message.chat.id, open(txt_file, 'rb'))
+                        with open(txt_file, 'rb') as file:
+                            await bot.send_document(message.chat.id, file)
                         os.remove(txt_file)
                         logging.info(f"File TXT {txt_file} berhasil dikirim dan dihapus.")
                         break
