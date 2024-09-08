@@ -10,6 +10,9 @@ from message import txt_convert_vcf_to_txt
 from helpers import convert_vcf_to_txt
 from state import ConvertVcfToTxtState
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 @bot.message_handler(commands='convertvcf_to_txt')
 async def convert_vcf_to_txt_command(message):
     try:
@@ -43,7 +46,7 @@ async def vcf_file_get(message: Message):
 @bot.message_handler(state=ConvertVcfToTxtState.name)
 async def vcf_to_txt_name_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai konversi...')
+        await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
             txt_file = convert_vcf_to_txt(data)
@@ -59,10 +62,10 @@ async def vcf_to_txt_name_get(message: Message):
                             await sleep(delay)
                         else:
                             logging.error("API error: %s", e)
-                            continue
+                            break
                     except Exception as e:
                         logging.error("Error sending document: %s", e)
-                        continue
+                        break
             else:
                 await bot.send_message(message.chat.id, "Gagal mengonversi file.")
                 
