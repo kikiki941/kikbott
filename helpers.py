@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import re
+import logging
 
 def convert(data):
     numbers = check_number(data['filename'])
@@ -163,10 +164,18 @@ def convert_vcf_to_txt(data):
         raise
 
 def gabung_vcf(input_files, output_file):
+    logging.info("Memulai penggabungan VCF.")
     with open(output_file, 'wb') as outfile:
-        for filename in input_files:
+        for i, filename in enumerate(input_files):
+            logging.info(f"Membaca file: {filename}")
             with open(filename, 'rb') as infile:
-                outfile.write(infile.read())
+                content = infile.read()
+                outfile.write(content)
+                
+            if i < len(input_files) - 1:
+                outfile.write(b'\n')
+
+    logging.info(f"Penggabungan selesai. File output: {output_file}")
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
