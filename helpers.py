@@ -177,37 +177,24 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
-# Fungsi untuk membersihkan string
-def clean_string(input_string: str) -> str:
-    return re.sub(r'[^A-Za-z0-9 ]+', '', input_string).strip()
+def clean_phone_number(phone_number):
+    # Clean phone number from unwanted characters
+    return ''.join(filter(str.isdigit, phone_number))
 
-# Fungsi untuk membersihkan nomor telepon
-def clean_phone_number(phone_number: str) -> str:
-    cleaned_number = re.sub(r'[^0-9]+', '', phone_number)
-    if cleaned_number.startswith('0'):
-        cleaned_number = '+62' + cleaned_number[1:]
-    return cleaned_number
+def clean_string(text):
+    # Clean the text to be used as a file name or safe string
+    return ''.join(e for e in text if e.isalnum() or e in (' ', '_')).strip()
 
-def create_vcf(contact_name, phone_numbers, vcf_filename):
-    """
-    Membuat file VCF untuk kontak dengan nama dan beberapa nomor telepon.
-    """
-    vcf = vobject.vCard()
-
-    # Set nama kontak
-    vcf.add('fn')
-    vcf.fn.value = contact_name
-
-    # Tambahkan setiap nomor telepon ke vCard
-    for phone in phone_numbers:
-        tel = vcf.add('tel')
-        tel.value = phone
-        tel.type_param = 'CELL'  # Set sebagai nomor seluler
-
-    # Simpan file VCF
-    file_path = f'files/{vcf_filename}.vcf'
+def create_vcf(contact_name, phone_numbers, filename):
+    # Create a VCF file for the contact
+    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\n"
+    for number in phone_numbers:
+        vcf_content += f"TEL:{number}\n"
+    vcf_content += "END:VCARD\n"
+    
+    file_path = f'files/{filename}.vcf'
     with open(file_path, 'w') as vcf_file:
-        vcf_file.write(vcf.serialize())
+        vcf_file.write(vcf_content)
     
     return file_path
 
