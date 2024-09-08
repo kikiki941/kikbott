@@ -5,7 +5,7 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_chat_to_vcf
-from helpers import create_vcf
+from helpers import create_vcf, clean_string, clean_phone_number
 from state import ChatToVcfState
 
 # Ensure the 'files' directory exists
@@ -24,19 +24,19 @@ async def chat_to_vcf_command(message: Message):
 @bot.message_handler(state=ChatToVcfState.waiting_for_contact_name)
 async def handle_contact_name(message: Message):
     try:
-        contact_name = message.text
+        contact_name = clean_string(message.text)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['contact_name'] = contact_name
         
-        await bot.send_message(message.chat.id, 'Silakan masukkan nama file VCF yang akan dihasilkan:')
-        await bot.set_state(message.from_user.id, ChatToVcfState.waiting_for_filename, message.chat.id)
+        await bot.send_message(message.chat.id, 'Silakan masukkan nomor telepon kontak:')
+        await bot.set_state(message.from_user.id, ChatToVcfState.waiting_for_phone_number, message.chat.id)
     except Exception as e:
         logging.error("Error in handle_contact_name: ", exc_info=True)
 
-@bot.message_handler(state=ChatToVcfState.waiting_for_filename)
-async def handle_vcf_filename(message: Message):
+@bot.message_handler(state=ChatToVcfState.waiting_for_phone_number)
+async def handle_phone_number(message: Message):
     try:
-        vcf_filename = message.text
+        phone_number = clean_phone_number(message.text)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             contact_name = data.get('contact_name')
         
@@ -44,7 +44,8 @@ async def handle_vcf_filename(message: Message):
             return await bot.send_message(message.chat.id, "Nama kontak tidak ditemukan.")
         
         # Use the helper function to create the VCF file
-        file_path = create_vcf(contact_name, vcf_filename)
+        vcf_filename = clean_string(f"{contact_name}_{phone_number}")
+        file_path = create_vcf(contact_name, phone_number, vcf_filename)
         
         await bot.send_message(message.chat.id, f'File VCF berhasil dibuat dengan nama: {vcf_filename}.vcf')
         
@@ -59,4 +60,4 @@ async def handle_vcf_filename(message: Message):
         os.remove(file_path)
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in handle_vcf_filename: ", exc_info=True)
+        logging.error("Error in handle_phone_number: ", exc_info=True)
