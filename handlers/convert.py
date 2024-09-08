@@ -93,7 +93,7 @@ async def totalf_get(message: Message):
                     os.remove(file)
                 except ApiTelegramException as e:
                     if "Too Many Requests" in e.description:
-                        delay = int(findall(r'\d+', e.description)[0])
+                        delay = int(findall('\d+', e.description)[0])
                         await sleep(delay)
                     else:
                         logging.error("Telegram API error: ", exc_info=True)
