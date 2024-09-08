@@ -18,7 +18,7 @@ async def chat_to_txt_command(message: Message):
         logging.info(f"User {message.from_user.id} memulai perintah /chattotxt")
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ChatToTxtState.waiting_for_text_input, message.chat.id)
-        await bot.reply_to(message, "Masukkan teks yang ingin Anda simpan ke dalam file .txt:")
+        await bot.reply_to(message, "Masukkan teks yang ingin Anda simpan ke dalam file .txt. Ketik /done jika sudah selesai.")
     except Exception as e:
         logging.error("Error in chat_to_txt_command: ", exc_info=True)
 
@@ -27,21 +27,25 @@ async def chat_to_txt_command(message: Message):
 async def handle_text_input(message: Message):
     try:
         input_text = message.text
-        logging.info(f"Teks diterima dari user {message.from_user.id}: {input_text}")
         
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            # Append teks baru ke data sebelumnya jika ada
-            if 'input_text' in data:
-                data['input_text'] += f"\n{input_text}"
-            else:
-                data['input_text'] = input_text
-        
-        await bot.send_message(message.chat.id, 'Teks ditambahkan. Ketik /done jika sudah selesai menambah teks.')
+        if input_text.lower() == '/done':
+            # Handle jika user mengetik /done
+            await handle_done_txt(message)
+        else:
+            logging.info(f"Teks diterima dari user {message.from_user.id}: {input_text}")
+            
+            async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+                # Append teks baru ke data sebelumnya jika ada
+                if 'input_text' in data:
+                    data['input_text'] += f"\n{input_text}"
+                else:
+                    data['input_text'] = input_text
+            
+            await bot.send_message(message.chat.id, 'Teks ditambahkan. Ketik /done jika sudah selesai menambah teks.')
     except Exception as e:
         logging.error("Error in handle_text_input: ", exc_info=True)
 
-# Handler untuk perintah /done
-@bot.message_handler(commands=['done'], state=ChatToTxtState.waiting_for_text_input)
+# Fungsi untuk menangani jika user mengetik /done
 async def handle_done_txt(message: Message):
     try:
         logging.info(f"Command /done diterima dari user {message.from_user.id}")
@@ -74,3 +78,10 @@ async def handle_done_txt(message: Message):
     except Exception as e:
         logging.error("Error in handle_done_txt: ", exc_info=True)
         await bot.send_message(message.chat.id, "Terjadi kesalahan saat membuat file TXT.")
+
+# Fungsi untuk menyimpan teks ke file TXT
+def save_txt(text, filename):
+    file_path = os.path.join('files', filename)
+    with open(file_path, 'w') as file:
+        file.write(text)
+    return file_path
