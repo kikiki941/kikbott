@@ -177,6 +177,12 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
+def clean_string(s: str) -> str:
+    """
+    Menghapus spasi berlebih dan karakter yang tidak diinginkan dari string.
+    """
+    return re.sub(r'[^\w\s]', '', s).strip()
+
 def clean_phone_number(phone_number: str) -> str:
     """
     Menghapus karakter non-digit dari nomor telepon.
