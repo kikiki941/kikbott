@@ -177,6 +177,47 @@ def gabung_vcf(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
+def clean_phone_number(number):
+    """
+    Remove non-numeric characters from a phone number.
+    
+    Args:
+        number (str): The phone number to clean.
+    
+    Returns:
+        str: The cleaned phone number.
+    """
+    return re.sub(r'[^\d]', '', number)
+
+def create_vcf(contact_name, phone_number, filename):
+    """
+    Create a VCF file with the provided contact name and phone number.
+    
+    Args:
+        contact_name (str): The name of the contact.
+        phone_number (str): The phone number of the contact.
+        filename (str): The name of the file to save as.
+    
+    Returns:
+        str: The path to the created VCF file.
+    """
+    vcf_path = f"files/{filename}.vcf"
+    
+    # Clean contact name and phone number
+    clean_name = clean_string(contact_name)
+    clean_phone = clean_phone_number(phone_number)
+    
+    vcf_content = (f"BEGIN:VCARD\n"
+                   f"VERSION:3.0\n"
+                   f"FN:{clean_name}\n"
+                   f"TEL:{clean_phone}\n"
+                   f"END:VCARD\n")
+    
+    with open(vcf_path, 'w', encoding='utf-8') as vcf_file:
+        vcf_file.write(vcf_content)
+    
+    return vcf_path
+
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
 
