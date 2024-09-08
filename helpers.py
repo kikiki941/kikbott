@@ -162,18 +162,11 @@ def convert_vcf_to_txt(data):
         logging.error("Error converting VCF to TXT: ", exc_info=True)
         raise
 
-def gabung_vcf(vcf_files, output_name):
-    """Gabungkan beberapa file VCF menjadi satu file TXT."""
-    txt_file = f"files/{output_name}.txt"
-    
-    with open(txt_file, 'w', encoding='utf-8') as outfile:
-        for vcf_file in vcf_files:
-            with open(vcf_file, 'r', encoding='utf-8') as infile:
-                vcf_data = infile.read()
-                outfile.write(vcf_data)
-                outfile.write("\n\n")  # Add some space between entries
-    
-    return txt_file
+def gabung_vcf(input_files, output_file):
+    with open(output_file, 'wb') as outfile:
+        for filename in input_files:
+            with open(filename, 'rb') as infile:
+                outfile.write(infile.read())
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
