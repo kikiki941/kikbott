@@ -10,17 +10,18 @@ from message import txt_convert_vcf_to_txt
 from helpers import convert_vcf_to_txt
 from state import ConvertVcfToTxtState
 
+
 @bot.message_handler(commands='convertvcf_to_txt')
-async def convert_vcf_to_txt_command(message):
+async def convert_vcf_to_txt_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.filename, message.chat.id)
-        await bot.reply_to(message, txt_convert_vcf_to_txt)
+        await bot.reply_to(message, "Kirim file .vcf yang ingin dikonversi ke .txt")
     except Exception as e:
-        logging.error("Error in /convertvcf_to_txt command: ", exc_info=True)
+        logging.error("Error: ", exc_info=True)
 
 @bot.message_handler(state=ConvertVcfToTxtState.filename, content_types=['document'])
-async def vcf_file_get(message: Message):
+async def handle_vcf_file(message: Message):
     try:
         if not message.document.file_name.endswith(".vcf"):
             return await bot.send_message(message.chat.id, "Kirim file .vcf")
@@ -36,20 +37,12 @@ async def vcf_file_get(message: Message):
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
-        logging.info(f"File VCF {filename} berhasil diunduh.")
-        await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file txt yang akan dihasilkan:')
+        await bot.send_message(message.chat.id, 'File diterima. Silakan masukan nama file txt yang akan dihasilkan:')
     except Exception as e:
-        logging.error("Error in vcf_file_get handler: ", exc_info=True)
-
-@bot.message_handler(state=ConvertVcfToTxtState.filename)
-async def not_vcf(message: Message):
-    try:
-        await bot.send_message(message.chat.id, 'Kirim file .vcf')
-    except Exception as e:
-        logging.error("Error in not_vcf handler: ", exc_info=True)
+        logging.error("Error: ", exc_info=True)
 
 @bot.message_handler(state=ConvertVcfToTxtState.name)
-async def name_get(message: Message):
+async def handle_txt_name(message: Message):
     try:
         await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
@@ -59,22 +52,20 @@ async def name_get(message: Message):
 
             while True:
                 try:
-                    with open(file, 'rb') as f:
-                        await bot.send_document(message.chat.id, f)
+                    await bot.send_document(message.chat.id, open(file, 'rb'))
                     os.remove(file)
                     break
-                except ApiTelegramException as e:
-                    if "Too Many Requests" in e.description:
-                        delay = int(findall(r'\d+', e.description)[0])
+                except Throttled as e:
+                    if "Too Many Requests" in str(e):
+                        delay = int(findall(r'\d+', str(e))[0])
                         await sleep(delay)
                     else:
-                        logging.error("API error: %s", e)
-                        break
+                        continue
                 except Exception as e:
-                    logging.error("Error sending document: %s", e)
-                    break
+                    logging.error("Error sending document: ", exc_info=True)
+                    continue
 
             await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in name_get handler: ", exc_info=True)
+        logging.error("Error: ", exc_info=True)
