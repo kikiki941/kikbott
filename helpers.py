@@ -181,7 +181,6 @@ def clean_string(s: str) -> str:
     """
     Menghapus spasi berlebih dan karakter yang tidak diinginkan dari string.
     """
-    # Menghapus karakter selain huruf, angka, dan spasi
     return re.sub(r'[^\w\s]', '', s).strip()
 
 def clean_phone_number(phone_number: str) -> str:
@@ -195,7 +194,12 @@ def create_vcf(name: str, phone_number: str) -> str:
     Membuat format VCF dari nama dan nomor telepon.
     """
     return f"""
-
+BEGIN:VCARD
+VERSION:3.0
+FN:{name}
+TEL:{phone_number}
+END:VCARD
+    """.strip()
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
