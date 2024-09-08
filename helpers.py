@@ -121,17 +121,24 @@ def pecah_vcf(data):
 
     return files
 
+import vcf
+
 def convert_vcf_to_txt(data):
     vcf_file = data['filename']
     txt_file = f"files/{data['name']}.txt"
 
-    with open(vcf_file, 'r') as vcf_file:
-        vcf_data = vcf_file.read()
-    
-    with open(txt_file, 'w') as txt_file:
-        txt_file.write(vcf_data)
-    
-    return txt_file
+    try:
+        with open(vcf_file, 'r') as vcf_file_content:
+            vcf_data = vcf_file_content.read()
+        
+        with open(txt_file, 'w') as txt_file_content:
+            txt_file_content.write(vcf_data)
+        
+        logging.info(f"File VCF dikonversi menjadi {txt_file}")
+        return txt_file
+    except Exception as e:
+        logging.error("Error converting VCF to TXT: ", exc_info=True)
+        raise
     
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
