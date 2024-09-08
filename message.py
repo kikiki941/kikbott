@@ -114,4 +114,5 @@ txt_start = """
 /convertvcf - Mengonversi file dari format XLSX ke VCF.
 /convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
 /gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
+/chat_to_vcf -mengonversi chat ke vcf.
 """
