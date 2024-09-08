@@ -51,6 +51,9 @@ async def handle_phone_number(message: Message):
 @bot.message_handler(commands=['done'], state=ChatToVcfState.waiting_for_phone_number)
 async def handle_done(message: Message):
     try:
+        # Log ini memastikan perintah /done dipanggil
+        logging.info("Command /done received")
+        
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             contact_name = data.get('contact_name')
             phone_numbers = data.get('phone_numbers', [])
