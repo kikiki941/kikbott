@@ -16,7 +16,6 @@ async def convert_vcf_to_txt_command(message):
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ConvertVcfToTxtState.filename, message.chat.id)
         await bot.reply_to(message, txt_convert_vcf_to_txt)
-        logging.info("State set to ConvertVcfToTxtState.filename")
     except Exception as e:
         logging.error("Error in /convertvcf_to_txt command: ", exc_info=True)
 
@@ -38,7 +37,6 @@ async def vcf_file_get(message: Message):
             new_file.write(downloaded_file)
 
         await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file txt yang akan dihasilkan:')
-        logging.info(f"Received file {filename} and set state to ConvertVcfToTxtState.name")
     except Exception as e:
         logging.error("Error in vcf_file_get handler: ", exc_info=True)
 
@@ -50,10 +48,26 @@ async def vcf_to_txt_name_get(message: Message):
             data['name'] = message.text
             txt_file = convert_vcf_to_txt(data)
             if os.path.exists(txt_file):
-                await bot.send_document(message.chat.id, open(txt_file, 'rb'))
-                os.remove(txt_file)
+                while True:
+                    try:
+                        await bot.send_document(message.chat.id, open(txt_file, 'rb'))
+                        os.remove(txt_file)
+                        break
+                    except ApiTelegramException as e:
+                        if "Too Many Requests" == e.description:
+                            delay = int(findall(r'\d+', e.description)[0])
+                            await sleep(delay)
+                        else:
+                            logging.error("API error: %s", e)
+                            continue
+                    except Exception as e:
+                        logging.error("Error sending document: %s", e)
+                        continue
+            else:
+                await bot.send_message(message.chat.id, "Gagal mengonversi file.")
+                
             os.remove(data['filename'])
+            await bot.send_message(message.chat.id, "Convert VCF to TXT selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
-        logging.info(f"Converted VCF to TXT and sent {txt_file}")
     except Exception as e:
         logging.error("Error in vcf_to_txt_name_get handler: ", exc_info=True)
