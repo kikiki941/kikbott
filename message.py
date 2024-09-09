@@ -103,7 +103,7 @@ txt_chat_to_txt = """
     /chattotxt
 Selamat menggunakan -!
 """
-wifiwps = """
+wifiwps_wpa = """
 <b>Tutorial Jadi hengker</b>
 
 1. Masukkan interface
