@@ -80,7 +80,7 @@ txt_convert_vcf_to_txt = """
 Selamat menggunakan ~!
 """
 
-txt_gabung_vcf =  """
+vcf_gabung_vcf =  """
 <b>Tutorial Gabung VCF</b>
 
 ● Berapa yang ingin anda gabungkan pilih 1 dll
@@ -113,6 +113,20 @@ wifiwps_wpa = """
   - Masukkan Channel
 3. Ini khusus Hengker awokawoks
 /wifiwps
+
+Selamat menggunakan ~!
+"""
+
+txt_gabung_txt =  """
+<b>Tutorial Gabung VCF</b>
+
+● Berapa yang ingin anda gabungkan pilih 1 dll
+
+1. Kirim file .vcf yang berisi daftar nomor telepon
+2. Bot akan menanyakan detail file satu per satu
+  - Nama File
+3. Setelah itu bot akan di gabungkan file yang anda kirim dan akan dikirimkan kepada Anda.
+4. Untuk memulai menggabungkan kembali kirim perintah /gabungvcf
 
 Selamat menggunakan ~!
 """
