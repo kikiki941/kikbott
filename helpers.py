@@ -265,6 +265,19 @@ def gabung_txt(input_files, output_file):
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
 
+def remove_plus_and_spaces(input_file, output_file):
+    """Menghapus awalan '+' dan spasi dari file teks dan menyimpan hasilnya ke file baru."""
+    try:
+        with open(input_file, 'r', encoding='utf-8') as infile, \
+             open(output_file, 'w', encoding='utf-8') as outfile:
+            for line in infile:
+                # Hapus awalan '+' dan spasi
+                cleaned_line = line.lstrip('+').lstrip()
+                outfile.write(cleaned_line)
+        print(f"File berhasil diproses dan disimpan ke {output_file}")
+    except Exception as e:
+        print(f"Terjadi kesalahan: {e}")
+
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
 
