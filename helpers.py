@@ -251,26 +251,19 @@ def extract_password(output):
         return password_match.group(1).strip()
     return None
 
-def pecah_txt(data: Dict[str, Any]) -> list:
-  
-    numbers = check_number(data['filename'])
-    split_number = split(numbers, data['totaln'])
-    countf = 0
-    files = []
+def gabung_txt(input_files, output_file):
+    logging.info("Memulai penggabungan TXT.")
+    with open(output_file, 'w', encoding='utf-8') as outfile:
+        for i, filename in enumerate(input_files):
+            logging.info(f"Membaca file: {filename}")
+            with open(filename, 'r', encoding='utf-8') as infile:
+                content = infile.read()
+                outfile.write(content)
+                
+            if i < len(input_files) - 1:
+                outfile.write('\n')  # Tambahkan baris baru antara file jika bukan file terakhir
 
-    for numbers in split_number:
-        countf += 1
-        txt_name = f"files/{data['name']}_{countf}.txt"
-        files.append(txt_name)
-
-        with open(txt_name, 'w', encoding='utf-8') as file:
-            for number in numbers:
-                file.write(number + "\n")
-
-        if countf == data['totalf']:
-            break
-
-    return files
+    logging.info(f"Penggabungan selesai. File output: {output_file}")
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
