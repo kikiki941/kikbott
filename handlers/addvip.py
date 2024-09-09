@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from telebot.types import Message
 
-from bot import *
+from bot import bot
 from message import txt_pesan_vip
 from state import VipState
 
@@ -14,7 +14,7 @@ async def addvip_command(message: Message):
     
     await bot.delete_state(message.from_user.id, message.chat.id)
     await bot.set_state(message.from_user.id, VipState.user_id, message.chat.id)
-    await bot.reply_to(message, txt_vip)
+    await bot.reply_to(message, txt_pesan_vip)
   except Exception as e:
     logging.error("error: ", exc_info=True)
 
