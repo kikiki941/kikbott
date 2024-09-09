@@ -131,6 +131,15 @@ txt_gabung_txt =  """
 Selamat menggunakan ~!
 """
 
+txt_hapus_spasi = """
+<b>Tutorial Hapus awalan + dan spasi /b>
+
+"Silakan kirim file teks (.txt) yang ingin Anda hapus awalan '+' dan spasi."
+"Setelah file diterima, proses akan dimulai dan file hasil akan dikirim kembali kepada Anda."
+
+Selamat menggunakan ~!
+"""
+
 txt_start = """
 <b>Selamat datang di Bot Convert VCF! 🎉</b>
 
@@ -145,4 +154,5 @@ txt_start = """
 /chattotxt -mengonversi chat ke txt.
 /wifiwps - mengekploitasi jaringan wifi.
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
+/hapus - menghapus file txt yang ada + dan spasi.
 """
