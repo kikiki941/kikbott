@@ -20,6 +20,7 @@ async def gabung_txt_command(message: Message):
     
       if not access:
         return await bot.send_message(message.chat.id, txt_pesan_vip)
+          
         
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, GabungTxtState.waiting_for_files, message.chat.id)
