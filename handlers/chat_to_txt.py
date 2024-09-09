@@ -18,7 +18,7 @@ async def chat_to_txt_command(message: Message):
         logging.info(f"User {message.from_user.id} memulai perintah /chattotxt")
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, ChatToTxtState.waiting_for_text_input, message.chat.id)
-        await bot.reply_to(message, "Masukkan teks yang ingin Anda simpan ke dalam file .txt. Ketik /done jika sudah selesai.")
+        await bot.reply_to(message, txt_chat_to_txt)
     except Exception as e:
         logging.error("Error in chat_to_txt_command: ", exc_info=True)
 
