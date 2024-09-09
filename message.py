@@ -80,7 +80,7 @@ txt_convert_vcf_to_txt = """
 Selamat menggunakan ~!
 """
 
-vcf_gabung_vcf =  """
+txt_gabung_vcf =  """
 <b>Tutorial Gabung VCF</b>
 
 ● Berapa yang ingin anda gabungkan pilih 1 dll
