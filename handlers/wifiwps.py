@@ -11,7 +11,7 @@ async def wifi_wps_command(message: Message):
     try:
         logging.info(f"User {message.from_user.id} memulai perintah /wifiwps")
         await bot.set_state(message.from_user.id, WiFiWpsWpaState.waiting_for_interface, message.chat.id)
-        await bot.reply_to(message, "Masukkan interface jaringan yang ingin Anda gunakan (misalnya wlan0).")
+        await bot.reply_to(message, wifiwps_wpa)
     except Exception as e:
         logging.error("Error in wifi_wps_command: ", exc_info=True)
 
