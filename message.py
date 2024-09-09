@@ -144,4 +144,5 @@ txt_start = """
 /gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
 /chattotxt -mengonversi chat ke txt.
 /wifiwps - mengekploitasi jaringan wifi.
+/gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
 """
