@@ -52,3 +52,7 @@ class GabungTxtState(StatesGroup):
     
 class HapusSpasiState(StatesGroup):
     waiting_for_file = State()
+
+class VipState(StatesGroup):
+  user_id = State()
+  durasi = State()
