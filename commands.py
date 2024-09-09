@@ -15,7 +15,7 @@ async def set_commands():
       BotCommand('chattotxt', 'Mengonversi chat ke txt '),
       BotCommand('wifiwps', 'mengekploitasi jaringan wifi '),
       BotCommand('gabungtxt', 'Menggabungkan beberapa file txt menjadi 1'),
-      BotCommand('hapus', 'menghapus awalan + dan spasi'),
+      BotCommand('hapuss', 'menghapus awalan + dan spasi'),
       BotCommand('cancel', 'Membatalkan proses'),
     ],
   )
