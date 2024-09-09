@@ -251,7 +251,7 @@ def extract_password(output):
         return password_match.group(1).strip()
     return None
 
-def gabungtxt(input_files, output_file):
+def gabung_txt(input_files, output_file):
     logging.info("Memulai penggabungan TXT.")
     with open(output_file, 'w', encoding='utf-8') as outfile:
         for i, filename in enumerate(input_files):
