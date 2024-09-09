@@ -17,7 +17,7 @@ async def hapus_spasi_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, HapusSpasiState.waiting_for_file, message.chat.id)
-        await bot.reply_to(message, txt_hapus_spasi)
+        await bot.reply_to(message, "Masukkan file .txt. untuk di hapus karakternya.")
     except Exception as e:
         logging.error("Error in hapus_spasi_command: ", exc_info=True)
 
