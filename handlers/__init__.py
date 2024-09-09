@@ -7,3 +7,4 @@ from .convertxlsx import *
 from .convertvcf_to_txt import *
 from .gabungvcf import *
 from .chat_to_txt import *
+from .wifiwps import *
