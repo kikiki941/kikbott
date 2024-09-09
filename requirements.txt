@@ -3,5 +3,3 @@ pyTelegramBotAPI
 aiohttp
 openpyxl
 aiogram
-airmon-ng
-reaver
