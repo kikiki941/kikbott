@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from telebot.types import Message
 
 from bot import *
-from message import txt_vip
+from message import *
 from state import VipState
 
 @bot.message_handler(commands='addvip')
