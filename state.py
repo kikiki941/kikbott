@@ -40,3 +40,8 @@ class GabungVcfState(StatesGroup):
 
 class ChatToTxtState(StatesGroup):
     waiting_for_text_input = State()
+
+class WiFiWpsWpaState(StatesGroup):
+    waiting_for_interface = State()  # User input interface
+    waiting_for_bssid = State()  # User input BSSID
+    waiting_for_channel = State()  # User input channel
