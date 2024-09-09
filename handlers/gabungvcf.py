@@ -9,10 +9,7 @@ from message import vcf_gabung_vcf
 from helpers import gabung_vcf
 from state import GabungVcfState
 
-# Ensure the 'files' directory exists
-if not os.path.exists('files'):
-    os.makedirs('files')
-
+# Ensure the 'files' directory 
 @bot.message_handler(commands='gabungvcf')
 async def gabung_vcf_command(message: Message):
     try:
