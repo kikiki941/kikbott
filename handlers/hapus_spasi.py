@@ -4,7 +4,7 @@ from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
 from bot import bot
-from message import *
+from message import txt_hapus_spasi
 from helpers import *
 from state import HapusSpasiState
 
