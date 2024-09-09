@@ -5,7 +5,7 @@ from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
 from bot import bot
-from message import txt_gabung_vcf
+from message import vcf_gabung_vcf
 from helpers import gabung_vcf
 from state import GabungVcfState
 
