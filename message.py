@@ -118,15 +118,15 @@ Selamat menggunakan ~!
 """
 
 txt_gabung_txt =  """
-<b>Tutorial Gabung VCF</b>
+<b>Tutorial Gabung txt</b>
 
 ● Berapa yang ingin anda gabungkan pilih 1 dll
 
-1. Kirim file .vcf yang berisi daftar nomor telepon
+1. Kirim file .txt yang berisi daftar nomor telepon
 2. Bot akan menanyakan detail file satu per satu
   - Nama File
 3. Setelah itu bot akan di gabungkan file yang anda kirim dan akan dikirimkan kepada Anda.
-4. Untuk memulai menggabungkan kembali kirim perintah /gabungvcf
+4. Untuk memulai menggabungkan kembali kirim perintah /gabungtxt
 
 Selamat menggunakan ~!
 """
@@ -154,5 +154,5 @@ txt_start = """
 /chattotxt -mengonversi chat ke txt.
 /wifiwps - mengekploitasi jaringan wifi.
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
-/hapus - menghapus file txt yang ada + dan spasi.
+/hapuss - menghapus file txt yang ada + dan spasi.
 """
