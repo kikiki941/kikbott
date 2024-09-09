@@ -6,7 +6,7 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_gabung_txt
-from helpers import gabung_txt
+from helpers import gabung_txt, check_user
 from state import GabungTxtState
 
 # Ensure the 'files' directory exists
