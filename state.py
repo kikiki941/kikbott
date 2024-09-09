@@ -46,8 +46,6 @@ class WiFiWpsWpaState(StatesGroup):
     waiting_for_bssid = State()  # User input BSSID
     waiting_for_channel = State()  # User input channel
 
-class PecahTxtState(StatesGroup):
-    filename = State()  # State ketika bot meminta file .txt dari pengguna
-    name = State()      # State ketika bot meminta nama file output dari pengguna
-    totaln = State()    # State ketika bot meminta jumlah nomor per file dari pengguna
-    totalf = State()    
+class GabungTxtState(StatesGroup):
+    waiting_for_files = State()  # Menunggu pengguna mengunggah file
+    name = State() 
