@@ -129,4 +129,5 @@ txt_start = """
 /convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
 /gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
 /chattotxt -mengonversi chat ke txt.
+/wifiwps - mengekploitasi jaringan wifi.
 """
