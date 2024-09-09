@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from telebot.types import Message
 
-from bot import bot
+from bot import *
 from message import txt_pesan_vip
 from state import VipState
 
