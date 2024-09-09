@@ -103,6 +103,19 @@ txt_chat_to_txt = """
     /chattotxt
 Selamat menggunakan -!
 """
+wifiwps = """
+<b>Tutorial Jadi hengker</b>
+
+1. Masukkan interface
+2. Bot akan menanyakan detail satu per satu
+  - Masukan Interface
+  - Nama SSID
+  - Masukkan Channel
+3. Ini khusus Hengker awokawoks
+/wifiwps
+
+Selamat menggunakan ~!
+"""
 
 txt_start = """
 <b>Selamat datang di Bot Convert VCF! 🎉</b>
