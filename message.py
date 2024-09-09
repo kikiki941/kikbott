@@ -115,6 +115,7 @@ wifiwps_wpa = """
 /wifiwps
 
 Selamat menggunakan ~!
+
 """
 
 txt_gabung_txt =  """
@@ -155,6 +156,13 @@ txt_start = """
 /wifiwps - mengekploitasi jaringan wifi.
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
 /hapuss - menghapus file txt yang ada + dan spasi.
+"""
+
+txt_vip = """
+Tambahkan pengguna untuk dapat mengakses Bot ini dengan langkah berikut:
+
+1. Masukkan ID Pengguna
+2. Masukkan durasi penggunaan berdasarkan hari (contoh: 7 untuk 7 hari akses VIP)
 """
 txt_pesan_vip = """
 Maaf, fitur ini adalah fitur yang hanya bisa diakses oleh member VIP.
