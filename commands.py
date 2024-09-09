@@ -13,6 +13,7 @@ async def set_commands():
       BotCommand('convertvcf_to_txt', 'mengonversi file dari format vcf ke txt'),
       BotCommand('gabungvcf', 'Menggabungkan beberapa file vcf menjadi 1'),
       BotCommand('chattotxt', 'Mengonversi chat ke txt '),
+      BotCommand('wifiwps', 'mengelpoitasi jaringan wifi '),
       BotCommand('cancel', 'Membatalkan proses'),
     ],
   )
