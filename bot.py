@@ -4,6 +4,7 @@ from telebot import logger
 from telebot.asyncio_filters import *
 from telebot.async_telebot import AsyncTeleBot
 from telebot.asyncio_storage import StateMemoryStorage
+from handlers import *
 
 owner = [6203222756]
 whitelist = {}
