@@ -156,3 +156,14 @@ txt_start = """
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
 /hapuss - menghapus file txt yang ada + dan spasi.
 """
+txt_pesan_vip = """
+Maaf, fitur ini adalah fitur yang hanya bisa diakses oleh member VIP.
+Untuk membeli akses VIP: @GLOO
+1. 30 hari 800k
+2. 14 hari 400k
+3. 7  hari 200k
+4. 3  hari 125k
+5. 1  hari 45k
+
+Terkunci
+"""
