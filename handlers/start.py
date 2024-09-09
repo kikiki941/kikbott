@@ -1,5 +1,5 @@
 import logging
-from bot import bot
+from bot import *
 from message import *
 
 @bot.message_handler(commands='start')
