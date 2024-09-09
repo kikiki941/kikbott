@@ -49,3 +49,6 @@ class WiFiWpsWpaState(StatesGroup):
 class GabungTxtState(StatesGroup):
     waiting_for_files = State()  # Menunggu pengguna mengunggah file
     name = State() 
+    
+class HapusSpasiState(StatesGroup):
+    waiting_for_file = State()
