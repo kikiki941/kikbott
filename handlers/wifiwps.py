@@ -1,7 +1,7 @@
 import logging
 from telebot.types import Message
 from bot import bot
-from message import wifiwps
+from message import wifiwps_wpa
 from helpers import exploit_wifi_wps
 from state import WiFiWpsWpaState
 
