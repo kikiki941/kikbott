@@ -2,8 +2,8 @@ import logging
 from datetime import datetime, timedelta
 from telebot.types import Message
 
-from bot import *
-from message import *
+from bot import bot
+from message import txt_pesan_vip
 from state import VipState
 
 @bot.message_handler(commands='addvip')
