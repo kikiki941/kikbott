@@ -177,6 +177,7 @@ def gabung_vcf(input_files, output_file):
                 outfile.write(b'\n')
 
     logging.info(f"Penggabungan selesai. File output: {output_file}")
+    
 
 # Fungsi untuk menyimpan teks ke file TXT
 def save_txt(text, filename):
