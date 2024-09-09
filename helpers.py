@@ -3,6 +3,24 @@ import os
 import re
 import logging
 import subprocess
+from datetime import datetime
+
+from bot import *
+
+def check_user(wl, user_id):
+  if user_id == owner:
+    return True
+
+  if str(user_id) not in wl.keys():
+    return False
+  else:
+    now = datetime.now(wib)
+    exp_time = datetime.strptime(wl[str(user_id)], datetime_format).replace(tzinfo=wib)
+
+    if now > exp_time:
+      return False
+    else:
+      return True
 
 def convert(data):
     numbers = check_number(data['filename'])
