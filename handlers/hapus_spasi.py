@@ -5,7 +5,7 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import txt_hapus_spasi
-from helpers import *
+from helpers import remove_plus_and_spaces
 from state import HapusSpasiState
 
 # Pastikan direktori 'files' ada
