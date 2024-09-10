@@ -253,7 +253,7 @@ def exploit_wifi_wps(interface, bssid, channel):
 def extract_ssid(output):
     ssid_match = re.search(r"SSID\s+:\s+(.+)", output)
     if ssid_match:
-        return ssid_match.group(1).strip()
+        return ssid_match.group(1).strip)
     return None
 
 # Fungsi untuk mengekstrak PIN dari output reaver
@@ -292,6 +292,29 @@ def remove_plus_and_spaces(input_file, output_file):
             cleaned_line = line.replace('+', '').replace(' ', '')
             outfile.write(cleaned_line)
     logging.info(f"File selesai diproses: {output_file}")
+
+def gabungkan_kolom(input_file, output_file):
+    # Membaca file input
+    with open(input_file, 'r') as file:
+        lines = [line.strip().split('\t') for line in file.readlines()]  # Asumsi nilai dipisahkan oleh tab
+    
+    # Menyimpan hasil penggabungan kolom
+    combined_column = []
+    
+    # Mendapatkan jumlah kolom
+    max_columns = max(len(line) for line in lines)
+    
+    # Menggabungkan kolom
+    for i in range(max_columns):
+        for line in lines:
+            if i < len(line):
+                combined_column.append(line[i])
+    
+    # Menulis hasil ke file output
+    with open(output_file, 'w') as file:
+        for value in combined_column:
+            file.write(value + '\n')
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
