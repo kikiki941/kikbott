@@ -4,7 +4,7 @@ import re
 import logging
 import subprocess
 from datetime import datetime
-
+import csv
 from bot import *
 
 def check_user(wl, user_id):
@@ -294,27 +294,31 @@ def remove_plus_and_spaces(input_file, output_file):
     logging.info(f"File selesai diproses: {output_file}")
 
 def gabungkan_kolom(input_file, output_file):
-    # Membaca file input
-    with open(input_file, 'r') as file:
-        lines = [line.strip().split('\t') for line in file.readlines()]  # Asumsi nilai dipisahkan oleh tab
-    
-    # Menyimpan hasil penggabungan kolom
-    combined_column = []
-    
-    # Mendapatkan jumlah kolom
-    max_columns = max(len(line) for line in lines)
-    
-    # Menggabungkan kolom
-    for i in range(max_columns):
-        for line in lines:
-            if i < len(line):
-                combined_column.append(line[i])
-    
-    # Menulis hasil ke file output
-    with open(output_file, 'w') as file:
-        for value in combined_column:
-            file.write(value + '\n')
+    """
+    Fungsi untuk menggabungkan kolom secara vertikal dari file input menjadi satu kolom di output file.
+    Misalnya, kolom pertama dari atas ke bawah, lalu pindah ke kolom kedua, dan seterusnya.
+    """
+    try:
+        # Baca file input
+        with open(input_file, 'r', encoding='utf-8') as infile:
+            reader = csv.reader(infile, delimiter='\t')  # Asumsi pemisah kolom adalah tab
+            rows = list(reader)  # Membaca seluruh file ke dalam list
 
+        # Menggabungkan kolom dari atas ke bawah
+        merged_column = []
+        for col_index in range(len(rows[0])):  # Iterasi per kolom
+            for row in rows:  # Iterasi per baris di setiap kolom
+                if col_index < len(row):  # Cek apakah kolom ada pada baris saat ini
+                    merged_column.append(row[col_index])  # Ambil elemen dari kolom saat ini
+
+        # Tulis hasil penggabungan ke file output
+        with open(output_file, 'w', encoding='utf-8') as outfile:
+            for line in merged_column:
+                outfile.write(line + '\n')  # Tulis tiap nilai dari kolom yang digabungkan ke file baru
+
+    except Exception as e:
+        logging.error(f"Error during column merging process: {e}", exc_info=True)
+        raise e  # Raise exception jika ada error
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
