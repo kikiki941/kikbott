@@ -6,7 +6,7 @@ from telebot.apihelper import ApiTelegramException
 
 from bot import bot
 from message import *
-from helpers import gabungkan_kolom  # Impor fungsi untuk gabungkan kolom
+from helpers import * # Impor fungsi untuk gabungkan kolom
 from state import GabungkanKolomState
 
 # Pastikan direktori 'files' ada
