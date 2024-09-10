@@ -1,4 +1,5 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
+from enum import Enum
 
 class ConvertState(StatesGroup):
     filename = State()
