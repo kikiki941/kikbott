@@ -253,7 +253,7 @@ def exploit_wifi_wps(interface, bssid, channel):
 def extract_ssid(output):
     ssid_match = re.search(r"SSID\s+:\s+(.+)", output)
     if ssid_match:
-        return ssid_match.group(1).strip)
+        return ssid_match.group(1).strip()
     return None
 
 # Fungsi untuk mengekstrak PIN dari output reaver
