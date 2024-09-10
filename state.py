@@ -56,3 +56,7 @@ class HapusSpasiState(StatesGroup):
 class VipState(StatesGroup):
   user_id = State()
   durasi = State()
+
+class GabungkanKolomState(Enum):
+    waiting_for_files = 1
+    processing = 2
