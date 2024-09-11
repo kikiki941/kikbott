@@ -1,19 +1,16 @@
 import logging
 import os
-from asyncio import sleep
 from telebot.types import Message
-from telebot.apihelper import ApiTelegramException
 
 from bot import bot
-from message import *
-from helpers import gabungkan_kolom  # Impor fungsi untuk gabungkan kolom
+from helpers import gabungkan_kolom  # Impor fungsi gabungkan kolom yang telah diperbarui
 from state import GabungKolomState  # Import state untuk gabung kolom
 
 # Pastikan direktori 'files' ada
 if not os.path.exists('files'):
     os.makedirs('files')
 
-@bot.message_handler(commands='gabungkolom')
+@bot.message_handler(commands=['gabungkolom'])
 async def gabung_kolom_command(message: Message):
     try:
         # Setel ulang state pengguna dan setel state baru untuk menunggu file
@@ -31,7 +28,7 @@ async def handle_txt_files(message: Message):
             return await bot.send_message(message.chat.id, "Kirim file dengan format .txt")
         
         # Dapatkan file dari server Telegram
-        file = await bot.get_file(message.document.file_id)
+        file_info = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
         
         # Simpan file dalam data session pengguna
@@ -39,7 +36,7 @@ async def handle_txt_files(message: Message):
             data['filename'] = filename
         
         # Unduh file dari Telegram dan simpan di folder 'files'
-        downloaded_file = await bot.download_file(file.file_path)
+        downloaded_file = await bot.download_file(file_info.file_path)
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
@@ -62,9 +59,11 @@ async def process_file(message: Message):
         with open(output_file, 'rb') as doc:
             await bot.send_document(message.chat.id, doc)
 
-        os.remove(input_file)  # Hapus file asli
-        os.remove(output_file)  # Hapus file hasil setelah dikirim
-        await bot.send_message(message.chat.id, "Kolom-kolom telah digabungkan dari atas ke bawah.")
+        # Hapus file asli dan file hasil setelah dikirim
+        os.remove(input_file)
+        os.remove(output_file)
+
+        await bot.send_message(message.chat.id, "Kolom-kolom telah digabungkan dari atas ke kiri, lalu ke bawah.")
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
         logging.error("Error in process_file: ", exc_info=True)
