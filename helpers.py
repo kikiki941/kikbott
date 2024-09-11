@@ -295,30 +295,37 @@ def remove_plus_and_spaces(input_file, output_file):
 
 def gabungkan_kolom(input_file, output_file):
     """
-    Fungsi untuk menggabungkan kolom secara vertikal dari file input menjadi satu kolom di output file.
-    Misalnya, kolom pertama dari atas ke bawah, lalu pindah ke kolom kedua, dan seterusnya.
+    Fungsi untuk menggabungkan kolom-kolom dari atas ke kiri lalu kebawah,
+    lalu ke kolom selanjutnya dan seterusnya sampai isi file habis.
     """
     try:
-        # Baca file input
-        with open(input_file, 'r', encoding='utf-8') as infile:
-            reader = csv.reader(infile, delimiter='\t')  # Asumsi pemisah kolom adalah tab
-            rows = list(reader)  # Membaca seluruh file ke dalam list
+        with open(input_file, 'r', newline='', encoding='utf-8') as f_input:
+            reader = csv.reader(f_input, delimiter='\t')  # Anggap file menggunakan delimiter tab
+            data = list(reader)
+        
+        # Menyiapkan list untuk menampung hasil penggabungan
+        combined_col = []
+        
+        # Dapatkan jumlah baris dan kolom
+        max_rows = len(data)
+        max_cols = len(data[0]) if max_rows > 0 else 0
 
-        # Menggabungkan kolom dari atas ke bawah
-        merged_column = []
-        for col_index in range(len(rows[0])):  # Iterasi per kolom
-            for row in rows:  # Iterasi per baris di setiap kolom
-                if col_index < len(row):  # Cek apakah kolom ada pada baris saat ini
-                    merged_column.append(row[col_index])  # Ambil elemen dari kolom saat ini
+        # Proses penggabungan dari atas ke kiri, lalu kebawah dan ke kolom berikutnya
+        for row_index in range(max_rows):
+            for col_index in range(max_cols):
+                for r in range(row_index, max_rows):
+                    if col_index < len(data[r]):  # Pastikan kolom ada di baris ini
+                        combined_col.append(data[r][col_index])
 
-        # Tulis hasil penggabungan ke file output
-        with open(output_file, 'w', encoding='utf-8') as outfile:
-            for line in merged_column:
-                outfile.write(line + '\n')  # Tulis tiap nilai dari kolom yang digabungkan ke file baru
+        # Tulis hasilnya ke file output
+        with open(output_file, 'w', newline='', encoding='utf-8') as f_output:
+            writer = csv.writer(f_output, delimiter='\t')
+            for item in combined_col:
+                writer.writerow([item])  # Setiap elemen ditulis di baris baru
 
     except Exception as e:
-        logging.error(f"Error during column merging process: {e}", exc_info=True)
-        raise e  # Raise exception jika ada error
+        print(f"Error saat menggabungkan kolom: {e}")
+
 
 def split(arr, num):
     return [arr[x:x+num] for x in range(0, len(arr), num)]
