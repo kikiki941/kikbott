@@ -16,6 +16,7 @@ async def set_commands():
       BotCommand('wifiwps', 'mengekploitasi jaringan wifi '),
       BotCommand('gabungtxt', 'Menggabungkan beberapa file txt menjadi 1'),
       BotCommand('hapuss', 'menghapus awalan + dan spasi'),
+      BotCommand('1kolom', 'menggabung file txt. beberapa kolom menjadi 1 kolom'),
       BotCommand('cancel', 'Membatalkan proses'),
     ],
   )
