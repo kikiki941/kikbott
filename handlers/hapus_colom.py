@@ -1,69 +1,67 @@
-import logging
 import os
+import logging
+import asyncio
+from re import findall
 from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
 from bot import bot
-from message import *
-from helpers import gabungkan_kolom  # Impor fungsi untuk gabungkan kolom
-from state import GabungKolomState  # Import state untuk gabung kolom
+from helpers import rearrange_to_one_column
+from state import kolomState
 
 # Pastikan direktori 'files' ada
 if not os.path.exists('files'):
     os.makedirs('files')
 
-@bot.message_handler(commands='gabungkolom')
-async def gabung_kolom_command(message: Message):
+@bot.message_handler(commands='1kolom', state=None)
+async def satu_kolom_command(message: Message):
     try:
-        # Setel ulang state pengguna dan setel state baru untuk menunggu file
         await bot.delete_state(message.from_user.id, message.chat.id)
-        await bot.set_state(message.from_user.id, GabungKolomState.waiting_for_files, message.chat.id)
-        await bot.reply_to(message, "Kirim file TXT yang kolom-kolomnya ingin digabungkan.")
+        await bot.set_state(message.from_user.id, HapusSpasiState.waiting_for_file, message.chat.id)
+        await bot.reply_to(message, "Masukkan file .txt untuk diubah menjadi 1 kolom.")
     except Exception as e:
-        logging.error("Error in gabung_kolom_command: ", exc_info=True)
+        logging.error("Error in satu_kolom_command: ", exc_info=True)
 
-@bot.message_handler(state=GabungKolomState.waiting_for_files, content_types=['document'])
-async def handle_txt_files(message: Message):
+@bot.message_handler(state=HapusSpasiState.waiting_for_file, content_types=['document'])
+async def handle_text_file(message: Message):
     try:
-        # Pastikan file yang diunggah berformat .txt
         if not message.document.file_name.endswith(".txt"):
-            return await bot.send_message(message.chat.id, "Kirim file dengan format .txt")
+            return await bot.send_message(message.chat.id, "Kirim file .txt")
         
-        # Dapatkan file dari server Telegram
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
         
-        # Simpan file dalam data session pengguna
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['filename'] = filename
         
-        # Unduh file dari Telegram dan simpan di folder 'files'
         downloaded_file = await bot.download_file(file.file_path)
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
-        await bot.send_message(message.chat.id, 'File diterima. Proses penggabungan kolom sedang berlangsung.')
-        await bot.set_state(message.from_user.id, GabungKolomState.processing, message.chat.id)
-    except Exception as e:
-        logging.error("Error in handle_txt_files: ", exc_info=True)
+        # Proses file untuk mengurutkan kolom
+        output_file = filename.replace('.txt', '_sorted.txt')
+        rearrange_to_one_column(filename, output_file)
+        
+        await bot.send_message(message.chat.id, 'File diproses. Mengirim hasil...')
+        while True:
+            try:
+                with open(output_file, 'rb') as doc:
+                    await bot.send_document(message.chat.id, doc)
+                os.remove(output_file)
+                break
+            except ApiTelegramException as e:
+                if "Too Many Requests" in str(e):
+                    delay = int(findall(r'\d+', str(e))[0])
+                    await asyncio.sleep(delay)
+                else:
+                    logging.error("API exception: ", exc_info=True)
+                    continue
+            except Exception as e:
+                logging.error("Error sending document: ", exc_info=True)
+                continue
 
-@bot.message_handler(state=GabungKolomState.processing)
-async def process_file(message: Message):
-    try:
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            input_file = data['filename']
-            output_file = f"files/hasil_gabung_kolom.txt"
-            
-            # Panggil fungsi gabungkan_kolom untuk memproses file
-            gabungkan_kolom(input_file, output_file)
-
-        # Kirim file yang telah digabungkan kolomnya ke pengguna
-        with open(output_file, 'rb') as doc:
-            await bot.send_document(message.chat.id, doc)
-
-        os.remove(input_file)  # Hapus file asli
-        os.remove(output_file)  # Hapus file hasil setelah dikirim
-        await bot.send_message(message.chat.id, "Kolom-kolom telah digabungkan dari atas ke kiri, lalu kebawah.")
+        await bot.send_message(message.chat.id, "Proses selesai!")
+        os.remove(filename)
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
-        logging.error("Error in process_file: ", exc_info=True)
+        logging.error("Error in handle_text_file: ", exc_info=True)
