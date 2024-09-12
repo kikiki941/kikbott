@@ -156,4 +156,6 @@ txt_start = """
 /wifiwps - mengekploitasi jaringan wifi.
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
 /hapuss - menghapus file txt yang ada + dan spasi.
+/1kolom - menggabung file txt. beberapa kolom menjadi 1 kolom.
+seperti file xlsx yang di salin di txt yang ber kolom banyak
 """
