@@ -17,7 +17,7 @@ if not os.path.exists('files'):
 async def satu_kolom_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
-        await bot.set_state(message.from_user.id, kolomstate.waiting_for_file, message.chat.id)
+        await bot.set_state(message.from_user.id, kolomState.waiting_for_file, message.chat.id)
         await bot.reply_to(message, "Masukkan file .txt untuk diubah menjadi 1 kolom.")
     except Exception as e:
         logging.error("Error in satu_kolom_command: ", exc_info=True)
