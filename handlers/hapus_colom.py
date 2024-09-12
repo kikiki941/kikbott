@@ -22,7 +22,7 @@ async def satu_kolom_command(message: Message):
     except Exception as e:
         logging.error("Error in satu_kolom_command: ", exc_info=True)
 
-@bot.message_handler(state=HapusSpasiState.waiting_for_file, content_types=['document'])
+@bot.message_handler(state=kolomState.waiting_for_file, content_types=['document'])
 async def handle_text_file(message: Message):
     try:
         if not message.document.file_name.endswith(".txt"):
