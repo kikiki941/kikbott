@@ -7,6 +7,48 @@ from datetime import datetime
 import csv
 from bot import *
 
+import os
+
+def rearrange_to_one_column(input_file, output_file):
+    try:
+        # Baca isi file dan simpan setiap baris sebagai list yang mewakili kolom
+        with open(input_file, 'r') as file:
+            lines = [line.strip().split() for line in file.readlines()]
+        
+        # Pastikan file tidak kosong
+        if not lines:
+            print("File kosong.")
+            return
+
+        # Tentukan jumlah baris dan kolom
+        rows = len(lines)
+        columns = max(len(line) for line in lines)  # Pastikan jumlah kolom sesuai dengan kolom terbanyak
+
+        # Buat list untuk menyimpan hasil pengurutan kolom ke satu kolom
+        rearranged = []
+
+        # Urutkan data secara siklis dari atas ke kiri lalu kebawah
+        for col in range(columns):
+            for row in range(rows):
+                if col < len(lines[row]):
+                    rearranged.append(lines[row][col])
+
+        # Tulis hasil pengurutan ke file output, setiap item pada baris baru
+        with open(output_file, 'w') as file:
+            for item in rearranged:
+                file.write(item + '\n')
+        
+        print(f"File berhasil diproses dan disimpan ke {output_file}")
+    
+    except Exception as e:
+        print(f"Terjadi kesalahan: {e}")
+
+# Contoh penggunaan saat script dijalankan langsung
+if __name__ == "__main__":
+    input_filename = 'input.txt'
+    output_filename = 'output.txt'
+    rearrange_to_one_column(input_filename, output_filename)
+
 def check_user(wl, user_id):
   if user_id == owner:
     return True
