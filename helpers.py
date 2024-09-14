@@ -6,8 +6,62 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
-
 import os
+
+def convert2(data):
+    try:
+        # Baca data dari file .txt
+        with open(data['filename'], 'r') as file:
+            contacts = file.readlines()
+
+        # Hilangkan baris kosong dan whitespace
+        contacts = [contact.strip() for contact in contacts if contact.strip()]
+        
+        contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
+        total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
+
+        # Ambil parameter pergantian nama file jika diatur
+        change_every = data.get('change_every', None)
+        change_limit = data.get('change_limit', None)
+        new_names = data.get('new_names', [])
+
+        files_created = []
+        file_count = 1
+        change_count = 0
+        contact_index = 0  # Melacak indeks kontak
+
+        # Mulai membagi file
+        for file_idx in range(total_files):
+            output_file_name = f"{data['name']}_{file_count}.vcf"
+
+            # Pergantian nama file jika diatur
+            if change_every and file_count % change_every == 0 and change_count < change_limit:
+                if change_count < len(new_names):
+                    output_file_name = f"{new_names[change_count]}_{file_count}.vcf"
+                change_count += 1
+
+            with open(output_file_name, 'w') as out_file:
+                # Reset nama kontak pada setiap file dari Contact 1 hingga Contact N
+                for i in range(1, contacts_per_file + 1):
+                    contact_name = f"Contact {i}"
+                    
+                    if contact_index >= len(contacts):
+                        contact_index = 0  # Ulangi kontak jika sudah mencapai akhir list
+                    
+                    # Tuliskan kontak dalam format VCF
+                    out_file.write(
+                        f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\nTEL;TYPE=CELL:{contacts[contact_index]}\nEND:VCARD\n"
+                    )
+                    contact_index += 1  # Naikkan indeks kontak
+
+            files_created.append(output_file_name)
+            file_count += 1
+
+        return files_created
+
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+        return []
 
 def rearrange_to_one_column(input_file, output_file):
     try:
