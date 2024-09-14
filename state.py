@@ -62,13 +62,15 @@ class kolomState(StatesGroup):
     waiting_for_file = State()
 
 class Convert2State(StatesGroup):
-    filename = State()  # Menunggu pengguna mengirimkan file txt
-    name = State()      # Menunggu pengguna memasukkan nama file vcf
-    cname = State()     # Menunggu pengguna memasukkan nama kontak
-    totalc = State()    # Menunggu pengguna memasukkan jumlah kontak per file
-    totalf = State()    # Menunggu pengguna memasukkan jumlah file
-    change_name_prompt = State()  # Menunggu pengguna memilih apakah nama file akan berganti
-    change_every = State()  # Menunggu input jumlah file sebelum nama berganti
-    change_limit = State()  # Menunggu input batas pergantian nama
-    new_name_1 = State()  # Menunggu input nama file baru
-    new_name_2 = State()  # Menunggu input nama file baru berikutnya
+    filename = State()  # State to handle filename input
+    name = State()  # State to handle vcf file name input
+    cname = State()  # State to handle contact name input
+    totalc = State()  # State to handle total contacts input
+    totalf = State()  # State to handle total files input
+    change_name_prompt = State()  # State for prompt if file names should change
+    change_every = State()  # State for setting how often to change file names
+    change_limit = State()  # State for setting the limit of name changes
+    new_name_1 = State()  # State for first new file name
+    new_cname_1 = State()  # State for first new contact name
+    new_name_2 = State()  # State for second new file name
+    new_cname_2 = State()  # State for second new contact name
