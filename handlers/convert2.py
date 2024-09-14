@@ -17,7 +17,7 @@ async def convert2_command(message):
         await bot.set_state(message.from_user.id, Convert2State.filename, message.chat.id)
         await bot.reply_to(message, txt_convert2)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in convert2_command: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.filename, content_types=['document'])
 async def txt_get(message: Message):
@@ -38,7 +38,7 @@ async def txt_get(message: Message):
 
         await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file vcf yang akan dihasilkan:')
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in txt_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.name)
 async def name_get(message: Message):
@@ -155,7 +155,6 @@ async def contact_names_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-
 async def send_files(message, data, vcf_files):
     try:
         os.remove(data['filename'])
@@ -171,7 +170,11 @@ async def send_files(message, data, vcf_files):
                     logging.error("Telegram API error: ", exc_info=True)
             except Exception as e:
                 logging.error("Error sending document: ", exc_info=True)
+        
         await bot.send_message(message.chat.id, "Konversi selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
+        # Optional: Clear all user data if necessary
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data.clear()  # Clear any remaining data if needed
     except Exception as e:
         logging.error("Error during file sending: ", exc_info=True)
