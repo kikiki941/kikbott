@@ -47,6 +47,7 @@ def convert2(data):
         contact_index = 0  # Melacak indeks kontak
         current_name_idx = 0  # Mengatur indeks nama file
         current_file_num = 1  # Menyimpan nomor file untuk setiap nama
+        file_name_counter = 0  # Counter untuk mengganti nama file baru
 
         # Mulai membagi file
         for file_idx in range(total_files):
@@ -54,6 +55,7 @@ def convert2(data):
             if change_every and file_count > change_every and current_name_idx < len(new_names):
                 current_name_idx += 1
                 current_file_num = 1  # Reset nomor file ketika nama file berubah
+                file_name_counter = 0  # Reset counter untuk nama file baru
 
             # Tentukan nama file dengan spasi, bukan underscore
             if current_name_idx < len(new_names):
@@ -69,7 +71,7 @@ def convert2(data):
                     if contact_index >= len(contacts):
                         break  # Jika tidak ada lagi kontak untuk ditulis
 
-                    contact_name = f"{cname} {i + 1}"
+                    contact_name = f"{cname} {contact_index + 1}"
                     
                     logging.info(f"Menambahkan kontak: {contact_name} dengan nomor {contacts[contact_index]}")
 
@@ -83,13 +85,21 @@ def convert2(data):
             file_count += 1
             current_file_num += 1  # Naikkan nomor file untuk nama yang sama
 
+            # Mengatur perubahan nama file setelah batas
+            if file_name_counter >= (change_limit or 10):
+                file_name_counter = 0  # Reset counter untuk nama file baru
+                current_name_idx = (current_name_idx + 1) % len(new_names)
+                current_file_num = 1  # Reset nomor file untuk nama yang baru
+
+            file_name_counter += 1  # Increment counter untuk file nama baru
+
         logging.info(f"File yang dihasilkan: {files_created}")
         return files_created
 
     except Exception as e:
         logging.error(f"Error during conversion: {e}", exc_info=True)
         return []
-        
+
 def rearrange_to_one_column(input_file, output_file):
     try:
         # Baca isi file dan simpan setiap baris sebagai list yang mewakili kolom
