@@ -89,7 +89,7 @@ async def change_name_prompt_get(message: Message):
         else:
             await bot.send_message(message.chat.id, f'Mulai mengonversi...')
             async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                vcf_files = convert(data)
+                vcf_files = convert2(data)
                 await send_files(message, data, vcf_files)
     except Exception as e:
         logging.error("error: ", exc_info=True)
@@ -117,24 +117,35 @@ async def change_limit_get(message: Message):
 @bot.message_handler(state=Convert2State.new_name_1)
 async def new_name_1_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, 'Masukkan nama file kedua:')
-        await bot.set_state(message.from_user.id, Convert2State.new_name_2, message.chat.id)
+        await bot.send_message(message.chat.id, 'Masukkan nama kontak baru untuk file ini:')
+        await bot.set_state(message.from_user.id, Convert2State.new_cname_1, message.chat.id)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data.setdefault('new_names', []).append(message.text)
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.new_name_2)
-async def new_name_2_get(message: Message):
+@bot.message_handler(state=Convert2State.new_cname_1)
+async def new_cname_1_get(message: Message):
+    try:
+        await bot.send_message(message.chat.id, 'Masukkan nama file kedua:')
+        await bot.set_state(message.from_user.id, Convert2State.new_name_2, message.chat.id)
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data.setdefault('new_cnames', []).append(message.text)
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
+
+@bot.message_handler(state=Convert2State.new_cname_2)
+async def new_cname_2_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             new_names = data.get('new_names', [])
-            new_names.append(message.text)
+            new_cnames = data.get('new_cnames', [])
             
             if len(new_names) >= data.get('change_limit', 10):
                 # Batas nama file baru telah tercapai
                 await bot.send_message(message.chat.id, 'Batas nama file baru telah tercapai. Memulai konversi...')
                 data['new_names'] = new_names
+                data['new_cnames'] = new_cnames
                 vcf_files = convert2(data)
                 
                 # Logging setelah konversi
@@ -151,6 +162,7 @@ async def new_name_2_get(message: Message):
                     # Jika sudah mencapai batas nama file baru
                     await bot.send_message(message.chat.id, 'Batas nama file baru telah tercapai. Memulai konversi...')
                     data['new_names'] = new_names
+                    data['new_cnames'] = new_cnames
                     vcf_files = convert2(data)
                     
                     # Logging setelah konversi
@@ -159,7 +171,6 @@ async def new_name_2_get(message: Message):
                     await send_files(message, data, vcf_files)
     except Exception as e:
         logging.error("Error during file name handling: ", exc_info=True)
-
 
 async def send_files(message, data, vcf_files):
     try:
