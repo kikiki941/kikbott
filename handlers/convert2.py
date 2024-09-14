@@ -126,6 +126,7 @@ async def new_name_1_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
+
 @bot.message_handler(state=Convert2State.contact_names)
 async def contact_names_get(message: Message):
     try:
@@ -143,7 +144,7 @@ async def contact_names_get(message: Message):
             # Tambahkan nama kontak ke file saat ini
             data['contacts'][current_name].append(message.text)
 
-            # Cek apakah jumlah kontak untuk file saat ini sudah mencapai batas (misalnya 1 kontak per file)
+            # Cek apakah jumlah kontak untuk file saat ini sudah mencapai batas (kontak per file sesuai input pengguna)
             if len(data['contacts'][current_name]) >= data['totalc']:
                 # Cek apakah semua file sudah diinput
                 if len(data['contacts']) >= data['totalf']:  
