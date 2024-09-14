@@ -24,9 +24,8 @@ def convert2(data):
         
         contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
         total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
-        cname = data['cname']  # Nama kontak yang diinput pengguna
         
-        logging.info(f"Jumlah kontak per file: {contacts_per_file}, Total file: {total_files}, Nama kontak: {cname}")
+        logging.info(f"Jumlah kontak per file: {contacts_per_file}, Total file: {total_files}")
 
         # Hitung total kontak yang diperlukan dan sesuaikan jumlah file jika perlu
         total_contacts = len(contacts)
@@ -39,8 +38,9 @@ def convert2(data):
         change_every = data.get('change_every', None)
         change_limit = data.get('change_limit', None)
         new_names = data.get('new_names', [])
+        new_cnames = data.get('new_cnames', [])  # Menyimpan nama kontak baru untuk setiap file
         
-        logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}")
+        logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}, new_cnames: {new_cnames}")
 
         files_created = []
         file_count = 1
@@ -64,6 +64,12 @@ def convert2(data):
             logging.info(f"Membuat file: {output_file_name}")
 
             with open(output_file_name, 'w') as out_file:
+                # Tentukan nama kontak terkait untuk setiap file
+                if current_name_idx < len(new_cnames):
+                    cname = new_cnames[current_name_idx]
+                else:
+                    cname = data['cname']  # Nama kontak default
+
                 # Tuliskan kontak dalam format VCF
                 for i in range(contacts_per_file):
                     if contact_index >= len(contacts):
