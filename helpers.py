@@ -22,80 +22,42 @@ def convert2(data):
         contacts = [contact.strip() for contact in contacts if contact.strip()]
         logging.info(f"Kontak setelah dihapus whitespace: {contacts}")
         
-        contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
-        total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
+        contacts_per_file = data['totalc']  # Jumlah kontak per file
+        total_files = data['totalf']  # Total file
+        cname = data['cname']  # Nama kontak awal
         
-        logging.info(f"Jumlah kontak per file: {contacts_per_file}, Total file: {total_files}")
-
-        # Hitung total kontak yang diperlukan dan sesuaikan jumlah file jika perlu
-        total_contacts = len(contacts)
-        required_files = (total_contacts + contacts_per_file - 1) // contacts_per_file
-        if total_files < required_files:
-            logging.info(f"Jumlah file yang diinputkan kurang dari yang diperlukan. Menyesuaikan jumlah file menjadi {required_files}.")
-            total_files = required_files
-
-        # Ambil parameter pergantian nama file jika diatur
-        change_every = data.get('change_every', None)
-        change_limit = data.get('change_limit', None)
-        new_names = data.get('new_names', [])
-        new_cnames = data.get('new_cnames', [])  # Menyimpan nama kontak baru untuk setiap file
+        new_cnames = data.get('new_cnames', [cname])  # Nama kontak baru
         
-        logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}, new_cnames: {new_cnames}")
-
+        logging.info(f"Nama kontak awal: {cname}, Nama kontak baru: {new_cnames}")
+        
         files_created = []
-        file_count = 1
-        contact_index = 0  # Melacak indeks kontak
-        current_name_idx = 0  # Mengatur indeks nama file
-        current_file_num = 1  # Menyimpan nomor file untuk setiap nama
+        contact_index = 0
 
-        # Mulai membagi file
         for file_idx in range(total_files):
-            # Pergantian nama file setiap beberapa file
-            if change_every and file_count > change_every and current_name_idx < len(new_names):
-                current_name_idx += 1
-                current_file_num = 1  # Reset nomor file ketika nama file berubah
-
-            # Tentukan nama file dengan spasi, bukan underscore
-            if current_name_idx < len(new_names):
-                output_file_name = f"{new_names[current_name_idx]} {current_file_num}.vcf"
-            else:
-                output_file_name = f"{data['name']} {current_file_num}.vcf"
-
-            logging.info(f"Membuat file: {output_file_name}")
-
+            # Jika ada nama kontak baru, gunakan nama kontak baru sesuai file
+            contact_name = new_cnames[min(file_idx, len(new_cnames) - 1)]
+            
+            output_file_name = f"{data['name']} {file_idx + 1}.vcf"
             with open(output_file_name, 'w') as out_file:
-                # Tentukan nama kontak terkait untuk setiap file
-                if current_name_idx < len(new_cnames):
-                    cname = new_cnames[current_name_idx]
-                else:
-                    cname = data['cname']  # Nama kontak default
-
-                # Tuliskan kontak dalam format VCF
                 for i in range(contacts_per_file):
                     if contact_index >= len(contacts):
-                        break  # Jika tidak ada lagi kontak untuk ditulis
+                        break
 
-                    contact_name = f"{cname} {i + 1}"
-                    
-                    logging.info(f"Menambahkan kontak: {contact_name} dengan nomor {contacts[contact_index]}")
-
-                    # Tuliskan kontak dalam format VCF
                     out_file.write(
-                        f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\nTEL;TYPE=CELL:{contacts[contact_index]}\nEND:VCARD\n"
+                        f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {i + 1}\nTEL;TYPE=CELL:{contacts[contact_index]}\nEND:VCARD\n"
                     )
-                    contact_index += 1  # Naikkan indeks kontak
+                    contact_index += 1
 
             files_created.append(output_file_name)
-            file_count += 1
-            current_file_num += 1  # Naikkan nomor file untuk nama yang sama
-
-        logging.info(f"File yang dihasilkan: {files_created}")
+            logging.info(f"File yang dihasilkan: {output_file_name}")
+        
         return files_created
 
     except Exception as e:
         logging.error(f"Error during conversion: {e}", exc_info=True)
         return []
 
+        
 def rearrange_to_one_column(input_file, output_file):
     try:
         # Baca isi file dan simpan setiap baris sebagai list yang mewakili kolom
