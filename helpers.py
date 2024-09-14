@@ -47,7 +47,6 @@ def convert2(data):
         contact_index = 0  # Melacak indeks kontak
         current_name_idx = 0  # Mengatur indeks nama file
         current_file_num = 1  # Menyimpan nomor file untuk setiap nama
-        file_name_counter = 0  # Counter untuk mengganti nama file baru
 
         # Mulai membagi file
         for file_idx in range(total_files):
@@ -55,7 +54,7 @@ def convert2(data):
             if change_every and file_count > change_every and current_name_idx < len(new_names):
                 current_name_idx += 1
                 current_file_num = 1  # Reset nomor file ketika nama file berubah
-                file_name_counter = 0  # Reset counter untuk nama file baru
+                file_count = 1  # Reset file count setelah pergantian nama
 
             # Tentukan nama file dengan spasi, bukan underscore
             if current_name_idx < len(new_names):
@@ -84,14 +83,6 @@ def convert2(data):
             files_created.append(output_file_name)
             file_count += 1
             current_file_num += 1  # Naikkan nomor file untuk nama yang sama
-
-            # Mengatur perubahan nama file setelah batas
-            if file_name_counter >= (change_limit or 10):
-                file_name_counter = 0  # Reset counter untuk nama file baru
-                current_name_idx = (current_name_idx + 1) % len(new_names)
-                current_file_num = 1  # Reset nomor file untuk nama yang baru
-
-            file_name_counter += 1  # Increment counter untuk file nama baru
 
         logging.info(f"File yang dihasilkan: {files_created}")
         return files_created
