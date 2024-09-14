@@ -133,14 +133,21 @@ async def contact_names_get(message: Message):
             new_names = data.get('new_names', [])
             current_name = new_names[-1]  # Nama file terbaru yang sedang diinput kontaknya
             
+            # Pastikan data kontak ada
             if 'contacts' not in data:
                 data['contacts'] = {}
             
+            # Inisialisasi list kontak untuk file ini jika belum ada
             if current_name not in data['contacts']:
                 data['contacts'][current_name] = []
             
+            # Tambahkan nama kontak ke file ini
             data['contacts'][current_name].append(message.text)
             
+            # Logging untuk memastikan kontak ditambahkan
+            logging.info(f"Kontak untuk {current_name}: {data['contacts'][current_name]}")
+            
+            # Jika sudah mencapai jumlah kontak per file, lanjut ke file berikutnya
             if len(data['contacts'][current_name]) >= data['totalc']:
                 if len(data['contacts']) < data['totalf']:
                     await bot.send_message(message.chat.id, 'Nama kontak untuk file ini telah selesai. Silakan masukkan nama file berikutnya dan nama kontaknya:')
@@ -150,9 +157,11 @@ async def contact_names_get(message: Message):
                     vcf_files = convert2(data)
                     await send_files(message, data, vcf_files)
             else:
+                # Masukkan kontak berikutnya untuk file yang sama
                 await bot.send_message(message.chat.id, f'Masukkan nama kontak berikutnya untuk file {current_name}:')
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error processing contacts: ", exc_info=True)
+
 
 async def send_files(message, data, vcf_files):
     try:
