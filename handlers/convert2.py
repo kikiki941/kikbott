@@ -134,6 +134,16 @@ async def new_cname_1_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
+@bot.message_handler(state=Convert2State.new_name_2)
+async def new_name_2_get(message: Message):
+    try:
+        await bot.send_message(message.chat.id, 'Masukkan nama kontak baru untuk file kedua:')
+        await bot.set_state(message.from_user.id, Convert2State.new_cname_2, message.chat.id)
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data.setdefault('new_names', []).append(message.text)
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
+
 @bot.message_handler(state=Convert2State.new_cname_2)
 async def new_cname_2_get(message: Message):
     try:
