@@ -61,15 +61,14 @@ class VipState(StatesGroup):
 class kolomState(StatesGroup):
     waiting_for_file = State()
 
-class Convert2State(StatesGroup):
-    filename = State()  # State untuk menerima file
-    name = State()  # State untuk nama file
-    cname = State()  # State untuk nama kontak
-    totalc = State()  # State untuk jumlah kontak per file
-    totalf = State()  # State untuk jumlah file
-    change_name_prompt = State()  # State untuk perubahan nama file
-    change_every = State()  # State untuk setiap berapa file nama file berganti
-    change_limit = State()  # State untuk batas pergantian nama file
-    new_name_1 = State()  # State untuk nama file baru 1
-    new_name_2 = State()  # State untuk nama file baru 2
-    new_cname_1 = State()  # State untuk nama kontak baru 1
+class Convert2State:
+    filename = 'filename'
+    name = 'name'
+    cname = 'cname'
+    totalc = 'totalc'
+    totalf = 'totalf'
+    change_name_prompt = 'change_name_prompt'
+    change_every = 'change_every'
+    change_limit = 'change_limit'
+    new_name_1 = 'new_name_1'
+    contact_names = 'contact_names'
