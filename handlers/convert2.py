@@ -130,10 +130,18 @@ async def new_name_2_get(message: Message):
         await bot.send_message(message.chat.id, f'Mulai mengonversi...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data.setdefault('new_names', []).append(message.text)
-            vcf_files = convert(data)
+            
+            # Logging untuk data yang dikirim ke convert2
+            logging.info(f"Data yang dikirim ke convert2: {data}")
+            
+            vcf_files = convert2(data)
+            
+            # Logging setelah konversi
+            logging.info(f"File yang dihasilkan dari convert2: {vcf_files}")
+            
             await send_files(message, data, vcf_files)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error during conversion: ", exc_info=True)
 
 async def send_files(message, data, vcf_files):
     try:
