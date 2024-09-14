@@ -136,18 +136,25 @@ async def contact_names_get(message: Message):
             if 'contacts' not in data:
                 data['contacts'] = {}
             
-            # Buat nama kontak sesuai jumlah kontak per file
-            data['contacts'][current_name] = [f"{contact_name}_{i + 1}" for i in range(data['totalc'])]
+            # Tentukan kontak untuk file saat ini
+            if current_name not in data['contacts']:
+                data['contacts'][current_name] = []
             
-            if len(data['contacts']) < data['totalf']:
-                await bot.send_message(message.chat.id, 'Nama kontak untuk file ini telah selesai. Silakan masukkan nama file berikutnya dan nama kontak:')
-                await bot.set_state(message.from_user.id, Convert2State.new_name_1, message.chat.id)
+            data['contacts'][current_name].append(contact_name)
+            
+            if len(data['contacts'][current_name]) >= data['totalc']:
+                if len(data['contacts']) < data['totalf']:
+                    await bot.send_message(message.chat.id, 'Nama kontak untuk file ini telah selesai. Silakan masukkan nama file berikutnya dan nama kontaknya:')
+                    await bot.set_state(message.from_user.id, Convert2State.new_name_1, message.chat.id)
+                else:
+                    await bot.send_message(message.chat.id, 'Semua nama file dan kontak telah diinput. Memulai konversi...')
+                    vcf_files = convert2(data)
+                    await send_files(message, data, vcf_files)
             else:
-                await bot.send_message(message.chat.id, 'Semua nama file dan kontak telah diinput. Memulai konversi...')
-                vcf_files = convert2(data)
-                await send_files(message, data, vcf_files)
+                await bot.send_message(message.chat.id, f'Masukkan nama kontak berikutnya untuk file {current_name}:')
     except Exception as e:
         logging.error("error: ", exc_info=True)
+
 
 async def send_files(message, data, vcf_files):
     try:
