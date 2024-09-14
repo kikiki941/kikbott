@@ -22,7 +22,7 @@ def convert2(data):
         contacts = [contact.strip() for contact in contacts if contact.strip()]
         logging.info(f"Kontak setelah dihapus whitespace: {contacts}")
         
-        contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
+        contacts_per_file = 1  # Hanya satu kontak per file
         total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
         cname = data['cname']  # Nama kontak yang diinput pengguna
         
@@ -43,7 +43,6 @@ def convert2(data):
         logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}")
 
         files_created = []
-        file_count = 1
         contact_index = 0  # Melacak indeks kontak
         current_name_idx = 0  # Mengatur indeks nama file
         current_file_num = 1  # Menyimpan nomor file untuk setiap nama
@@ -51,10 +50,9 @@ def convert2(data):
         # Mulai membagi file
         for file_idx in range(total_files):
             # Pergantian nama file setiap beberapa file
-            if change_every and file_count > change_every and current_name_idx < len(new_names):
+            if change_every and file_idx > 0 and file_idx % change_every == 0 and current_name_idx < len(new_names):
                 current_name_idx += 1
                 current_file_num = 1  # Reset nomor file ketika nama file berubah
-                file_count = 1  # Reset file count setelah pergantian nama
 
             # Tentukan nama file dengan spasi, bukan underscore
             if current_name_idx < len(new_names):
@@ -66,10 +64,7 @@ def convert2(data):
 
             with open(output_file_name, 'w') as out_file:
                 # Tuliskan kontak dalam format VCF
-                for i in range(contacts_per_file):
-                    if contact_index >= len(contacts):
-                        break  # Jika tidak ada lagi kontak untuk ditulis
-
+                if contact_index < len(contacts):
                     contact_name = f"{cname} {contact_index + 1}"
                     
                     logging.info(f"Menambahkan kontak: {contact_name} dengan nomor {contacts[contact_index]}")
@@ -81,14 +76,13 @@ def convert2(data):
                     contact_index += 1  # Naikkan indeks kontak
 
             files_created.append(output_file_name)
-            file_count += 1
             current_file_num += 1  # Naikkan nomor file untuk nama yang sama
 
         logging.info(f"File yang dihasilkan: {files_created}")
         return files_created
 
     except Exception as e:
-        logging.error(f"Error during conversion: {e}", exc_info=True)
+        logging.error("Error during conversion: ", exc_info=True)
         return []
 
 def rearrange_to_one_column(input_file, output_file):
