@@ -163,24 +163,31 @@ async def contact_names_get(message: Message):
 
 async def send_files(message, data, vcf_files):
     try:
+        logging.info(f"Removing original file: {data['filename']}")
         os.remove(data['filename'])
+        
         for file in vcf_files:
+            logging.info(f"Sending file: {file}")
             try:
                 await bot.send_document(message.chat.id, open(file, 'rb'))
                 os.remove(file)
+                logging.info(f"File sent and removed: {file}")
             except ApiTelegramException as e:
+                logging.error(f"Telegram API error while sending file {file}: {str(e)}", exc_info=True)
                 if "Too Many Requests" in e.description:
-                    delay = int(findall('\d+', e.description)[0])
+                    delay = int(findall(r'\d+', e.description)[0])
+                    logging.warning(f"Rate limit hit. Sleeping for {delay} seconds.")
                     await sleep(delay)
                 else:
                     logging.error("Telegram API error: ", exc_info=True)
+                    continue
             except Exception as e:
-                logging.error("Error sending document: ", exc_info=True)
-        
+                logging.error(f"Error sending document {file}: {str(e)}", exc_info=True)
+                continue
+
         await bot.send_message(message.chat.id, "Konversi selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
-        # Optional: Clear all user data if necessary
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data.clear()  # Clear any remaining data if needed
     except Exception as e:
-        logging.error("Error during file sending: ", exc_info=True)
+        logging.error(f"Error during file sending: {str(e)}", exc_info=True)
