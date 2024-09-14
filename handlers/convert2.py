@@ -127,21 +127,39 @@ async def new_name_1_get(message: Message):
 @bot.message_handler(state=Convert2State.new_name_2)
 async def new_name_2_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, f'Mulai mengonversi...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data.setdefault('new_names', []).append(message.text)
+            new_names = data.get('new_names', [])
+            new_names.append(message.text)
             
-            # Logging untuk data yang dikirim ke convert2
-            logging.info(f"Data yang dikirim ke convert2: {data}")
-            
-            vcf_files = convert2(data)
-            
-            # Logging setelah konversi
-            logging.info(f"File yang dihasilkan dari convert2: {vcf_files}")
-            
-            await send_files(message, data, vcf_files)
+            if len(new_names) >= data.get('change_limit', 10):
+                # Batas nama file baru telah tercapai
+                await bot.send_message(message.chat.id, 'Batas nama file baru telah tercapai. Memulai konversi...')
+                data['new_names'] = new_names
+                vcf_files = convert2(data)
+                
+                # Logging setelah konversi
+                logging.info(f"File yang dihasilkan dari convert2: {vcf_files}")
+                
+                await send_files(message, data, vcf_files)
+            else:
+                # Meminta nama file baru berikutnya
+                next_index = len(new_names) + 1
+                if next_index <= 100:  # Pastikan tidak melebihi 100 nama
+                    await bot.send_message(message.chat.id, f'Masukkan nama file berikutnya (file {next_index}):')
+                    await bot.set_state(message.from_user.id, Convert2State.new_name_1 + next_index, message.chat.id)
+                else:
+                    # Jika sudah mencapai batas nama file baru
+                    await bot.send_message(message.chat.id, 'Batas nama file baru telah tercapai. Memulai konversi...')
+                    data['new_names'] = new_names
+                    vcf_files = convert2(data)
+                    
+                    # Logging setelah konversi
+                    logging.info(f"File yang dihasilkan dari convert2: {vcf_files}")
+                    
+                    await send_files(message, data, vcf_files)
     except Exception as e:
-        logging.error("Error during conversion: ", exc_info=True)
+        logging.error("Error during file name handling: ", exc_info=True)
+
 
 async def send_files(message, data, vcf_files):
     try:
