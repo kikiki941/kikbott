@@ -125,7 +125,7 @@ async def new_name_1_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.new_name_2_get)
+@bot.message_handler(state=Convert2State.new_name_2)
 async def new_name_2_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
