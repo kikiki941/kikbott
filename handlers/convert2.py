@@ -132,37 +132,38 @@ async def contact_names_get(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             new_names = data.get('new_names', [])
             current_name = new_names[-1]  # Nama file terbaru yang sedang diinput kontaknya
-
-            # Inisialisasi dictionary untuk menyimpan kontak per file jika belum ada
+            
+            # Pastikan data kontak ada
             if 'contacts' not in data:
                 data['contacts'] = {}
-
+            
+            # Inisialisasi list kontak untuk file ini jika belum ada
             if current_name not in data['contacts']:
                 data['contacts'][current_name] = []
-
-            # Dapatkan nama kontak yang akan digunakan
-            contact_base_name = message.text
-
-            # Tambahkan beberapa kontak ke file saat ini berdasarkan jumlah kontak per file (totalc)
-            for i in range(1, data['totalc'] + 1):
-                contact_name = f"{contact_base_name} {i}"
-                data['contacts'][current_name].append(contact_name)
-
-            await bot.send_message(message.chat.id, f"Kontak untuk file '{current_name}' telah ditambahkan.")
-
-            # Cek apakah jumlah file sudah mencapai batas
-            if len(data['contacts']) >= data['totalf']:
-                await bot.send_message(message.chat.id, 'Semua nama file dan kontak telah diinput. Memulai konversi...')
-                vcf_files = convert2(data)  # Mulai proses konversi
-                await send_files(message, data, vcf_files)  # Kirim file hasil konversi
+            
+            # Tambahkan nama kontak ke file ini
+            data['contacts'][current_name].append(message.text)
+            
+            # Logging untuk memantau proses
+            logging.info(f"Kontak untuk {current_name}: {data['contacts'][current_name]}")
+            
+            # Jika sudah mencapai jumlah kontak per file
+            if len(data['contacts'][current_name]) >= data['totalc']:
+                # Jika belum mencapai total file yang diinginkan
+                if len(data['contacts']) < data['totalf']:
+                    await bot.send_message(message.chat.id, 'Nama kontak untuk file ini telah selesai. Silakan masukkan nama file berikutnya dan nama kontaknya:')
+                    await bot.set_state(message.from_user.id, Convert2State.new_name_1, message.chat.id)
+                else:
+                    # Jika semua file sudah selesai, mulai konversi
+                    await bot.send_message(message.chat.id, 'Semua nama file dan kontak telah diinput. Memulai konversi...')
+                    vcf_files = convert2(data)
+                    await send_files(message, data, vcf_files)
+                    return
             else:
-                # Minta nama file berikutnya dan kontak dasar berikutnya
-                await bot.send_message(message.chat.id, 'Nama kontak untuk file ini telah selesai. Silakan masukkan nama file berikutnya dan nama kontak dasarnya:')
-                await bot.set_state(message.from_user.id, Convert2State.new_name_1, message.chat.id)
-
+                # Jika jumlah kontak untuk file saat ini belum terpenuhi
+                await bot.send_message(message.chat.id, f'Masukkan nama kontak berikutnya untuk file {current_name}:')
     except Exception as e:
-        logging.error("Error while adding contact: ", exc_info=True)
-        await bot.send_message(message.chat.id, "Terjadi kesalahan. Silakan coba lagi.")
+        logging.error("Error processing contacts: ", exc_info=True)
 
 async def send_files(message, data, vcf_files):
     try:
