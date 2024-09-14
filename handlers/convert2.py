@@ -9,12 +9,18 @@ from bot import bot
 from message import *
 from helpers import convert2
 from state import Convert2State
+import logging
+
+# Initialize logging (add this at the start of your script)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 @bot.message_handler(commands='convert2')
 async def convert2_command(message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, Convert2State.filename, message.chat.id)
+        bot_info = await bot.get_me()
+        logging.info(f"Bot is running: {bot_info}")
         await bot.reply_to(message, txt_convert2)
     except Exception as e:
         logging.error("Error in convert2_command: ", exc_info=True)
