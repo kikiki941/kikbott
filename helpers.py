@@ -8,8 +8,6 @@ import csv
 from bot import *
 import os
 
-import logging
-
 def convert2(data):
     try:
         logging.info("Memulai proses konversi")
@@ -24,21 +22,44 @@ def convert2(data):
         contacts = [contact.strip() for contact in contacts if contact.strip()]
         logging.info(f"Kontak setelah dihapus whitespace: {contacts}")
         
-        contacts_per_file = data['totalc']  # Jumlah kontak per file
-        total_files = data['totalf']  # Total file yang akan dihasilkan
-        new_names = data['new_names']  # Nama file yang diberikan oleh pengguna
-        contact_names = data['contacts']  # Nama kontak per file
+        contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
+        total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
         
         logging.info(f"Jumlah kontak per file: {contacts_per_file}, Total file: {total_files}")
-        logging.info(f"Nama file: {new_names}, Nama kontak: {contact_names}")
+
+        # Hitung total kontak yang diperlukan dan sesuaikan jumlah file jika perlu
+        total_contacts = len(contacts)
+        required_files = (total_contacts + contacts_per_file - 1) // contacts_per_file
+        if total_files < required_files:
+            logging.info(f"Jumlah file yang diinputkan kurang dari yang diperlukan. Menyesuaikan jumlah file menjadi {required_files}.")
+            total_files = required_files
+
+        # Ambil parameter pergantian nama file jika diatur
+        change_every = data.get('change_every', None)
+        change_limit = data.get('change_limit', None)
+        new_names = data.get('new_names', [])
+        
+        logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}")
 
         files_created = []
+        file_count = 1
         contact_index = 0  # Melacak indeks kontak
-        
+        current_name_idx = 0  # Mengatur indeks nama file
+        current_file_num = 1  # Menyimpan nomor file untuk setiap nama
+
         # Mulai membagi file
         for file_idx in range(total_files):
-            # Tentukan nama file
-            output_file_name = f"{new_names[file_idx]}.vcf"
+            # Pergantian nama file setiap beberapa file
+            if change_every and file_count > change_every and current_name_idx < len(new_names):
+                current_name_idx += 1
+                current_file_num = 1  # Reset nomor file ketika nama file berubah
+
+            # Tentukan nama file dengan spasi, bukan underscore
+            if current_name_idx < len(new_names):
+                output_file_name = f"{new_names[current_name_idx]} {current_file_num}.vcf"
+            else:
+                output_file_name = f"{data['name']} {current_file_num}.vcf"
+
             logging.info(f"Membuat file: {output_file_name}")
 
             with open(output_file_name, 'w') as out_file:
@@ -47,8 +68,7 @@ def convert2(data):
                     if contact_index >= len(contacts):
                         break  # Jika tidak ada lagi kontak untuk ditulis
 
-                    # Nama kontak untuk file saat ini, dengan penomoran urut
-                    contact_name = f"{contact_names[new_names[file_idx]][0]}_{i + 1}"
+                    contact_name = f"{data['contacts'].get(new_names[current_name_idx], [])[0]} {i + 1}"
                     
                     logging.info(f"Menambahkan kontak: {contact_name} dengan nomor {contacts[contact_index]}")
 
@@ -59,6 +79,8 @@ def convert2(data):
                     contact_index += 1  # Naikkan indeks kontak
 
             files_created.append(output_file_name)
+            file_count += 1
+            current_file_num += 1  # Naikkan nomor file untuk nama yang sama
 
         logging.info(f"File yang dihasilkan: {files_created}")
         return files_created
