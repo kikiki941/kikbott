@@ -10,20 +10,29 @@ import os
 
 def convert2(data):
     try:
+        logging.info("Memulai proses konversi")
+        
         # Baca data dari file .txt
         with open(data['filename'], 'r') as file:
             contacts = file.readlines()
+        
+        logging.info(f"Kontak yang dibaca dari file: {contacts}")
 
         # Hilangkan baris kosong dan whitespace
         contacts = [contact.strip() for contact in contacts if contact.strip()]
+        logging.info(f"Kontak setelah dihapus whitespace: {contacts}")
         
         contacts_per_file = data['totalc']  # Jumlah kontak per file (input pengguna)
         total_files = data['totalf']  # Total file yang ingin dihasilkan (input pengguna)
+        
+        logging.info(f"Jumlah kontak per file: {contacts_per_file}, Total file: {total_files}")
 
         # Ambil parameter pergantian nama file jika diatur
         change_every = data.get('change_every', None)
         change_limit = data.get('change_limit', None)
         new_names = data.get('new_names', [])
+        
+        logging.info(f"change_every: {change_every}, change_limit: {change_limit}, new_names: {new_names}")
 
         files_created = []
         file_count = 1
@@ -33,12 +42,14 @@ def convert2(data):
         # Mulai membagi file
         for file_idx in range(total_files):
             output_file_name = f"{data['name']}_{file_count}.vcf"
-
+            
             # Pergantian nama file jika diatur
             if change_every and file_count % change_every == 0 and change_count < change_limit:
                 if change_count < len(new_names):
                     output_file_name = f"{new_names[change_count]}_{file_count}.vcf"
                 change_count += 1
+
+            logging.info(f"Membuat file: {output_file_name}")
 
             with open(output_file_name, 'w') as out_file:
                 # Reset nama kontak pada setiap file dari Contact 1 hingga Contact N
@@ -48,6 +59,8 @@ def convert2(data):
                     if contact_index >= len(contacts):
                         contact_index = 0  # Ulangi kontak jika sudah mencapai akhir list
                     
+                    logging.info(f"Menambahkan kontak: {contact_name} dengan nomor {contacts[contact_index]}")
+
                     # Tuliskan kontak dalam format VCF
                     out_file.write(
                         f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\nTEL;TYPE=CELL:{contacts[contact_index]}\nEND:VCARD\n"
@@ -57,10 +70,11 @@ def convert2(data):
             files_created.append(output_file_name)
             file_count += 1
 
+        logging.info(f"File yang dihasilkan: {files_created}")
         return files_created
 
     except Exception as e:
-        print(f"Error during conversion: {e}")
+        logging.error(f"Error during conversion: {e}", exc_info=True)
         return []
 
 def rearrange_to_one_column(input_file, output_file):
