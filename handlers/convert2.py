@@ -6,16 +6,15 @@ from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 
 from bot import bot
-from message import *
+from message import txt_convert2
 from helpers import convert2
 from state import Convert2State
-import logging
 
-# Initialize logging (add this at the start of your script)
+# Initialize logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 @bot.message_handler(commands='convert2')
-async def convert2_command(message):
+async def convert2_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, Convert2State.filename, message.chat.id)
@@ -30,19 +29,19 @@ async def txt_get(message: Message):
     try:
         if not message.document.file_name.endswith(".txt"):
             return await bot.send_message(message.chat.id, "Kirim file .txt")
-        
+
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
-        
-        await bot.set_state(message.from_user.id, Convert2State.name, message.chat.id)
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['filename'] = filename
-
         downloaded_file = await bot.download_file(file.file_path)
+        
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
-
+        
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['filename'] = filename
+        
         await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file vcf yang akan dihasilkan:')
+        await bot.set_state(message.from_user.id, Convert2State.name, message.chat.id)
     except Exception as e:
         logging.error("Error in txt_get: ", exc_info=True)
 
@@ -54,7 +53,7 @@ async def name_get(message: Message):
             await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Silakan masukkan nama kontak untuk file pertama:')
             await bot.set_state(message.from_user.id, Convert2State.cname, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in name_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.cname)
 async def cname_get(message: Message):
@@ -64,29 +63,27 @@ async def cname_get(message: Message):
             await bot.send_message(message.chat.id, f'Nama kontak diatur menjadi: {message.text}. Silakan masukkan jumlah kontak per file:')
             await bot.set_state(message.from_user.id, Convert2State.totalc, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in cname_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.totalc, is_digit=True)
 async def totalc_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            # Menyimpan jumlah kontak per file
             data['totalc'] = int(message.text)
             await bot.send_message(message.chat.id, f'Jumlah kontak per file diatur menjadi: {message.text}. Silakan masukkan jumlah file:')
             await bot.set_state(message.from_user.id, Convert2State.totalf, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in totalc_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.totalf, is_digit=True)
 async def totalf_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            # Menyimpan jumlah file
             data['totalf'] = int(message.text)
             await bot.send_message(message.chat.id, f'Jumlah file diatur menjadi: {message.text}. Apakah setiap beberapa file nama file akan berganti? (ya/tidak)')
             await bot.set_state(message.from_user.id, Convert2State.change_name_prompt, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in totalf_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.change_name_prompt)
 async def change_name_prompt_get(message: Message):
@@ -100,7 +97,7 @@ async def change_name_prompt_get(message: Message):
                 vcf_files = convert2(data)
                 await send_files(message, data, vcf_files)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in change_name_prompt_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.change_every, is_digit=True)
 async def change_every_get(message: Message):
@@ -110,7 +107,7 @@ async def change_every_get(message: Message):
             await bot.send_message(message.chat.id, f'Setiap {message.text} file nama akan berganti. Masukkan batas pergantian nama (berapa kali):')
             await bot.set_state(message.from_user.id, Convert2State.change_limit, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in change_every_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.change_limit, is_digit=True)
 async def change_limit_get(message: Message):
@@ -120,7 +117,7 @@ async def change_limit_get(message: Message):
             await bot.send_message(message.chat.id, f'Batas pergantian nama diatur menjadi {message.text} kali. Silakan masukkan nama file pertama dan nama kontaknya:')
             await bot.set_state(message.from_user.id, Convert2State.new_name_1, message.chat.id)
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in change_limit_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.new_name_1)
 async def new_name_1_get(message: Message):
@@ -128,11 +125,11 @@ async def new_name_1_get(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             new_names = data.get('new_names', [])
             new_names.append(message.text)
+            data['new_names'] = new_names
             await bot.send_message(message.chat.id, f'Nama file baru diatur menjadi: {message.text}. Silakan masukkan nama file dan nama kontak untuk file ini (dalam format NamaFile, Kontak):')
             await bot.set_state(message.from_user.id, Convert2State.contact_names, message.chat.id)
-            data['new_names'] = new_names
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in new_name_1_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.contact_names)
 async def contact_names_get(message: Message):
@@ -168,9 +165,9 @@ async def contact_names_get(message: Message):
             except ValueError:
                 await bot.send_message(message.chat.id, 'Format input tidak valid. Harap masukkan nama file dan nama kontak dengan format: NamaFile, Kontak')
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in contact_names_get: ", exc_info=True)
 
-async def send_files(message, data, vcf_files):
+async def send_files(message: Message, data: dict, vcf_files: list):
     try:
         logging.info(f"Removing original file: {data['filename']}")
         os.remove(data['filename'])
