@@ -61,14 +61,14 @@ class VipState(StatesGroup):
 class kolomState(StatesGroup):
     waiting_for_file = State()
 
-class Convert2State(Enum):
-    filename = 1
-    name = 2
-    cname = 3
-    totalc = 4
-    totalf = 5
-    change_name_prompt = 6
-    change_every = 7
-    change_limit = 8
-    new_name_1 = 9
-    contact_names = 10
+class Convert2State(StatesGroup):
+    filename = State()  # Menunggu input file .txt
+    name = State()      # Menunggu input nama file
+    cname = State()     # Menunggu input nama kontak
+    totalc = State()    # Menunggu input jumlah kontak per file
+    totalf = State()    # Menunggu input jumlah file
+    change_name_prompt = State()  # Menunggu input apakah nama file akan berganti
+    change_every = State()        # Menunggu input setiap berapa file nama akan berganti
+    change_limit = State()        # Menunggu input batas pergantian nama
+    new_name_1 = State()          # Menunggu input nama file baru
+    contact_names = State()       # Menunggu input nama kontak untuk file baru
