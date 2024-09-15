@@ -70,6 +70,7 @@ async def cname_get(message: Message):
 async def totalc_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            # Menyimpan jumlah kontak per file
             data['totalc'] = int(message.text)
             await bot.send_message(message.chat.id, f'Jumlah kontak per file diatur menjadi: {message.text}. Silakan masukkan jumlah file:')
             await bot.set_state(message.from_user.id, Convert2State.totalf, message.chat.id)
@@ -80,6 +81,7 @@ async def totalc_get(message: Message):
 async def totalf_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            # Menyimpan jumlah file
             data['totalf'] = int(message.text)
             await bot.send_message(message.chat.id, f'Jumlah file diatur menjadi: {message.text}. Apakah setiap beberapa file nama file akan berganti? (ya/tidak)')
             await bot.set_state(message.from_user.id, Convert2State.change_name_prompt, message.chat.id)
@@ -136,17 +138,17 @@ async def new_name_1_get(message: Message):
 async def contact_names_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            current_name = data['new_names'][-1]  # Nama file terbaru yang sedang diinput kontaknya
-            contact_name = message.text  # Nama kontak yang diinput pengguna
+            new_names = data.get('new_names', [])
+            current_name = new_names[-1]  # Nama file terbaru yang sedang diinput kontaknya
             
             if 'contacts' not in data:
                 data['contacts'] = {}
             
-            # Tentukan kontak untuk file saat ini
             if current_name not in data['contacts']:
                 data['contacts'][current_name] = []
             
-            data['contacts'][current_name].append(contact_name)
+            # Tambahkan nama kontak untuk file ini
+            data['contacts'][current_name].append(message.text)
             
             if len(data['contacts'][current_name]) >= data['totalc']:
                 if len(data['contacts']) < data['totalf']:
