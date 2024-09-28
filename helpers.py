@@ -6,15 +6,21 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
+from openpyxl import Workbook
+import xlrd
 
 def convert_xls_to_xlsx(xls_file):
     try:
         # Open the .xls file
-        workbook = xlrd.open_workbook(xls_file)
+        workbook = xlrd.open_workbook(xls_file, formatting_info=True)
         xlsx_file = xls_file.replace('.xls', '.xlsx')
 
         # Create a new Workbook for .xlsx
         new_workbook = Workbook()
+        # Remove the default sheet created by Workbook
+        new_workbook.remove(new_workbook.active)
+
+        # Loop through each sheet in the .xls file
         for sheet_index in range(workbook.nsheets):
             sheet = workbook.sheet_by_index(sheet_index)
             new_sheet = new_workbook.create_sheet(title=sheet.name)
@@ -24,14 +30,14 @@ def convert_xls_to_xlsx(xls_file):
                 for col in range(sheet.ncols):
                     new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
 
-        # Save the new workbook
+        # Save the new workbook as .xlsx
         new_workbook.save(xlsx_file)
+        logging.info(f"Converted {xls_file} to {xlsx_file} successfully.")
         return xlsx_file
 
     except Exception as e:
         logging.error(f"Error converting {xls_file} to .xlsx: {e}")
         return None
-
 
 def count_vcf_contacts(filename):
     try:
