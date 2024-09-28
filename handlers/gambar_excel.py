@@ -11,15 +11,18 @@ async def get_images_command(message: Message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
         await bot.set_state(message.from_user.id, HitungGambarState.waiting_for_file, message.chat.id)
-        await bot.reply_to(message, "Silakan kirim file Excel (.xlsx) yang berisi gambar.")
+        await bot.reply_to(message, "Silakan kirim file Excel (.xls, .xlsx, .xlsm) yang berisi gambar.")
     except Exception as e:
         logging.error("Error in get_images_command: ", exc_info=True)
 
 @bot.message_handler(state=HitungGambarState.waiting_for_file, content_types=['document'])
 async def excel_get(message: Message):
     try:
-        if not message.document.file_name.endswith(".xlsx"):
-            return await bot.send_message(message.chat.id, "Kirim file Excel (.xlsx) yang valid.")
+        # Cek apakah file yang diterima adalah file Excel
+        if not (message.document.file_name.endswith(".xls") or
+                message.document.file_name.endswith(".xlsx") or
+                message.document.file_name.endswith(".xlsm")):
+            return await bot.send_message(message.chat.id, "Kirim file Excel (.xls, .xlsx, .xlsm) yang valid.")
 
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
@@ -37,7 +40,7 @@ async def excel_get(message: Message):
         else:
             await bot.send_message(message.chat.id, f"{images_sent} gambar berhasil dikirim.")
 
-        os.remove(filename)  # Remove the Excel file after processing
+        os.remove(filename)  # Hapus file Excel setelah diproses
         await bot.delete_state(message.from_user.id, message.chat.id)
     except ApiTelegramException as e:
         logging.error("Telegram API error: ", exc_info=True)
@@ -59,7 +62,7 @@ async def send_images_from_excel(filename, chat_id):
     """
     images_sent = 0
     try:
-        images = extract_images_from_excel(filename)  # Use the helper function to extract images
+        images = extract_images_from_excel(filename)  # Gunakan fungsi helper untuk mengekstrak gambar
 
         for img_stream in images:
             await bot.send_photo(chat_id, img_stream)
