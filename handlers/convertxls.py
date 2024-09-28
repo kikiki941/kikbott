@@ -10,44 +10,72 @@ from message import *
 from helpers import convert_xls_to_xlsx, extract_images_from_excel
 from state import ConvertXlsImagesState
 
-from bot import bot
-from helpers import convert_xls_to_xlsx, extract_images_from_xlsx
-import os
-
-@bot.message_handler(commands='extract_images')
-async def extract_images_command(message):
+@bot.message_handler(commands='convertxls')
+async def convertxls_command(message):
     try:
-        await bot.send_message(message.chat.id, "Silakan kirim file .xls yang berisi gambar.")
-        await bot.set_state(message.from_user.id, ConvertXlsState.filename, message.chat.id)
+        await bot.delete_state(message.from_user.id, message.chat.id)
+        await bot.set_state(message.from_user.id, ConvertXlsImagesState.filename, message.chat.id)
+        await bot.reply_to(message, "Silakan kirim file .xls yang akan dikonversi.")
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=ConvertXlsState.filename, content_types=['document'])
+@bot.message_handler(state=ConvertXlsImagesState.filename, content_types=['document'])
 async def xls_get(message: Message):
     try:
         if not message.document.file_name.endswith(".xls"):
             return await bot.send_message(message.chat.id, "Kirim file .xls")
-
+        
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
+        
+        await bot.set_state(message.from_user.id, ConvertXlsImagesState.name, message.chat.id)
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['filename'] = filename
 
         downloaded_file = await bot.download_file(file.file_path)
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
-        xlsx_file = convert_xls_to_xlsx(filename)
-        if xlsx_file:
-            images = extract_images_from_xlsx(xlsx_file)
-            if images:
-                for img in images:
-                    await bot.send_photo(message.chat.id, img)
-            else:
-                await bot.send_message(message.chat.id, "Tidak ada gambar yang ditemukan.")
-        else:
-            await bot.send_message(message.chat.id, "Konversi file gagal.")
+        await bot.send_message(message.chat.id, 'File diterima. Silakan masukkan nama file .xlsx yang akan dihasilkan:')
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
 
-        os.remove(filename)
-        if xlsx_file:
-            os.remove(xlsx_file)
+@bot.message_handler(state=ConvertXlsImagesState.name)
+async def name_get(message: Message):
+    try:
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            if 'filename' not in data:
+                await bot.send_message(message.chat.id, "Tidak ada file .xls yang diterima. Silakan coba lagi.")
+                await bot.delete_state(message.from_user.id, message.chat.id)
+                return
+
+            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
+            data['name'] = message.text
+            xls_file = data['filename']
+
+            logging.info(f"Memulai konversi file: {xls_file}")
+
+            xlsx_file = convert_xls_to_xlsx(xls_file)
+
+            if xlsx_file:
+                logging.info(f"File .xlsx berhasil dibuat: {xlsx_file}")
+                images = extract_images_from_excel(xlsx_file)
+
+                if images:
+                    logging.info(f"{len(images)} gambar ditemukan dalam file .xlsx")
+                    for img in images:
+                        await bot.send_photo(message.chat.id, img)
+                else:
+                    await bot.send_message(message.chat.id, "Tidak ada gambar ditemukan dalam file.")
+                    logging.info("Tidak ada gambar ditemukan dalam file .xlsx")
+
+                os.remove(xlsx_file)
+            else:
+                await bot.send_message(message.chat.id, "Konversi .xls ke .xlsx gagal.")
+                logging.error("Konversi file .xls ke .xlsx gagal.")
+
+            os.remove(xls_file)
+            await bot.send_message(message.chat.id, "Proses konversi selesai.")
+        await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
         logging.error("error: ", exc_info=True)
