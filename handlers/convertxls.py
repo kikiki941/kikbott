@@ -54,7 +54,6 @@ async def name_get(message: Message):
             data['name'] = message.text
             xls_file = data['filename']
 
-            # Log untuk melihat apakah file xls ada
             logging.info(f"Memulai konversi file: {xls_file}")
 
             xlsx_file = convert_xls_to_xlsx(xls_file)
@@ -63,7 +62,6 @@ async def name_get(message: Message):
                 logging.info(f"File .xlsx berhasil dibuat: {xlsx_file}")
                 images = extract_images_from_excel(xlsx_file)
 
-                # Log untuk memeriksa apakah ada gambar yang diekstrak
                 if images:
                     logging.info(f"{len(images)} gambar ditemukan dalam file .xlsx")
                     for img in images:
