@@ -11,29 +11,20 @@ from openpyxl import load_workbook
 from io import BytesIO
 
 def extract_images_from_excel(filename):
-    """
-    Extracts images from the given Excel file.
-
-    Parameters:
-    filename (str): The path to the Excel file.
-
-    Returns:
-    list: A list of BytesIO streams of the extracted images.
-    """
+    """Extract images from the given Excel file."""
     images = []
     try:
         workbook = load_workbook(filename)
-        for sheet in workbook.worksheets:
-            for image in sheet._images:
+        for sheet in workbook.sheetnames:
+            worksheet = workbook[sheet]
+            for image in worksheet._images:
                 img_stream = BytesIO()
-                image.image.save(img_stream, format='PNG')  # Save the image in PNG format
-                img_stream.seek(0)  # Move the cursor to the beginning of the stream
+                image.image.save(img_stream, format='PNG')  # Save the image to BytesIO stream
+                img_stream.seek(0)
                 images.append(img_stream)
     except Exception as e:
         logging.error("Error extracting images: ", exc_info=True)
-    
     return images
-
 
 def count_vcf_contacts(filename):
     try:
