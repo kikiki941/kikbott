@@ -75,3 +75,6 @@ class Convert2State(StatesGroup):
 
 class HitungCtcState(StatesGroup):
     waiting_for_files = State()  # State where the bot is waiting for .vcf files
+
+class HitungGambarState:
+    waiting_for_file = 'waiting_for_file'
