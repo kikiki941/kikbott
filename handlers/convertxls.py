@@ -53,21 +53,22 @@ async def name_get(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
             xls_file = data['filename']
-            
-            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengonversi file...')
+            output_name = data['name']
 
-            # Convert the .xls file to .xlsx
-            xlsx_file = convert_xls_to_xlsx(xls_file, data['name'])
+            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengonversi file...')
+            
+            xlsx_file, images = convert_xls_to_xlsx_and_extract_images(xls_file, output_name)
 
             if xlsx_file:
                 await bot.send_document(message.chat.id, open(xlsx_file, 'rb'))
-                os.remove(xlsx_file)  # Remove .xlsx file after sending
-            else:
-                await bot.send_message(message.chat.id, "Gagal mengonversi file.")
+                os.remove(xlsx_file)
+                
+                # Mengirim gambar
+                for img_path in images:
+                    await bot.send_photo(message.chat.id, open(img_path, 'rb'))
+                    os.remove(img_path)
 
-            # Clean up by removing the original .xls file
             os.remove(xls_file)
-
             await bot.send_message(message.chat.id, "Konversi selesai!")
         
         await bot.delete_state(message.from_user.id, message.chat.id)
