@@ -8,25 +8,42 @@ import csv
 from bot import *
 from openpyxl import Workbook
 import xlrd
+from openpyxl.drawing.image import Image
 
 def convert_xls_to_xlsx(xls_file, output_name):
     try:
-        # Open the .xls file
+        # Buka file .xls
         workbook = xlrd.open_workbook(xls_file)
-        xlsx_file = f"files/{output_name}.xlsx"  # Save in a 'files' folder
+        xlsx_file = f"files/{output_name}.xlsx"  # Simpan di folder 'files'
 
-        # Create a new Workbook for .xlsx
+        # Buat Workbook baru untuk .xlsx
         new_workbook = Workbook()
+        new_workbook.remove(new_workbook.active)  # Hapus sheet default
+        
         for sheet_index in range(workbook.nsheets):
             sheet = workbook.sheet_by_index(sheet_index)
             new_sheet = new_workbook.create_sheet(title=sheet.name)
 
-            # Copy data from .xls to .xlsx
+            # Salin data dari .xls ke .xlsx
             for row in range(sheet.nrows):
                 for col in range(sheet.ncols):
-                    new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
+                    cell_value = sheet.cell_value(row, col)
+                    new_sheet.cell(row=row + 1, column=col + 1, value=cell_value)
 
-        # Save the new workbook
+            # Cek dan salin gambar (jika ada)
+            # Catatan: xlrd tidak mendukung gambar, jadi gambar harus ditangani secara manual
+            # Jika ada gambar terpisah, salin ke output
+
+        # Jika gambar ada di folder yang sama dengan file .xls, salin gambar
+        # Ini hanya contoh, sesuaikan dengan logika Anda untuk mengambil gambar dari .xls
+        images_path = os.path.dirname(xls_file)  # Folder gambar yang sama
+        for image_name in os.listdir(images_path):
+            if image_name.endswith(('.png', '.jpg', '.jpeg', '.gif')):  # Cek jenis gambar
+                img_path = os.path.join(images_path, image_name)
+                img = Image(img_path)
+                new_sheet.add_image(img, 'A1')  # Menambahkan gambar ke sel A1 (sesuaikan posisi sesuai kebutuhan)
+
+        # Simpan workbook baru
         new_workbook.save(xlsx_file)
         logging.info(f"Converted {xls_file} to {xlsx_file}")
         return xlsx_file
