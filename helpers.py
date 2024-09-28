@@ -40,18 +40,19 @@ def convert_xls_to_xlsx_and_extract_images(xls_file, output_name):
         for sheet_name in wb.sheetnames:
             sheet = wb[sheet_name]
             for img in sheet._images:
-                image = OpenPyXLImage(img.ref)
                 img_path = f"files/{img.name}"
                 images.append(img_path)
+                # Save the image to a file
                 img.image.save(img_path)
 
         logging.info(f"Converted {xls_file} to {xlsx_file} and extracted images.")
-        return xlsx_file, images
+        return images  # Kembali hanya gambar
 
     except Exception as e:
         logging.error(f"Error converting {xls_file} to .xlsx: {e}")
-        return None, []
+        return []
 
+# Mengirim gambar ke pengguna
 
 def count_vcf_contacts(filename):
     try:
