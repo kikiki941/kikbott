@@ -9,11 +9,12 @@ from bot import *
 from PIL import Image
 import openpyxl
 import io
+from openpyxl.drawing.image import Image
 
 def extract_images_from_excel(filename):
     images = []
     try:
-        # Mendeteksi format file
+        # Detecting file format
         if filename.endswith('.xlsx'):
             workbook = openpyxl.load_workbook(filename)
         elif filename.endswith('.xls'):
@@ -21,13 +22,19 @@ def extract_images_from_excel(filename):
         elif filename.endswith('.xlsm'):
             workbook = openpyxl.load_workbook(filename, keep_links=False)
         else:
-            return images
+            return images  # Return empty if file format is not supported
 
         for sheet in workbook.worksheets:
             for image in sheet._images:
                 if isinstance(image, Image):
                     image_stream = io.BytesIO()
-                    image.image.save(image_stream, format='PNG')  # Simpan gambar dalam format PNG
+
+                    # Determine the format and save the image accordingly
+                    if image.image.format in ['jpeg', 'jpg']:
+                        image.image.save(image_stream, format='JPEG')
+                    else:
+                        image.image.save(image_stream, format='PNG')  # Default to PNG
+                        
                     image_stream.seek(0)
                     images.append(image_stream)
 
