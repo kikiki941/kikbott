@@ -6,7 +6,6 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
-from PIL import Image
 import openpyxl
 import io
 from openpyxl.drawing.image import Image
