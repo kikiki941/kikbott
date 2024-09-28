@@ -15,26 +15,6 @@ import io
 from PIL import Image as PILImage
 
 def convert_xls_to_xlsx(xls_file):
-    """
-    Mengonversi file .xls ke format .xlsx.
-
-    :param xls_file: Jalur ke file .xls
-    :return: Jalur ke file .xlsx yang baru dibuat
-    """
-    try:
-        # Menentukan nama output
-        xlsx_file = xls_file.replace('.xls', '.xlsx')
-        
-        # Membaca file .xls dan menulis ke .xlsx
-        df = pd.read_excel(xls_file)
-        df.to_excel(xlsx_file, index=False)
-        
-        return xlsx_file
-    except Exception as e:
-        logging.error(f"Kesalahan saat mengonversi {xls_file} ke xlsx: {e}")
-        return None
-
-def convert_xls_to_xlsx(xls_file):
     try:
         xlsx_file = xls_file.replace('.xls', '.xlsx')
         workbook = openpyxl.Workbook()
