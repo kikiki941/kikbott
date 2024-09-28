@@ -341,9 +341,9 @@ def convert_vcf_to_txt(data):
         with open(txt_file, 'w', encoding='utf-8') as txt_file_content:
             for line in lines:
                 # Ekstrak nama
-                name_match = re.search(r'FN:(.*)', line)
+                name_match = re.search(r'FN:(.+)', line)
                 # Ekstrak nomor telepon
-                tel_match = re.search(r'TEL:(\+?\d+)', line)
+                tel_match = re.search(r'TEL;TYPE=CELL:(\+?\d+)', line)
 
                 if name_match and tel_match:
                     name = name_match.group(1).strip()
