@@ -28,6 +28,7 @@ async def xls_get(message: Message):
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
         
+        # Menyimpan data filename ke dalam state
         await bot.set_state(message.from_user.id, ConvertXlsImagesState.name, message.chat.id)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['filename'] = filename
@@ -43,8 +44,13 @@ async def xls_get(message: Message):
 @bot.message_handler(state=ConvertXlsImagesState.name)
 async def name_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            if 'filename' not in data:
+                await bot.send_message(message.chat.id, "Tidak ada file .xls yang diterima. Silakan coba lagi.")
+                await bot.delete_state(message.from_user.id, message.chat.id)
+                return
+            
+            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
             data['name'] = message.text
             xls_file = data['filename']
             xlsx_file = convert_xls_to_xlsx(xls_file)
