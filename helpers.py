@@ -7,24 +7,29 @@ from datetime import datetime
 import csv
 from bot import *
 import os
-from openpyxl import load_workbook
+import openpyxl
 from io import BytesIO
 
 def extract_images_from_excel(filename):
-    """Extract images from the given Excel file."""
+    """
+    Extract images from the specified Excel file.
+
+    Parameters:
+    filename (str): The path to the Excel file.
+
+    Returns:
+    list: A list of image streams (BytesIO objects) extracted from the file.
+    """
     images = []
-    try:
-        workbook = load_workbook(filename)
-        for sheet in workbook.sheetnames:
-            worksheet = workbook[sheet]
-            for image in worksheet._images:
-                img_stream = BytesIO()
-                image.image.save(img_stream, format='PNG')  # Save the image to BytesIO stream
-                img_stream.seek(0)
-                images.append(img_stream)
-    except Exception as e:
-        logging.error("Error extracting images: ", exc_info=True)
+    workbook = openpyxl.load_workbook(filename)
+    for sheet in workbook.worksheets:
+        for image in sheet._images:
+            img_stream = BytesIO()
+            img_stream.write(image.ref)
+            img_stream.seek(0)
+            images.append(img_stream)
     return images
+
 
 def count_vcf_contacts(filename):
     try:
