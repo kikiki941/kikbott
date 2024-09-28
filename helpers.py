@@ -15,26 +15,20 @@ import io
 from PIL import Image
 from io import BytesIO
 import openpyxl
+import subprocess
 
 def convert_xls_to_xlsx(xls_file):
     try:
+        # Menggunakan LibreOffice untuk mengonversi file .xls ke .xlsx
+        result = subprocess.run(['libreoffice', '--headless', '--convert-to', 'xlsx', xls_file], check=True)
         xlsx_file = xls_file.replace('.xls', '.xlsx')
-        workbook = openpyxl.Workbook()
-        sheet = workbook.active
-
-        # Membaca file .xls menggunakan xlrd
-        import xlrd
-        xls_workbook = xlrd.open_workbook(xls_file)
-        for sheet_index in range(xls_workbook.nsheets):
-            xls_sheet = xls_workbook.sheet_by_index(sheet_index)
-            for row in range(xls_sheet.nrows):
-                for col in range(xls_sheet.ncols):
-                    sheet.cell(row=row + 1, column=col + 1, value=xls_sheet.cell_value(row, col))
-
-        workbook.save(xlsx_file)
-        return xlsx_file
-    except Exception as e:
-        logging.error("Error converting .xls to .xlsx: ", exc_info=True)
+        if os.path.exists(xlsx_file):
+            return xlsx_file
+        else:
+            logging.error("File .xlsx tidak ditemukan setelah konversi.")
+            return None
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Error during conversion: {e}")
         return None
 
 def extract_images_from_excel(excel_file):
@@ -43,30 +37,29 @@ def extract_images_from_excel(excel_file):
     """
     images = []
     try:
-        # Membuka file .xlsx menggunakan openpyxl
         wb = load_workbook(excel_file)
         for sheet in wb.sheetnames:
             ws = wb[sheet]
-            for image in ws._images:
-                image_bytes = image._data()  # Mengambil data gambar sebagai bytes
-                img_stream = BytesIO(image_bytes)
-                
-                # Deteksi format gambar menggunakan PIL
-                img = Image.open(img_stream)
-                
-                # Simpan gambar sementara ke BytesIO untuk dikirim melalui bot
-                img_output = BytesIO()
-                img_format = img.format if img.format else 'PNG'  # Default ke PNG jika format tidak diketahui
-                img.save(img_output, format=img_format)
-                img_output.seek(0)  # Kembali ke awal stream
-                
-                images.append(img_output)
+            if hasattr(ws, '_images'):
+                for image in ws._images:
+                    image_bytes = image._data()  # Mengambil data gambar sebagai bytes
+                    img_stream = BytesIO(image_bytes)
+                    
+                    # Deteksi format gambar menggunakan PIL
+                    img = Image.open(img_stream)
+                    
+                    # Simpan gambar sementara ke BytesIO untuk dikirim melalui bot
+                    img_output = BytesIO()
+                    img_format = img.format if img.format else 'PNG'  # Default ke PNG jika format tidak diketahui
+                    img.save(img_output, format=img_format)
+                    img_output.seek(0)  # Kembali ke awal stream
+                    
+                    images.append(img_output)
         wb.close()
     except Exception as e:
         logging.error("Error extracting images from Excel file: ", exc_info=True)
     
     return images
-
 
 def count_vcf_contacts(filename):
     try:
