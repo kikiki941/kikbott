@@ -1,5 +1,9 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
+from aiogram.dispatcher.filters.state
+
+class HitungGambarState(StatesGroup):
+    waiting_for_file = State()  # State for waiting for an Excel file
 
 class ConvertState(StatesGroup):
     filename = State()
@@ -76,5 +80,3 @@ class Convert2State(StatesGroup):
 class HitungCtcState(StatesGroup):
     waiting_for_files = State()  # State where the bot is waiting for .vcf files
 
-class HitungGambarState:
-    waiting_for_file = 'waiting_for_file'
