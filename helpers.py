@@ -6,8 +6,6 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
-import xlrd
-from openpyxl import Workbook
 
 def convert_xls_to_xlsx(xls_file):
     try:
