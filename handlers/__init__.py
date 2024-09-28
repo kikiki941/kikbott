@@ -13,5 +13,6 @@ from .hapus_spasi import *
 from .hapus_colom import *
 from .convert2 import *
 from .hitung_kontak import *
+from .gambar_excel import *
 
 
