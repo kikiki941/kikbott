@@ -50,11 +50,12 @@ async def not_xls(message: Message):
 @bot.message_handler(state=ConvertXlsState.name)
 async def name_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {message.text}. Mulai mengonversi file...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
             xls_file = data['filename']
-            xlsx_file = convert_xls_to_xlsx(xls_file)
+            xlsx_file = convert_xls_to_xlsx(data)
+
+            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengonversi file...')
 
             if xlsx_file:
                 await bot.send_document(message.chat.id, open(xlsx_file, 'rb'))
@@ -62,6 +63,7 @@ async def name_get(message: Message):
             os.remove(xls_file)
 
             await bot.send_message(message.chat.id, "Konversi selesai!")
+        
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
         logging.error("error: ", exc_info=True)
