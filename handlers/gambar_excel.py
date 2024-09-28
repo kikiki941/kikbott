@@ -45,28 +45,19 @@ async def excel_get(message: Message):
     except Exception as e:
         logging.error("Error in excel_get: ", exc_info=True)
         await bot.send_message(message.chat.id, "Terjadi kesalahan saat memproses file.")
+    finally:
+        # Tutup sesi jika diperlukan
+        await bot.close()
 
 async def send_images_from_excel(filename, chat_id):
-    """
-    Extracts images from the Excel file and sends them to the user.
-
-    Parameters:
-    filename (str): The path to the Excel file.
-    chat_id (int): The ID of the chat to send images to.
-
-    Returns:
-    int: The number of images sent.
-    """
     images_sent = 0
     try:
-        images = extract_images_from_excel(filename)  # Use the helper function to extract images
-
+        images = extract_images_from_excel(filename)
         for img_stream in images:
             await bot.send_photo(chat_id, img_stream)
             images_sent += 1
     except Exception as e:
         logging.error("Error sending images: ", exc_info=True)
-
     return images_sent
 
 @bot.message_handler(state=HitungGambarState.waiting_for_file, commands=['cancel'])
