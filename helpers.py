@@ -9,7 +9,6 @@ from bot import *
 import openpyxl
 import io
 from openpyxl.drawing.image import Image
-import xlrd
 
 def convert_xls_to_xlsx(data):
     xls_file = data.get('filename')
