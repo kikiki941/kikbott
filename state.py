@@ -1,4 +1,5 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
+from aiogram.dispatcher import FSMContext
 from enum import Enum
 
 class HitungGambarState(StatesGroup):
