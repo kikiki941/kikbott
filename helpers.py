@@ -10,6 +10,7 @@ from PIL import Image
 import openpyxl
 import io
 from openpyxl.drawing.image import Image
+import xlrd
 
 def extract_images_from_excel(filename):
     images = []
@@ -43,26 +44,39 @@ def extract_images_from_excel(filename):
         logging.error(f"Error extracting images: {e}")
         return images
 
-def convert_xls_to_xlsx(xls_filename):
-    """Converts an .xls file to .xlsx format and returns the new filename."""
-    xlsx_filename = xls_filename.replace('.xls', '.xlsx')
+def convert_xls_to_xlsx(data):
+    xls_file = data.get('filename')
+    xlsx_file = f"files/{data.get('name')}.xlsx"
+
+    if not xls_file or not os.path.isfile(xls_file):
+        raise FileNotFoundError(f"File XLS tidak ditemukan: {xls_file}")
+
     try:
-        # Load the .xls file
-        workbook = xlrd.open_workbook(xls_filename, formatting_info=True)
-        # Create a new .xlsx file
+        # Membaca file .xls menggunakan xlrd
+        workbook = xlrd.open_workbook(xls_file, formatting_info=True)
         new_workbook = openpyxl.Workbook()
-        
-        for sheet in workbook.sheets():
+
+        for sheet_index in range(workbook.nsheets):
+            sheet = workbook.sheet_by_index(sheet_index)
             new_sheet = new_workbook.create_sheet(title=sheet.name)
+
             for row in range(sheet.nrows):
                 for col in range(sheet.ncols):
-                    new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
-        
-        new_workbook.save(xlsx_filename)
-        return xlsx_filename
+                    cell_value = sheet.cell_value(row, col)
+                    new_sheet.cell(row=row + 1, column=col + 1, value=cell_value)
+
+        # Menghapus sheet default yang dibuat oleh openpyxl
+        if 'Sheet' in new_workbook.sheetnames:
+            std = new_workbook['Sheet']
+            new_workbook.remove(std)
+
+        new_workbook.save(xlsx_file)
+        return xlsx_file
+
     except Exception as e:
-        logging.error(f"Error converting .xls to .xlsx: {e}")
-        return None
+        logging.error("Error converting XLS to XLSX: ", exc_info=True)
+        raise
+
 
 def count_vcf_contacts(filename):
     try:
