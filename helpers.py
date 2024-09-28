@@ -6,42 +6,33 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
-import openpyxl
-import io
-from openpyxl.drawing.image import Image
+import xlrd
+from openpyxl import Workbook
 
-def convert_xls_to_xlsx(data):
-    xls_file = data.get('filename')
-    xlsx_file = f"files/{data.get('name')}.xlsx"
-
-    if not xls_file or not os.path.isfile(xls_file):
-        raise FileNotFoundError(f"File XLS tidak ditemukan: {xls_file}")
-
+def convert_xls_to_xlsx(xls_file):
     try:
-        # Membaca file .xls menggunakan xlrd
-        workbook = xlrd.open_workbook(xls_file, formatting_info=True)
-        new_workbook = openpyxl.Workbook()
+        # Open the .xls file
+        workbook = xlrd.open_workbook(xls_file)
+        xlsx_file = xls_file.replace('.xls', '.xlsx')
 
+        # Create a new Workbook for .xlsx
+        new_workbook = Workbook()
         for sheet_index in range(workbook.nsheets):
             sheet = workbook.sheet_by_index(sheet_index)
             new_sheet = new_workbook.create_sheet(title=sheet.name)
 
+            # Copy data from .xls to .xlsx
             for row in range(sheet.nrows):
                 for col in range(sheet.ncols):
-                    cell_value = sheet.cell_value(row, col)
-                    new_sheet.cell(row=row + 1, column=col + 1, value=cell_value)
+                    new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
 
-        # Menghapus sheet default yang dibuat oleh openpyxl
-        if 'Sheet' in new_workbook.sheetnames:
-            std = new_workbook['Sheet']
-            new_workbook.remove(std)
-
+        # Save the new workbook
         new_workbook.save(xlsx_file)
         return xlsx_file
 
     except Exception as e:
-        logging.error("Error converting XLS to XLSX: ", exc_info=True)
-        raise
+        logging.error(f"Error converting {xls_file} to .xlsx: {e}")
+        return None
 
 
 def count_vcf_contacts(filename):
