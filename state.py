@@ -1,13 +1,6 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
 
-class ConvertXlsState:
-    filename = State()
-    name = state()
-
-class HitungGambarState(StatesGroup):
-    waiting_for_file = State()  # State for waiting for an Excel file
-
 class ConvertState(StatesGroup):
     filename = State()
     name = State()
