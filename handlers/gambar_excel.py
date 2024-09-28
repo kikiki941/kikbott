@@ -47,10 +47,31 @@ async def excel_get(message: Message):
     except Exception as e:
         logging.error("Error: ", exc_info=True)
 
-@bot.message_handler(state=HitungGambarState.waiting_for_file, commands=['cancel'])
-async def cancel_process(message: Message):
+@bot.message_handler(state=HitungGambarState.waiting_for_file, content_types=['document'])
+async def excel_get(message: Message):
     try:
-        await bot.send_message(message.chat.id, "Proses dibatalkan.")
-        await bot.delete_state(message.from_user.id, message.chat.id)
+        if not message.document.file_name.endswith(".xlsx"):
+            return await bot.send_message(message.chat.id, message.reply_invalid_file)
+        
+        file = await bot.get_file(message.document.file_id)
+        filename = f"files/{message.document.file_name}"
+
+        downloaded_file = await bot.download_file(file.file_path)
+        with open(filename, 'wb') as new_file:
+            new_file.write(downloaded_file)
+
+        images = extract_images_from_excel(filename)
+        if not images:
+            await bot.send_message(message.chat.id, message.reply_no_images_found)
+            return
+
+        for img_stream in images:
+            await bot.send_photo(message.chat.id, img_stream)
+
+        await bot.send_message(message.chat.id, message.reply_images_sent.format(len(images)))
+        os.remove(filename)  # Clean up the Excel file after processing
+    except ApiTelegramException as e:
+        logging.error("Telegram API error: ", exc_info=True)
+        await bot.send_message(message.chat.id, "Terjadi kesalahan saat mengakses Telegram API.")
     except Exception as e:
         logging.error("Error: ", exc_info=True)
