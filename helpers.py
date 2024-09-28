@@ -340,17 +340,24 @@ def convert_vcf_to_txt(data):
         lines = vcf_data.split('END:VCARD')
         with open(txt_file, 'w', encoding='utf-8') as txt_file_content:
             for line in lines:
-                if 'FN:' in line and 'TEL:' in line:
-                    tel = re.search(r'TEL:(\+?\d+)', line)
-                    if tel:
-                        tel = tel.group(1).strip()
-                        tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
-                        txt_file_content.write(f"{tel}\n")
+                # Ekstrak nama
+                name_match = re.search(r'FN:(.*)', line)
+                # Ekstrak nomor telepon
+                tel_match = re.search(r'TEL:(\+?\d+)', line)
+
+                if name_match and tel_match:
+                    name = name_match.group(1).strip()
+                    tel = tel_match.group(1).strip()
+                    tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
+
+                    # Menulis nama dan nomor telepon ke dalam file teks
+                    txt_file_content.write(f"{name}: {tel}\n")
 
         return txt_file
     except Exception as e:
         logging.error("Error converting VCF to TXT: ", exc_info=True)
         raise
+
 
 def gabung_vcf(input_files, output_file):
     logging.info("Memulai penggabungan VCF.")
