@@ -53,13 +53,19 @@ async def name_get(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['name'] = message.text
             xls_file = data['filename']
-            xlsx_file = convert_xls_to_xlsx(data)
-
+            
             await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengonversi file...')
+
+            # Convert the .xls file to .xlsx
+            xlsx_file = convert_xls_to_xlsx(xls_file, data['name'])
 
             if xlsx_file:
                 await bot.send_document(message.chat.id, open(xlsx_file, 'rb'))
-                os.remove(xlsx_file)
+                os.remove(xlsx_file)  # Remove .xlsx file after sending
+            else:
+                await bot.send_message(message.chat.id, "Gagal mengonversi file.")
+
+            # Clean up by removing the original .xls file
             os.remove(xls_file)
 
             await bot.send_message(message.chat.id, "Konversi selesai!")
