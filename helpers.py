@@ -43,6 +43,27 @@ def extract_images_from_excel(filename):
         logging.error(f"Error extracting images: {e}")
         return images
 
+def convert_xls_to_xlsx(xls_filename):
+    """Converts an .xls file to .xlsx format and returns the new filename."""
+    xlsx_filename = xls_filename.replace('.xls', '.xlsx')
+    try:
+        # Load the .xls file
+        workbook = xlrd.open_workbook(xls_filename, formatting_info=True)
+        # Create a new .xlsx file
+        new_workbook = openpyxl.Workbook()
+        
+        for sheet in workbook.sheets():
+            new_sheet = new_workbook.create_sheet(title=sheet.name)
+            for row in range(sheet.nrows):
+                for col in range(sheet.ncols):
+                    new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
+        
+        new_workbook.save(xlsx_filename)
+        return xlsx_filename
+    except Exception as e:
+        logging.error(f"Error converting .xls to .xlsx: {e}")
+        return None
+
 def count_vcf_contacts(filename):
     try:
         with open(filename, 'r', encoding='utf-8') as file:
