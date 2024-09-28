@@ -12,7 +12,8 @@ from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyXLImage
 from telebot.types import Message
 import io
-from PIL import Image as PILImage
+from PIL import Image
+from io import BytesIO
 
 def convert_xls_to_xlsx(xls_file):
     try:
@@ -35,27 +36,35 @@ def convert_xls_to_xlsx(xls_file):
         logging.error("Error converting .xls to .xlsx: ", exc_info=True)
         return None
 
-def extract_images_from_excel(filename):
+def extract_images_from_excel(excel_file):
+    """
+    Ekstrak gambar dari file Excel dan mengembalikannya dalam format yang didukung oleh Telegram.
+    """
     images = []
-    
     try:
-        if filename.endswith('.xlsx') or filename.endswith('.xlsm'):
-            workbook = openpyxl.load_workbook(filename)
-            for sheet in workbook.worksheets:
-                if hasattr(sheet, '_images'):
-                    for img in sheet._images:
-                        img_bytes = io.BytesIO()
-                        img.image.save(img_bytes, format='PNG')
-                        img_bytes.seek(0)
-                        images.append(img_bytes)
-        else:
-            logging.error("Unsupported file format. Only .xlsx and .xlsm are supported.")
-        
-        return images
-    
+        # Membuka file .xlsx menggunakan openpyxl
+        wb = load_workbook(excel_file)
+        for sheet in wb.sheetnames:
+            ws = wb[sheet]
+            for image in ws._images:
+                image_bytes = image._data()  # Mengambil data gambar sebagai bytes
+                img_stream = BytesIO(image_bytes)
+                
+                # Deteksi format gambar menggunakan PIL
+                img = Image.open(img_stream)
+                
+                # Simpan gambar sementara ke BytesIO untuk dikirim melalui bot
+                img_output = BytesIO()
+                img_format = img.format if img.format else 'PNG'  # Default ke PNG jika format tidak diketahui
+                img.save(img_output, format=img_format)
+                img_output.seek(0)  # Kembali ke awal stream
+                
+                images.append(img_output)
+        wb.close()
     except Exception as e:
-        logging.error(f"Error extracting images: {e}")
-        return images
+        logging.error("Error extracting images from Excel file: ", exc_info=True)
+    
+    return images
 
 
 def count_vcf_contacts(filename):
