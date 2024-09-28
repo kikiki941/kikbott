@@ -3,8 +3,8 @@ import os
 from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 from bot import bot
-from state import HitungGambarState  # New state for image handling
-from helpers import extract_images_from_excel  # Import helper function
+from state import HitungGambarState
+from helpers import extract_images_from_excel
 
 @bot.message_handler(commands='get_images')
 async def get_images_command(message: Message):
@@ -49,11 +49,11 @@ async def excel_get(message: Message):
 async def send_images_from_excel(filename, chat_id):
     """
     Extracts images from the Excel file and sends them to the user.
-    
+
     Parameters:
     filename (str): The path to the Excel file.
     chat_id (int): The ID of the chat to send images to.
-    
+
     Returns:
     int: The number of images sent.
     """
