@@ -7,23 +7,48 @@ from datetime import datetime
 import csv
 from bot import *
 import os
-import openpyxl
+from openpyxl import load_workbook
 from io import BytesIO
 
 def extract_images_from_excel(filename):
+    """
+    Extracts images from an Excel file.
+
+    Parameters:
+    filename (str): The path to the Excel file.
+
+    Returns:
+    list: A list of image streams.
+    """
     images = []
     try:
+        # Load the workbook
         workbook = load_workbook(filename)
         for sheet in workbook.worksheets:
-            for image in sheet._images:
-                img_stream = BytesIO()
-                img_stream.write(image.ref)
-                img_stream.seek(0)
-                images.append(img_stream)
-                logging.info(f"Gambar ditemukan di sheet '{sheet.title}'.")
+            for img in sheet._images:
+                # Get the image type and check if it's a valid format
+                image_stream = BytesIO()
+                img.image.save(image_stream, format=img.image.format)
+                image_stream.seek(0)  # Reset stream position
+                images.append(image_stream)
     except Exception as e:
-        logging.error("Error extracting images: ", exc_info=True)
+        print(f"Error extracting images: {e}")
+    
     return images
+
+def is_image_file(filename):
+    """
+    Check if the file is an image based on its extension.
+
+    Parameters:
+    filename (str): The name of the file.
+
+    Returns:
+    bool: True if the file is an image, False otherwise.
+    """
+    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
+    ext = os.path.splitext(filename)[1].lower()
+    return ext in valid_extensions
 
 def count_vcf_contacts(filename):
     try:
