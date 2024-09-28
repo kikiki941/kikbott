@@ -9,7 +9,7 @@ from io import BytesIO
 
 from bot import bot
 from message import *
-from helpers import convert_xls_to_xlsx
+from helpers import convert_jpg
 from state import ConvertXlsState
 
 @bot.message_handler(commands='getimages')
