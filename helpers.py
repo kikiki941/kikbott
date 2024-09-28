@@ -9,46 +9,25 @@ from bot import *
 import os
 from openpyxl import load_workbook
 from io import BytesIO
+from PIL import Image
 
 def extract_images_from_excel(filename):
-    """
-    Extracts images from an Excel file.
-
-    Parameters:
-    filename (str): The path to the Excel file.
-
-    Returns:
-    list: A list of image streams.
-    """
     images = []
     try:
-        # Load the workbook
-        workbook = load_workbook(filename)
+        workbook = load_workbook(filename, data_only=True)
         for sheet in workbook.worksheets:
             for img in sheet._images:
-                # Get the image type and check if it's a valid format
+                # Pastikan untuk mengekstrak gambar dalam format yang benar
                 image_stream = BytesIO()
-                img.image.save(image_stream, format=img.image.format)
-                image_stream.seek(0)  # Reset stream position
+                # Gunakan Pillow untuk menyimpan gambar dalam berbagai format
+                img.image.save(image_stream, format='PNG')  # Anda dapat mengubah format ini sesuai kebutuhan
+                image_stream.seek(0)
                 images.append(image_stream)
     except Exception as e:
-        print(f"Error extracting images: {e}")
-    
+        logging.error(f"Error extracting images: {e}")
+
     return images
 
-def is_image_file(filename):
-    """
-    Check if the file is an image based on its extension.
-
-    Parameters:
-    filename (str): The name of the file.
-
-    Returns:
-    bool: True if the file is an image, False otherwise.
-    """
-    valid_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
-    ext = os.path.splitext(filename)[1].lower()
-    return ext in valid_extensions
 
 def count_vcf_contacts(filename):
     try:
