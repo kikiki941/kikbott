@@ -345,13 +345,12 @@ def convert_vcf_to_txt(data):
                 # Ekstrak nomor telepon
                 tel_match = re.search(r'TEL;TYPE=CELL:(\+?\d+)', line)
 
-                if name_match and tel_match:
-                    name = name_match.group(1).strip()
+                if tel_match:
                     tel = tel_match.group(1).strip()
                     tel = re.sub(r'\D', '', tel)  # Menghapus semua karakter non-digit
 
                     # Menulis nama dan nomor telepon ke dalam file teks
-                    txt_file_content.write(f"{name}: {tel}\n")
+                    txt_file_content.write(f"{tel}\n")
 
         return txt_file
     except Exception as e:
