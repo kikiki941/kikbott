@@ -71,4 +71,7 @@ class Convert2State(StatesGroup):
     change_every = State()        # Menunggu input setiap berapa file nama akan berganti
     change_limit = State()        # Menunggu input batas pergantian nama
     new_name_1 = State()          # Menunggu input nama file baru
-    contact_names = State()       # Menunggu input nama kontak untuk file baru
+    contact_names = State()     
+
+class HitungCtcState(StatesGroup):
+    waiting_for_files = State()  # State where the bot is waiting for .vcf files
