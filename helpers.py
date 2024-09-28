@@ -11,8 +11,8 @@ import xlrd
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyXLImage
 from telebot.types import Message
-from PIL import Image
 import io
+from PIL import Image as PILImage
 
 def convert_xls_to_xlsx(xls_file):
     """
@@ -33,6 +33,50 @@ def convert_xls_to_xlsx(xls_file):
     except Exception as e:
         logging.error(f"Kesalahan saat mengonversi {xls_file} ke xlsx: {e}")
         return None
+
+def convert_xls_to_xlsx(xls_file):
+    try:
+        xlsx_file = xls_file.replace('.xls', '.xlsx')
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+
+        # Membaca file .xls menggunakan xlrd
+        import xlrd
+        xls_workbook = xlrd.open_workbook(xls_file)
+        for sheet_index in range(xls_workbook.nsheets):
+            xls_sheet = xls_workbook.sheet_by_index(sheet_index)
+            for row in range(xls_sheet.nrows):
+                for col in range(xls_sheet.ncols):
+                    sheet.cell(row=row + 1, column=col + 1, value=xls_sheet.cell_value(row, col))
+
+        workbook.save(xlsx_file)
+        return xlsx_file
+    except Exception as e:
+        logging.error("Error converting .xls to .xlsx: ", exc_info=True)
+        return None
+
+def extract_images_from_excel(filename):
+    images = []
+    
+    try:
+        if filename.endswith('.xlsx') or filename.endswith('.xlsm'):
+            workbook = openpyxl.load_workbook(filename)
+            for sheet in workbook.worksheets:
+                if hasattr(sheet, '_images'):
+                    for img in sheet._images:
+                        img_bytes = io.BytesIO()
+                        img.image.save(img_bytes, format='PNG')
+                        img_bytes.seek(0)
+                        images.append(img_bytes)
+        else:
+            logging.error("Unsupported file format. Only .xlsx and .xlsm are supported.")
+        
+        return images
+    
+    except Exception as e:
+        logging.error(f"Error extracting images: {e}")
+        return images
+
 
 def count_vcf_contacts(filename):
     try:
