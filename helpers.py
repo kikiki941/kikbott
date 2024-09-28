@@ -14,6 +14,8 @@ from telebot.types import Message
 import io
 from PIL import Image
 from io import BytesIO
+import openpyxl
+
 
 def convert_xls_to_xlsx(xls_file):
     try:
