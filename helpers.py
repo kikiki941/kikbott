@@ -14,32 +14,25 @@ from telebot.types import Message
 from PIL import Image
 import io
 
-def extract_images_from_xls(file_path):
-    extracted_images = []
-    
+def convert_xls_to_xlsx(xls_file):
+    """
+    Mengonversi file .xls ke format .xlsx.
+
+    :param xls_file: Jalur ke file .xls
+    :return: Jalur ke file .xlsx yang baru dibuat
+    """
     try:
-        # Membuka file Excel
-        workbook = xlrd.open_workbook(file_path)
-        sheet = workbook.sheet_by_index(0)  # Mengambil sheet pertama
+        # Menentukan nama output
+        xlsx_file = xls_file.replace('.xls', '.xlsx')
         
-        # Periksa apakah ada objek gambar di file
-        for obj in sheet.sheet_obj_list:
-            if obj.obj_type == 0x0008:  # Cek apakah objek tersebut adalah gambar
-                img_data = obj.image_data
-                image = Image.open(io.BytesIO(img_data))
-                img_filename = f"extracted_image_{obj.obj_id}.png"
-                image.save(img_filename)
-                extracted_images.append(img_filename)
-                logging.info(f"Gambar berhasil diekstrak: {img_filename}")
-
-        if not extracted_images:
-            logging.info("Tidak ada gambar ditemukan dalam file.")
-
+        # Membaca file .xls dan menulis ke .xlsx
+        df = pd.read_excel(xls_file)
+        df.to_excel(xlsx_file, index=False)
+        
+        return xlsx_file
     except Exception as e:
-        logging.error(f"Error extracting images from {file_path}: {e}")
-
-    return extracted_images
-
+        logging.error(f"Kesalahan saat mengonversi {xls_file} ke xlsx: {e}")
+        return None
 
 def count_vcf_contacts(filename):
     try:
