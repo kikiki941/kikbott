@@ -60,12 +60,15 @@ async def name_get(message: Message):
             images = convert_xls_to_xlsx_and_extract_images(xls_file, output_name)
 
             # Mengirim gambar satu per satu
-            for img_path in images:
-                await bot.send_photo(message.chat.id, open(img_path, 'rb'))
-                os.remove(img_path)  # Hapus gambar setelah dikirim
+            if images:
+                for img_path in images:
+                    await bot.send_photo(message.chat.id, open(img_path, 'rb'))
+                    os.remove(img_path)  # Hapus gambar setelah dikirim
+                await bot.send_message(message.chat.id, "Pengiriman gambar selesai!")
+            else:
+                await bot.send_message(message.chat.id, "Tidak ada gambar yang ditemukan.")
 
             os.remove(xls_file)  # Hapus file .xls
-            await bot.send_message(message.chat.id, "Pengiriman gambar selesai!")
         
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
