@@ -11,38 +11,6 @@ import io
 from openpyxl.drawing.image import Image
 import xlrd
 
-def extract_images_from_excel(filename):
-    images = []
-    try:
-        # Detecting file format
-        if filename.endswith('.xlsx'):
-            workbook = openpyxl.load_workbook(filename)
-        elif filename.endswith('.xls'):
-            workbook = openpyxl.load_workbook(filename, read_only=True, data_only=True)
-        elif filename.endswith('.xlsm'):
-            workbook = openpyxl.load_workbook(filename, keep_links=False)
-        else:
-            return images  # Return empty if file format is not supported
-
-        for sheet in workbook.worksheets:
-            for image in sheet._images:
-                if isinstance(image, Image):
-                    image_stream = io.BytesIO()
-
-                    # Determine the format and save the image accordingly
-                    if image.image.format in ['jpeg', 'jpg']:
-                        image.image.save(image_stream, format='JPEG')
-                    else:
-                        image.image.save(image_stream, format='PNG')  # Default to PNG
-                        
-                    image_stream.seek(0)
-                    images.append(image_stream)
-
-        return images
-    except Exception as e:
-        logging.error(f"Error extracting images: {e}")
-        return images
-
 def convert_xls_to_xlsx(data):
     xls_file = data.get('filename')
     xlsx_file = f"files/{data.get('name')}.xlsx"
