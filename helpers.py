@@ -11,25 +11,19 @@ import openpyxl
 from io import BytesIO
 
 def extract_images_from_excel(filename):
-    """
-    Extract images from the specified Excel file.
-
-    Parameters:
-    filename (str): The path to the Excel file.
-
-    Returns:
-    list: A list of image streams (BytesIO objects) extracted from the file.
-    """
     images = []
-    workbook = openpyxl.load_workbook(filename)
-    for sheet in workbook.worksheets:
-        for image in sheet._images:
-            img_stream = BytesIO()
-            img_stream.write(image.ref)
-            img_stream.seek(0)
-            images.append(img_stream)
+    try:
+        workbook = load_workbook(filename)
+        for sheet in workbook.worksheets:
+            for image in sheet._images:
+                img_stream = BytesIO()
+                img_stream.write(image.ref)
+                img_stream.seek(0)
+                images.append(img_stream)
+                logging.info(f"Gambar ditemukan di sheet '{sheet.title}'.")
+    except Exception as e:
+        logging.error("Error extracting images: ", exc_info=True)
     return images
-
 
 def count_vcf_contacts(filename):
     try:
