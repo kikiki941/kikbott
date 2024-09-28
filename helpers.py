@@ -14,39 +14,41 @@ from telebot.types import Message
 
 def convert_xls_to_xlsx_and_extract_images(xls_file, output_name):
     try:
-        # Membaca workbook dari file .xls
+        # Open the .xls file
         workbook = xlrd.open_workbook(xls_file)
         xlsx_file = f"files/{output_name}.xlsx"
-        
-        # Membuat workbook baru
+
+        # Create a new Workbook for .xlsx
         new_workbook = Workbook()
-        
-        # Copy data from .xls to .xlsx
         for sheet_index in range(workbook.nsheets):
             sheet = workbook.sheet_by_index(sheet_index)
             new_sheet = new_workbook.create_sheet(title=sheet.name)
 
+            # Copy data from .xls to .xlsx
             for row in range(sheet.nrows):
                 for col in range(sheet.ncols):
                     new_sheet.cell(row=row + 1, column=col + 1, value=sheet.cell_value(row, col))
 
-        # Simpan workbook baru
+        # Save the new workbook
         new_workbook.save(xlsx_file)
 
-        # Menyimpan gambar
-        images = []
+        # Load the newly created .xlsx file to extract images
         wb = load_workbook(xlsx_file)
+        images = []
 
         for sheet_name in wb.sheetnames:
             sheet = wb[sheet_name]
             for img in sheet._images:
-                img_path = f"files/{img.name}"
+                img_path = f"files/{img.ref}.png"  # Use the reference for naming the image file
                 images.append(img_path)
-                # Save the image to a file
-                img.image.save(img_path)
+                img.image.save(img_path)  # Save the image to a file
 
-        logging.info(f"Converted {xls_file} to {xlsx_file} and extracted images.")
-        return images  # Kembali hanya gambar
+        if not images:
+            logging.info(f"No images found in {xlsx_file}.")
+        else:
+            logging.info(f"Extracted {len(images)} images from {xlsx_file}.")
+
+        return images  # Return the list of images
 
     except Exception as e:
         logging.error(f"Error converting {xls_file} to .xlsx: {e}")
