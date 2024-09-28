@@ -18,7 +18,8 @@ async def get_images_command(message: Message):
 @bot.message_handler(state=HitungGambarState.waiting_for_file, content_types=['document'])
 async def excel_get(message: Message):
     try:
-        if not message.document.file_name.endswith(".xlsx"):
+        # Cek jika file yang diterima adalah file Excel
+        if not message.document.file_name.lower().endswith(".xlsx"):
             return await bot.send_message(message.chat.id, "Kirim file Excel (.xlsx) yang valid.")
 
         file = await bot.get_file(message.document.file_id)
@@ -29,7 +30,7 @@ async def excel_get(message: Message):
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
 
-        # Send images extracted from the Excel file
+        # Kirim gambar yang diekstrak dari file Excel
         images_sent = await send_images_from_excel(filename, message.chat.id)
 
         if images_sent == 0:
@@ -37,7 +38,7 @@ async def excel_get(message: Message):
         else:
             await bot.send_message(message.chat.id, f"{images_sent} gambar berhasil dikirim.")
 
-        os.remove(filename)  # Remove the Excel file after processing
+        os.remove(filename)  # Hapus file Excel setelah diproses
         await bot.delete_state(message.from_user.id, message.chat.id)
     except ApiTelegramException as e:
         logging.error("Telegram API error: ", exc_info=True)
@@ -45,19 +46,18 @@ async def excel_get(message: Message):
     except Exception as e:
         logging.error("Error in excel_get: ", exc_info=True)
         await bot.send_message(message.chat.id, "Terjadi kesalahan saat memproses file.")
-    finally:
-        # Tutup sesi jika diperlukan
-        await bot.close()
 
 async def send_images_from_excel(filename, chat_id):
     images_sent = 0
     try:
-        images = extract_images_from_excel(filename)
+        images = extract_images_from_excel(filename)  # Gunakan fungsi helper untuk mengekstrak gambar
+
         for img_stream in images:
             await bot.send_photo(chat_id, img_stream)
             images_sent += 1
     except Exception as e:
         logging.error("Error sending images: ", exc_info=True)
+
     return images_sent
 
 @bot.message_handler(state=HitungGambarState.waiting_for_file, commands=['cancel'])
