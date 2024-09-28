@@ -8,6 +8,23 @@ import csv
 from bot import *
 import os
 
+def count_vcf_contacts(filename):
+    try:
+        with open(filename, 'r', encoding='utf-8') as file:
+            contacts = 0
+            for line in file:
+                # Each contact starts with "BEGIN:VCARD"
+                if line.startswith("BEGIN:VCARD"):
+                    contacts += 1
+            return contacts
+    except FileNotFoundError:
+        print(f"File not found: {filename}")
+        return 0
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return 0
+
+
 def convert2(data):
     try:
         logging.info("Memulai proses konversi")
