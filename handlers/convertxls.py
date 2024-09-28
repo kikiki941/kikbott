@@ -57,7 +57,8 @@ async def name_get(message: Message):
 
             await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengekstrak gambar...')
             
-            images = convert_xls_to_xlsx_and_extract_images(xls_file, output_name)
+            # Panggil fungsi untuk mengekstrak gambar
+            images = extract_images_from_xls(xls_file)
 
             # Mengirim gambar satu per satu
             if images:
