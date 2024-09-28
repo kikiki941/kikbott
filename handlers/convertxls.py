@@ -55,21 +55,17 @@ async def name_get(message: Message):
             xls_file = data['filename']
             output_name = data['name']
 
-            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengonversi file...')
+            await bot.send_message(message.chat.id, f'Nama file diatur menjadi: {data["name"]}. Mulai mengekstrak gambar...')
             
-            xlsx_file, images = convert_xls_to_xlsx_and_extract_images(xls_file, output_name)
+            images = convert_xls_to_xlsx_and_extract_images(xls_file, output_name)
 
-            if xlsx_file:
-                await bot.send_document(message.chat.id, open(xlsx_file, 'rb'))
-                os.remove(xlsx_file)
-                
-                # Mengirim gambar
-                for img_path in images:
-                    await bot.send_photo(message.chat.id, open(img_path, 'rb'))
-                    os.remove(img_path)
+            # Mengirim gambar satu per satu
+            for img_path in images:
+                await bot.send_photo(message.chat.id, open(img_path, 'rb'))
+                os.remove(img_path)  # Hapus gambar setelah dikirim
 
-            os.remove(xls_file)
-            await bot.send_message(message.chat.id, "Konversi selesai!")
+            os.remove(xls_file)  # Hapus file .xls
+            await bot.send_message(message.chat.id, "Pengiriman gambar selesai!")
         
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
