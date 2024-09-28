@@ -1,6 +1,10 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
 
+class ConvertXlsState(StatesGroup):
+    filename = State()  # State for getting the filename
+    name = State()      # State for getting the output filename
+
 class ConvertState(StatesGroup):
     filename = State()
     name = State()
