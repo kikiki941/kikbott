@@ -6,28 +6,35 @@ import subprocess
 from datetime import datetime
 import csv
 from bot import *
-import os
-from openpyxl import load_workbook
-from io import BytesIO
 from PIL import Image
+import openpyxl
+import io
 
 def extract_images_from_excel(filename):
     images = []
     try:
-        workbook = load_workbook(filename, data_only=True)
+        # Mendeteksi format file
+        if filename.endswith('.xlsx'):
+            workbook = openpyxl.load_workbook(filename)
+        elif filename.endswith('.xls'):
+            workbook = openpyxl.load_workbook(filename, read_only=True, data_only=True)
+        elif filename.endswith('.xlsm'):
+            workbook = openpyxl.load_workbook(filename, keep_links=False)
+        else:
+            return images
+
         for sheet in workbook.worksheets:
-            for img in sheet._images:
-                # Pastikan untuk mengekstrak gambar dalam format yang benar
-                image_stream = BytesIO()
-                # Gunakan Pillow untuk menyimpan gambar dalam berbagai format
-                img.image.save(image_stream, format='PNG')  # Anda dapat mengubah format ini sesuai kebutuhan
-                image_stream.seek(0)
-                images.append(image_stream)
+            for image in sheet._images:
+                if isinstance(image, Image):
+                    image_stream = io.BytesIO()
+                    image.image.save(image_stream, format='PNG')  # Simpan gambar dalam format PNG
+                    image_stream.seek(0)
+                    images.append(image_stream)
+
+        return images
     except Exception as e:
         logging.error(f"Error extracting images: {e}")
-
-    return images
-
+        return images
 
 def count_vcf_contacts(filename):
     try:
