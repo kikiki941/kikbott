@@ -9,38 +9,51 @@ from openpyxl.drawing.image import Image as OpenPyXLImage
 from telebot.types import Message
 from io import BytesIO
 import subprocess
+import io
+import os
+from PIL import Image as PILImage
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyxlImage
-import io
-from PIL import Image as PILImage
-import os
+import xlrd
 
-def extract_images_from_xlsx(file_path):
-    # Memuat workbook
-    workbook = load_workbook(file_path, data_only=True)
-    sheet = workbook.active
-
-    # Mendapatkan gambar dari sheet
+def extract_images_from_excel(file_path):
+    ext = os.path.splitext(file_path)[1].lower()
     images = []
-    for drawing in sheet._images:
-        if isinstance(drawing, OpenPyxlImage):
-            images.append(drawing)
 
-    # Menyimpan gambar
-    image_paths = []
-    for idx, img in enumerate(images):
-        # Mendapatkan data gambar
-        image_data = io.BytesIO(img._data())
-        img_pil = PILImage.open(image_data)  # Membuka gambar dengan PIL
+    if ext == '.xlsx':
+        # Handle .xlsx files
+        workbook = load_workbook(file_path, data_only=True)
+        sheet = workbook.active
 
-        # Tentukan nama file untuk gambar
-        img_path = f"extracted_image_{idx}.png"
-        img_pil.save(img_path)  # Simpan gambar sebagai file PNG
-        image_paths.append(img_path)  # Tambahkan jalur file ke daftar
-        print(f"Gambar {idx} berhasil disimpan sebagai '{img_path}'.")
+        for drawing in sheet._images:
+            if isinstance(drawing, OpenPyxlImage):
+                images.append(drawing)
 
-    return image_paths  # Kembalikan daftar jalur file gambar
-  # Mengembalikan daftar gambar dalam format byte stream
+        for idx, img in enumerate(images):
+            image_data = io.BytesIO(img._data())
+            img_pil = PILImage.open(image_data)
+            img_path = f"extracted_image_{idx}.png"
+            img_pil.save(img_path)
+            images[idx] = img_path  # Store the path for returning
+            print(f"Gambar {idx} berhasil disimpan sebagai '{img_path}'.")
+
+    elif ext == '.xls':
+        # Handle .xls files
+        workbook = xlrd.open_workbook(file_path)
+        for sheet in workbook.sheets():
+            for row in range(sheet.nrows):
+                for col in range(sheet.ncols):
+                    cell = sheet.cell(row, col)
+                    if cell.ctype == xlrd.XL_CELL_PICTURE:
+                        # Extract the picture (only if it is a picture cell)
+                        image = cell.value
+                        img_path = f"extracted_image_{row}_{col}.png"
+                        with open(img_path, 'wb') as img_file:
+                            img_file.write(image)
+                        images.append(img_path)
+                        print(f"Gambar dari sel ({row}, {col}) berhasil disimpan sebagai '{img_path}'.")
+
+    return images  # Return a list of extracted image file paths
 
 def count_vcf_contacts(filename):
     try:
