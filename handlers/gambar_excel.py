@@ -2,7 +2,7 @@ import logging
 import os
 from telebot.types import Message
 from bot import bot
-from helpers import extract_images_from_excel  # Menggunakan helper untuk ekstraksi gambar
+from helpers import extract_images_from_xlsx  # Menggunakan helper untuk ekstraksi gambar
 from state import ConvertXlsImagesState
 
 @bot.message_handler(commands='extractimages')
