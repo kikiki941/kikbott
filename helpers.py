@@ -1,21 +1,20 @@
 import pandas as pd
 import os
 import re
-import logging
 import subprocess
 from datetime import datetime
 import csv
 from bot import *
-from openpyxl import Workbook
-import xlrd
-from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyXLImage
 from telebot.types import Message
-import io
 from io import BytesIO
 import openpyxl
 import subprocess
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image  # Tidak perlu mengganti nama kelas Image
+import io
 from PIL import Image as PILImage
+import logging
 
 def extract_images_from_excel(file_path):
     try:
@@ -26,7 +25,7 @@ def extract_images_from_excel(file_path):
         # Mendapatkan gambar dari sheet
         images = []
         for drawing in sheet._images:
-            if isinstance(drawing, OpenPyxlImage):
+            if isinstance(drawing, Image):
                 images.append(drawing)
 
         # Menyimpan gambar
@@ -45,6 +44,7 @@ def extract_images_from_excel(file_path):
     except Exception as e:
         logging.error(f"Error saat mengekstrak gambar: {e}")
         return []
+
   # Mengembalikan daftar gambar dalam format byte stream
 
 def count_vcf_contacts(filename):
