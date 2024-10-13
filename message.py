@@ -174,4 +174,7 @@ txt_start = """
 /hapuss - menghapus file txt yang ada + dan spasi.
 /1kolom - menggabung file txt. beberapa kolom menjadi 1 kolom.
 seperti file xlsx yang di salin di txt yang ber kolom banyak
+/extractimages - untuk mengambil gambar di xlsx
+/count_contacts - menghitung CTC atau Kontak
+
 """
