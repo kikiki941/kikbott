@@ -4,7 +4,6 @@ from enum import Enum
 class ConvertXlsImagesState(State):
     filename = State()
     name = State()
-# Menunggu nama file untuk konversi
 
 class ConvertState(StatesGroup):
     filename = State()
