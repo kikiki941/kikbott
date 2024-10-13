@@ -42,12 +42,13 @@ async def xlsx_get(message: Message):
         # Proses ekstraksi gambar
         try:
             await bot.send_message(message.chat.id, "File diterima. Mengekstrak gambar...")
-            images = extract_images_from_excel(filename)
+            image_paths = extract_images_from_xlsx(filename)  # Perubahan di sini
             
-            if images:
-                for img in images:
-                    await bot.send_photo(message.chat.id, img)
-                logging.info(f"{len(images)} gambar berhasil diekstrak.")
+            if image_paths:
+                for img_path in image_paths:
+                    with open(img_path, 'rb') as img_file:
+                        await bot.send_photo(message.chat.id, img_file)
+                logging.info(f"{len(image_paths)} gambar berhasil diekstrak.")
             else:
                 await bot.send_message(message.chat.id, "Tidak ada gambar ditemukan dalam file.")
                 logging.info("Tidak ada gambar ditemukan dalam file .xlsx")
@@ -63,4 +64,3 @@ async def xlsx_get(message: Message):
         await bot.delete_state(message.from_user.id, message.chat.id)
     except Exception as e:
         logging.error("Error in xlsx_get: ", exc_info=True)
-
