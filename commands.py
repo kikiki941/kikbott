@@ -18,7 +18,7 @@ async def set_commands():
       BotCommand('hapuss', 'menghapus awalan + dan spasi'),
       BotCommand('1kolom', 'menggabung file txt. beberapa kolom menjadi 1 kolom'),
       BotCommand('count_contacts', 'menghitung CTC atau Kontak'),
-      BotCommand('get_images', 'untuk mengambil gambar di excel'),
+      BotCommand('extractimages', 'untuk mengambil gambar di xlsx'),
       BotCommand('cancel', 'Membatalkan proses'),
       
     ],
