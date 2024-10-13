@@ -42,7 +42,7 @@ async def xls_get(message: Message):
         # Proses ekstraksi gambar
         try:
             await bot.send_message(message.chat.id, "File diterima. Mengekstrak gambar...")
-            image_paths = extract_images_from_excel(filename)  # Call the new function
+            image_paths = extract_images_from_excel(filename)  # Call the updated function
             
             if image_paths:
                 for img_path in image_paths:
