@@ -56,36 +56,6 @@ def convert_xls_to_xlsx(xls_file):
         logging.error(f"Error during conversion: {e}")
         return None
 
-def extract_images_from_excel(excel_file):
-    """
-    Ekstrak gambar dari file Excel dan mengembalikannya dalam format yang didukung oleh Telegram.
-    """
-    images = []
-    try:
-        wb = load_workbook(excel_file)
-        for sheet in wb.sheetnames:
-            ws = wb[sheet]
-            if hasattr(ws, '_images'):
-                for image in ws._images:
-                    image_bytes = image._data()  # Mengambil data gambar sebagai bytes
-                    img_stream = BytesIO(image_bytes)
-                    
-                    # Deteksi format gambar menggunakan PIL
-                    img = Image.open(img_stream)
-                    
-                    # Simpan gambar sementara ke BytesIO untuk dikirim melalui bot
-                    img_output = BytesIO()
-                    img_format = img.format if img.format else 'PNG'  # Default ke PNG jika format tidak diketahui
-                    img.save(img_output, format=img_format)
-                    img_output.seek(0)  # Kembali ke awal stream
-                    
-                    images.append(img_output)
-        wb.close()
-    except Exception as e:
-        logging.error("Error extracting images from Excel file: ", exc_info=True)
-    
-    return images
-
 def count_vcf_contacts(filename):
     try:
         with open(filename, 'r', encoding='utf-8') as file:
