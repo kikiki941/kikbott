@@ -8,43 +8,38 @@ from bot import *
 from openpyxl.drawing.image import Image as OpenPyXLImage
 from telebot.types import Message
 from io import BytesIO
-import openpyxl
 import subprocess
 from openpyxl import load_workbook
-from openpyxl.drawing.image import Image  # Tidak perlu mengganti nama kelas Image
+from openpyxl.drawing.image import Image as OpenPyxlImage
 import io
 from PIL import Image as PILImage
-import logging
+import os
 
-def extract_images_from_excel(file_path):
-    try:
-        # Memuat workbook
-        workbook = load_workbook(file_path, data_only=True)
-        sheet = workbook.active
+def extract_images_from_xlsx(file_path):
+    # Memuat workbook
+    workbook = load_workbook(file_path, data_only=True)
+    sheet = workbook.active
 
-        # Mendapatkan gambar dari sheet
-        images = []
-        for drawing in sheet._images:
-            if isinstance(drawing, Image):
-                images.append(drawing)
+    # Mendapatkan gambar dari sheet
+    images = []
+    for drawing in sheet._images:
+        if isinstance(drawing, OpenPyxlImage):
+            images.append(drawing)
 
-        # Menyimpan gambar
-        extracted_images = []
-        for idx, img in enumerate(images):
-            image_data = io.BytesIO(img._data())  # Mendapatkan data gambar
-            img_pil = PILImage.open(image_data)   # Membuka gambar dengan PIL
+    # Menyimpan gambar
+    image_paths = []
+    for idx, img in enumerate(images):
+        # Mendapatkan data gambar
+        image_data = io.BytesIO(img._data())
+        img_pil = PILImage.open(image_data)  # Membuka gambar dengan PIL
 
-            # Simpan gambar sebagai file PNG
-            img_path = f"extracted_image_{idx}.png"
-            img_pil.save(img_path)
-            extracted_images.append(img_path)
-            logging.info(f"Gambar {idx} berhasil disimpan sebagai 'extracted_image_{idx}.png'.")
+        # Tentukan nama file untuk gambar
+        img_path = f"extracted_image_{idx}.png"
+        img_pil.save(img_path)  # Simpan gambar sebagai file PNG
+        image_paths.append(img_path)  # Tambahkan jalur file ke daftar
+        print(f"Gambar {idx} berhasil disimpan sebagai '{img_path}'.")
 
-        return extracted_images
-    except Exception as e:
-        logging.error(f"Error saat mengekstrak gambar: {e}")
-        return []
-
+    return image_paths  # Kembalikan daftar jalur file gambar
   # Mengembalikan daftar gambar dalam format byte stream
 
 def count_vcf_contacts(filename):
