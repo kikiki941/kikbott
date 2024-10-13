@@ -10,11 +10,10 @@ from telebot.types import Message
 from io import BytesIO
 import subprocess
 import io
-import os
 from PIL import Image as PILImage
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyxlImage
-import xlrd
+import xlwings as xw
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
@@ -38,20 +37,23 @@ def extract_images_from_excel(file_path):
             print(f"Gambar {idx} berhasil disimpan sebagai '{img_path}'.")
 
     elif ext == '.xls':
-        # Handle .xls files
-        workbook = xlrd.open_workbook(file_path)
-        for sheet in workbook.sheets():
-            for row in range(sheet.nrows):
-                for col in range(sheet.ncols):
-                    cell = sheet.cell(row, col)
-                    if cell.ctype == xlrd.XL_CELL_PICTURE:
-                        # Extract the picture (only if it is a picture cell)
-                        image = cell.value
-                        img_path = f"extracted_image_{row}_{col}.png"
-                        with open(img_path, 'wb') as img_file:
-                            img_file.write(image)
-                        images.append(img_path)
-                        print(f"Gambar dari sel ({row}, {col}) berhasil disimpan sebagai '{img_path}'.")
+        # Handle .xls files using xlwings
+        app = xw.App(visible=False)
+        wb = app.books.open(file_path)
+        sheet = wb.sheets[0]
+
+        for shape in sheet.shapes:
+            if shape.type == 'Picture':
+                img_path = f"extracted_image_{shape.name}.png"
+                shape.api.CopyPicture()  # Copy the picture
+                img = PILImage.new("RGB", (shape.width, shape.height))
+                img.paste(PILImage.open(io.BytesIO(xw.books.active.api.Selection.CopyPicture())))
+                img.save(img_path)
+                images.append(img_path)
+                print(f"Gambar '{shape.name}' berhasil disimpan sebagai '{img_path}'.")
+
+        wb.close()
+        app.quit()
 
     return images  # Return a list of extracted image file paths
 
