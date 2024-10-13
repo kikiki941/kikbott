@@ -18,28 +18,34 @@ import subprocess
 from PIL import Image as PILImage
 
 def extract_images_from_excel(file_path):
-    """
-    Mengekstrak gambar dari file Excel (.xlsx) dan mengembalikan daftar gambar dalam format yang bisa dikirim oleh bot.
-    """
-    # Memuat workbook
-    workbook = load_workbook(file_path, data_only=True)
-    sheet = workbook.active
+    try:
+        # Memuat workbook
+        workbook = load_workbook(file_path, data_only=True)
+        sheet = workbook.active
 
-    # Mendapatkan gambar dari sheet
-    images = []
-    for img in sheet._images:
-        if isinstance(img, OpenPyxlImage):  # Memastikan bahwa objek adalah gambar
-            # Mendapatkan data gambar
-            image_data = io.BytesIO(img._data())
-            img_pil = PILImage.open(image_data)
+        # Mendapatkan gambar dari sheet
+        images = []
+        for drawing in sheet._images:
+            if isinstance(drawing, OpenPyxlImage):
+                images.append(drawing)
 
-            # Simpan gambar dalam format yang bisa diakses oleh bot
-            img_bytes = io.BytesIO()
-            img_pil.save(img_bytes, format='PNG')
-            img_bytes.seek(0)  # Reset posisi ke awal
-            images.append(img_bytes)  # Menyimpan gambar dalam bentuk byte stream untuk dikirim via bot
-    
-    return images  # Mengembalikan daftar gambar dalam format byte stream
+        # Menyimpan gambar
+        extracted_images = []
+        for idx, img in enumerate(images):
+            image_data = io.BytesIO(img._data())  # Mendapatkan data gambar
+            img_pil = PILImage.open(image_data)   # Membuka gambar dengan PIL
+
+            # Simpan gambar sebagai file PNG
+            img_path = f"extracted_image_{idx}.png"
+            img_pil.save(img_path)
+            extracted_images.append(img_path)
+            logging.info(f"Gambar {idx} berhasil disimpan sebagai 'extracted_image_{idx}.png'.")
+
+        return extracted_images
+    except Exception as e:
+        logging.error(f"Error saat mengekstrak gambar: {e}")
+        return []
+  # Mengembalikan daftar gambar dalam format byte stream
 
 def count_vcf_contacts(filename):
     try:
