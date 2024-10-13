@@ -41,21 +41,6 @@ def extract_images_from_excel(file_path):
     
     return images  # Mengembalikan daftar gambar dalam format byte stream
 
-
-def convert_xls_to_xlsx(xls_file):
-    try:
-        # Menggunakan LibreOffice untuk mengonversi file .xls ke .xlsx
-        result = subprocess.run(['libreoffice', '--headless', '--convert-to', 'xlsx', xls_file], check=True)
-        xlsx_file = xls_file.replace('.xls', '.xlsx')
-        if os.path.exists(xlsx_file):
-            return xlsx_file
-        else:
-            logging.error("File .xlsx tidak ditemukan setelah konversi.")
-            return None
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error during conversion: {e}")
-        return None
-
 def count_vcf_contacts(filename):
     try:
         with open(filename, 'r', encoding='utf-8') as file:
