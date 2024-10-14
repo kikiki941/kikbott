@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import re
+import logging
 import subprocess
 from datetime import datetime
 import csv
