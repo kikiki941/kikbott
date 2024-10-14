@@ -1,6 +1,15 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
 
+class Convert2State(StatesGroup):
+    upload_file = State()  # State for uploading the .txt file
+    file_name_change = State()  # State for checking if file names will change
+    file_name_count = State()  # State for specifying how many times the file name will change
+    file_names = State()  # State for entering the file names
+    contact_names = State()  # State for entering the contact names
+    contacts_per_file = State()  # State for specifying the number of contacts per file
+    total_files = State()  # State for specifying the total number of files
+
 class ConvertXlsImagesState(State):
     filename = State()
     name = State()
