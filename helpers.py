@@ -21,11 +21,12 @@ def convert2(data):
         logging.info("Memulai proses konversi...")
 
         filename = data['filename']
-        totalc = data['totalc']
-        totalf = data['totalf']
-        file_change_frequency = data['file_change_frequency']
-        file_names = data['file_names']
-        contact_names = data['contact_names']
+        totalc = data['totalc']  # Kontak per file
+        totalf = data['totalf']  # Total file
+        file_change_frequency = data['file_change_frequency']  # Frekuensi perubahan nama file
+        file_names = data['file_names']  # Nama file
+        contact_names = data['contact_names']  # Nama kontak
+        reset_contact_number = data['reset_contact_number']  # Apakah reset penomoran per file
 
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
@@ -35,6 +36,7 @@ def convert2(data):
 
         vcf_files = []
         current_contact_index = 0
+        global_contact_number = 1  # Global penomoran kontak
 
         for i in range(totalf):
             file_index = i // file_change_frequency
@@ -42,7 +44,7 @@ def convert2(data):
                 file_index = len(file_names) - 1
 
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"  # Ganti _ dengan spasi
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
@@ -53,32 +55,26 @@ def convert2(data):
                     if current_contact_index >= len(contacts):
                         break
                     contact = contacts[current_contact_index]
+                    current_contact_index += 1
 
-                    contact_number = j + 1
+                    # Reset penomoran jika reset_contact_number diaktifkan dan file_name berubah
+                    if reset_contact_number and j == 0 and file_number == 1:  # Reset jika diatur
+                        global_contact_number = 1
 
-                    # Ganti _ dengan spasi di sini
+                    # Penomoran kontak akan di-reset jika reset_contact_number diaktifkan
+                    contact_number = global_contact_number
+                    global_contact_number += 1
+
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
-                    current_contact_index += 1
-
             vcf_files.append(vcf_filename)
 
-        if current_contact_index < len(contacts):
-            sisa = contacts[current_contact_index:]  # Ambil sisa kontak
-            file_txt = "files/sisa.txt"
-            vcf_files.append(file_txt)
-
-            with open(file_txt, 'w', encoding='utf-8') as file:
-                file.write("\n".join(sisa) + "\n")
-
-        logging.info("Proses konversi selesai.")
         return vcf_files
 
     except Exception as e:
-        logging.error("Error during conversion process: ", exc_info=True)
-        raise e
-
+        logging.error("Error in convert2 function: ", exc_info=True)
+        raise
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
