@@ -17,62 +17,70 @@ from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
 def convert2(data):
-    """
-    Fungsi untuk mengonversi data dari file .txt ke .vcf.
-    Menggunakan data yang diterima dari pengguna seperti nama file, jumlah kontak per file, dll.
-    """
-    filename = data['filename']
-    file_change_count = data['file_change_count']
-    file_change_frequency = data['file_change_frequency']
-    file_names = data['file_names']
-    contact_names = data['contact_names']
-    total_contacts_per_file = data['totalc']
-    total_files = data['totalf']
+    try:
+        logging.info("Memulai proses konversi...")
 
-    # Baca isi dari file .txt
-    with open(filename, 'r') as file:
-        contacts = file.readlines()
+        # Log detail dari data yang diterima
+        logging.info(f"Data yang diterima untuk konversi: {data}")
 
-    vcf_files = []
-    current_file_index = 0
-    current_contact_index = 0
-    contact_count = 0
+        filename = data['filename']  # Nama file .txt yang sudah diunduh
+        totalc = data['totalc']  # Jumlah kontak per file
+        totalf = data['totalf']  # Jumlah file yang harus dihasilkan
+        file_change_frequency = data['file_change_frequency']  # Setiap berapa file nama akan berubah
+        file_names = data['file_names']  # Daftar nama file yang akan digunakan
+        contact_names = data['contact_names']  # Daftar nama kontak yang dimasukkan oleh pengguna
 
-    for file_num in range(total_files):
-        # Tentukan nama file
-        if current_file_index < file_change_count:
-            vcf_filename = f"{file_names[current_file_index]}.vcf"
-        else:
-            vcf_filename = f"file_{file_num + 1}.vcf"
-        
-        vcf_files.append(vcf_filename)
+        # Baca isi file .txt yang berisi daftar kontak
+        with open(filename, 'r') as f:
+            contacts = [line.strip() for line in f.readlines()]
 
-        # Tulis file .vcf
-        with open(vcf_filename, 'w') as vcf_file:
-            for _ in range(total_contacts_per_file):
-                if current_contact_index >= len(contacts):
-                    break
-                # Ambil kontak dari .txt
-                contact = contacts[current_contact_index].strip()
-                contact_name = contact_names[current_file_index] if current_file_index < len(contact_names) else f"Contact {contact_count + 1}"
+        logging.info(f"Jumlah total kontak dalam file: {len(contacts)}")
 
-                # Tulis format vCard
-                vcf_file.write(f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\nTEL:{contact}\nEND:VCARD\n")
-                current_contact_index += 1
-                contact_count += 1
+        if len(contacts) < totalc * totalf:
+            raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
 
-        # Ganti nama file berdasarkan frekuensi perubahan
-        if (file_num + 1) % file_change_frequency == 0 and current_file_index < file_change_count - 1:
-            current_file_index += 1
+        vcf_files = []  # List untuk menyimpan nama file VCF yang akan dibuat
 
-    return vcf_files
+        current_contact_index = 0
+        for i in range(totalf):
+            # Tentukan nama file berdasarkan frekuensi penggantian nama
+            file_index = i // file_change_frequency
+            if file_index >= len(file_names):
+                file_index = len(file_names) - 1  # Jika file_names habis, gunakan nama terakhir
 
-def is_digit(message):
-    """
-    Fungsi utilitas untuk memeriksa apakah pesan berisi angka.
-    Digunakan untuk memvalidasi input pengguna dalam bentuk angka.
-    """
-    return message.text.isdigit()
+            # Penomoran file di-reset saat nama file berganti
+            file_number = (i % file_change_frequency) + 1
+            vcf_filename = f"{file_names[file_index]}_{file_number}.vcf"
+            logging.info(f"Membuat file VCF: {vcf_filename}")
+
+            # Tentukan nama kontak yang sesuai dengan file saat ini
+            contact_name_index = file_index % len(contact_names)
+            contact_name = contact_names[contact_name_index]
+
+            with open(vcf_filename, 'w') as vcf_file:
+                for j in range(totalc):
+                    if current_contact_index >= len(contacts):
+                        break
+                    contact = contacts[current_contact_index]
+
+                    # Penomoran kontak dimulai dari 1 di setiap file
+                    contact_number = j + 1
+
+                    # Format isi file VCF (contoh sederhana)
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}_{contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                    vcf_file.write(vcf_content)
+
+                    current_contact_index += 1  # Geser ke kontak berikutnya
+
+            vcf_files.append(vcf_filename)  # Tambahkan nama file yang sudah dibuat ke daftar
+
+        logging.info("Proses konversi selesai.")
+        return vcf_files
+
+    except Exception as e:
+        logging.error("Error during conversion process: ", exc_info=True)
+        raise e
+
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
