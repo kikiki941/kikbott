@@ -1,7 +1,7 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
 
-class ConvertState(StatesGroup):
+class Convert2State(StatesGroup):
     filename = State()    # Menerima file .txt
     name = State()        # Nama file vcf pertama
     cname = State()       # Nama kontak per file
