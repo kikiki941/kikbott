@@ -13,7 +13,7 @@ from state import Convert2State
 async def convert_command(message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
-        await bot.set_state(message.from_user.id, ConvertState.filename, message.chat.id)
+        await bot.set_state(message.from_user.id, Convert2State.filename, message.chat.id)
         await bot.reply_to(message, txt2_convert)
     except Exception as e:
         logging.error("error: ", exc_info=True)
