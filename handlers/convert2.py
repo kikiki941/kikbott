@@ -6,7 +6,7 @@ from telebot.types import Message
 from telebot.apihelper import ApiTelegramException
 from bot import bot
 from message import *
-from helpers import *
+from helpers import convert2
 from state import Convert2State
 
 @bot.message_handler(commands='convert2')
