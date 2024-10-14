@@ -75,7 +75,7 @@ def count_vcf_contacts(filename):
 
 def generate_vcf_files(txt_file, config):
     """
-    Fungsi untuk mengonversi file .txt menjadi beberapa file .vcf sesuai konfigurasi.
+    Fungsi untuk mengonversi file .txt menjadi beberapa file .vcf sesuai konfigurasi pengguna.
     """
     try:
         # Baca file .txt yang berisi daftar nomor telepon
@@ -85,9 +85,9 @@ def generate_vcf_files(txt_file, config):
         # Konfigurasi yang diterima dari input pengguna
         num_files = config['num_files']
         contacts_per_file = config['contacts_per_file']
-        change_filename = config['change_filename']
-        filenames = config['filenames']
-        contact_names = config['contact_names']
+        change_filename = config['file_name_change']
+        filenames = config['file_names_list']
+        contact_names = config['contact_names_list']
 
         # Hitung total kontak yang ada di file .txt
         total_contacts = len(lines)
@@ -131,8 +131,6 @@ def generate_vcf_files(txt_file, config):
     except Exception as e:
         print(f"Error saat menghasilkan file .vcf: {e}")
         return False
-
-
 
 def rearrange_to_one_column(input_file, output_file):
     try:
