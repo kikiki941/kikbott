@@ -16,6 +16,64 @@ from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
+def convert2(data):
+    """
+    Fungsi untuk mengonversi data dari file .txt ke .vcf.
+    Menggunakan data yang diterima dari pengguna seperti nama file, jumlah kontak per file, dll.
+    """
+    filename = data['filename']
+    file_change_count = data['file_change_count']
+    file_change_frequency = data['file_change_frequency']
+    file_names = data['file_names']
+    contact_names = data['contact_names']
+    total_contacts_per_file = data['totalc']
+    total_files = data['totalf']
+
+    # Baca isi dari file .txt
+    with open(filename, 'r') as file:
+        contacts = file.readlines()
+
+    vcf_files = []
+    current_file_index = 0
+    current_contact_index = 0
+    contact_count = 0
+
+    for file_num in range(total_files):
+        # Tentukan nama file
+        if current_file_index < file_change_count:
+            vcf_filename = f"{file_names[current_file_index]}.vcf"
+        else:
+            vcf_filename = f"file_{file_num + 1}.vcf"
+        
+        vcf_files.append(vcf_filename)
+
+        # Tulis file .vcf
+        with open(vcf_filename, 'w') as vcf_file:
+            for _ in range(total_contacts_per_file):
+                if current_contact_index >= len(contacts):
+                    break
+                # Ambil kontak dari .txt
+                contact = contacts[current_contact_index].strip()
+                contact_name = contact_names[current_file_index] if current_file_index < len(contact_names) else f"Contact {contact_count + 1}"
+
+                # Tulis format vCard
+                vcf_file.write(f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}\nTEL:{contact}\nEND:VCARD\n")
+                current_contact_index += 1
+                contact_count += 1
+
+        # Ganti nama file berdasarkan frekuensi perubahan
+        if (file_num + 1) % file_change_frequency == 0 and current_file_index < file_change_count - 1:
+            current_file_index += 1
+
+    return vcf_files
+
+def is_digit(message):
+    """
+    Fungsi utilitas untuk memeriksa apakah pesan berisi angka.
+    Digunakan untuk memvalidasi input pengguna dalam bentuk angka.
+    """
+    return message.text.isdigit()
+
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
     images = []
