@@ -20,40 +20,31 @@ def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
 
-        # Log detail dari data yang diterima
-        logging.info(f"Data yang diterima untuk konversi: {data}")
+        filename = data['filename']
+        totalc = data['totalc']
+        totalf = data['totalf']
+        file_change_frequency = data['file_change_frequency']
+        file_names = data['file_names']
+        contact_names = data['contact_names']
 
-        filename = data['filename']  # Nama file .txt yang sudah diunduh
-        totalc = data['totalc']  # Jumlah kontak per file
-        totalf = data['totalf']  # Jumlah file yang harus dihasilkan
-        file_change_frequency = data['file_change_frequency']  # Setiap berapa file nama akan berubah
-        file_names = data['file_names']  # Daftar nama file yang akan digunakan
-        contact_names = data['contact_names']  # Daftar nama kontak yang dimasukkan oleh pengguna
-
-        # Baca isi file .txt yang berisi daftar kontak
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
-
-        logging.info(f"Jumlah total kontak dalam file: {len(contacts)}")
 
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
 
-        vcf_files = []  # List untuk menyimpan nama file VCF yang akan dibuat
-
+        vcf_files = []
         current_contact_index = 0
+
         for i in range(totalf):
-            # Tentukan nama file berdasarkan frekuensi penggantian nama
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
-                file_index = len(file_names) - 1  # Jika file_names habis, gunakan nama terakhir
+                file_index = len(file_names) - 1
 
-            # Penomoran file di-reset saat nama file berganti
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{file_names[file_index]}_{file_number}.vcf"
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"  # Ganti _ dengan spasi
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
-            # Tentukan nama kontak yang sesuai dengan file saat ini
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
@@ -63,16 +54,15 @@ def convert2(data):
                         break
                     contact = contacts[current_contact_index]
 
-                    # Penomoran kontak dimulai dari 1 di setiap file
                     contact_number = j + 1
 
-                    # Format isi file VCF (contoh sederhana)
-                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name}_{contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                    # Ganti _ dengan spasi di sini
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
-                    current_contact_index += 1  # Geser ke kontak berikutnya
+                    current_contact_index += 1
 
-            vcf_files.append(vcf_filename)  # Tambahkan nama file yang sudah dibuat ke daftar
+            vcf_files.append(vcf_filename)
 
         logging.info("Proses konversi selesai.")
         return vcf_files
