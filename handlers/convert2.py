@@ -26,14 +26,16 @@ async def txt_get(message: Message):
 
         file = await bot.get_file(message.document.file_id)
         filename = f"files/{message.document.file_name}"
-
-        await bot.set_state(message.from_user.id, Convert2State.file_change_count, message.chat.id)
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['filename'] = filename
+        logging.info(f"File akan disimpan dengan nama: {filename}")
 
         downloaded_file = await bot.download_file(file.file_path)
         with open(filename, 'wb') as new_file:
             new_file.write(downloaded_file)
+        logging.info(f"File berhasil diunduh dan disimpan sebagai: {filename}")
+
+        await bot.set_state(message.from_user.id, Convert2State.file_change_count, message.chat.id)
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['filename'] = filename
 
         await bot.send_message(message.chat.id, 'File diterima. Berapa kali nama file akan berganti?')
     except Exception as e:
@@ -114,7 +116,11 @@ async def totalf_get(message: Message):
         await bot.send_message(message.chat.id, f'Jumlah file diatur menjadi: {message.text}. Mulai mengonversi...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['totalf'] = int(message.text)
-            vcf_files = convert(data)
+
+            # Logging sebelum konversi
+            logging.info(f"Memulai konversi untuk {data['totalf']} file, dengan jumlah kontak per file: {data['totalc']}")
+            
+            vcf_files = convert2(data)  # Pastikan ini adalah fungsi yang benar dari helpers.py
 
             os.remove(data['filename'])
 
@@ -126,6 +132,7 @@ async def totalf_get(message: Message):
                 except ApiTelegramException as e:
                     if "Too Many Requests" in e.description:
                         delay = int(findall('\d+', e.description)[0])
+                        logging.info(f"Too many requests, delaying for {delay} seconds.")
                         await sleep(delay)
                     else:
                         logging.error("Telegram API error: ", exc_info=True)
