@@ -2,7 +2,7 @@
 import logging
 from telebot.types import Message
 from bot import bot
-from helpers import process_txt_file, generate_vcf_files
+from helpers import generate_vcf_files
 from state import Convert2State
 
 @bot.message_handler(commands=['convert2'])
