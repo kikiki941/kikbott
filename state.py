@@ -1,15 +1,16 @@
 from telebot.asyncio_handler_backends import State, StatesGroup
 from enum import Enum
 
+from telebot.handler_backends import State, StatesGroup
+
 class Convert2State(StatesGroup):
     filename = State()    # Menerima file .txt
-    name = State()        # Nama file vcf pertama
-    cname = State()       # Nama kontak per file
-    totalc = State()      # Jumlah kontak per file
-    totalf = State()      # Jumlah file
-    file_change_count = State()  # Berapa kali berganti nama file
+    file_change_count = State()  # Berapa kali nama file akan berganti
     file_change_frequency = State()  # Setiap berapa file nama file akan berganti
-    file_names = State()  # Nama file yang akan digunakan saat perubahan nama
+    file_names = State()  # Nama file yang akan digunakan
+    contact_names = State()  # Nama kontak per file
+    totalc = State()  # Jumlah kontak per file
+    totalf = State()  # Jumlah file Nama file yang akan digunakan saat perubahan nama
 
 class ConvertXlsImagesState(State):
     filename = State()
