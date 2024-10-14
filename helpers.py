@@ -74,64 +74,37 @@ def count_vcf_contacts(filename):
         print(f"An error occurred: {e}")
         return 0
 
-def generate_vcf_files(txt_file, config):
-    """
-    Fungsi untuk mengonversi file .txt menjadi beberapa file .vcf sesuai konfigurasi pengguna.
-    """
+def generate_vcf_files(data):
     try:
-        # Baca file .txt yang berisi daftar nomor telepon
-        with open(txt_file, 'r') as f:
-            lines = f.readlines()
-
-        # Konfigurasi yang diterima dari input pengguna
-        num_files = config['num_files']
-        contacts_per_file = config['contacts_per_file']
-        change_filename = config['file_name_change']
-        filenames = config['file_names_list']
-        contact_names = config['contact_names_list']
-
-        # Hitung total kontak yang ada di file .txt
-        total_contacts = len(lines)
-        if total_contacts == 0:
-            raise ValueError("File .txt tidak memiliki kontak.")
-
-        # Proses konversi
-        contacts_idx = 0
-        for file_idx in range(num_files):
-            # Tentukan nama file .vcf berdasarkan konfigurasi
-            if change_filename and file_idx < len(filenames):
-                vcf_filename = filenames[file_idx]
-            else:
-                vcf_filename = f"contacts_{file_idx + 1}.vcf"
-
-            # Buka file .vcf baru untuk menulis kontak
-            with open(vcf_filename, 'w') as vcf_file:
-                for _ in range(contacts_per_file):
-                    if contacts_idx >= total_contacts:
-                        break
-
-                    # Ambil nama kontak dan nomor telepon
-                    contact_name = contact_names[file_idx] if file_idx < len(contact_names) else f"Contact {contacts_idx + 1}"
-                    phone_number = lines[contacts_idx].strip()
-
-                    # Tuliskan kontak dalam format VCF
-                    vcf_file.write(f"BEGIN:VCARD\n")
-                    vcf_file.write(f"VERSION:3.0\n")
-                    vcf_file.write(f"N:{contact_name};;;\n")
-                    vcf_file.write(f"FN:{contact_name}\n")
-                    vcf_file.write(f"TEL;TYPE=CELL:{phone_number}\n")
-                    vcf_file.write(f"END:VCARD\n")
-
-                    contacts_idx += 1
-
-            print(f"File VCF '{vcf_filename}' berhasil dibuat dengan {contacts_per_file} kontak.")
-
-        print("Proses konversi selesai.")
-        return True
-
+        file_names = data['file_names_list']
+        contact_names = data['contact_names_list']
+        contacts_per_file = data['contacts_per_file']
+        total_files = data['total_files']
+        file_path = data['file_path']
+        
+        contacts = []
+        with open(file_path, 'r') as file:
+            contacts = file.readlines()
+        
+        current_contact = 0
+        for i in range(total_files):
+            file_name = file_names[i % len(file_names)]
+            contact_name = contact_names[i % len(contact_names)]
+            
+            vcf_content = ""
+            for j in range(contacts_per_file):
+                if current_contact >= len(contacts):
+                    break
+                vcf_content += f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {j+1}\nTEL:{contacts[current_contact].strip()}\nEND:VCARD\n"
+                current_contact += 1
+            
+            vcf_file = f"files/{file_name}_{i+1}.vcf"
+            with open(vcf_file, 'w') as file:
+                file.write(vcf_content)
+                
+            # Here you could add logic to send each file to the user
     except Exception as e:
-        print(f"Error saat menghasilkan file .vcf: {e}")
-        return False
+        print(f"Error in generate_vcf_files: {e}")
 
 def rearrange_to_one_column(input_file, output_file):
     try:
