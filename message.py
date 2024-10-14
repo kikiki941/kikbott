@@ -13,20 +13,23 @@ txt_convert = """
 Selamat menggunakan ~!
 """
 
-txt_convert2 = """
-<b>Tutorial Convert</b>
+txt2_convert = """
+<b>Tutorial Convert2</b>
 
-1. Kirim file .txt yang berisi daftar nomor telepon
-2. Bot akan menanyakan detail file satu per satu
-  - Nama File
-  - Nama Kontak
-  - Apakah setiap beberapa file akan berganti?
-  - Jumlah Kontak per File
-  - Jumlah File
-3. Setelah semua detail diberikan bot akan mengonversi file .txt menjadi .vcf sesuai pengaturan sebelumnya dan dikirimkan kepada Anda.
-4. Untuk memulai konversi kembali kirim perintah /convert
+1. Kirim file .txt yang berisi daftar nomor telepon.
+2. Bot akan menanyakan detail file satu per satu:
+   - Apakah nama file akan berganti y/t?
+   - Berapa kali berganti nama file? (Input pengguna)
+   - Setiap berapa file nama file akan berganti? (Input pengguna)
+   - Nama file (sesuai berapa kali nama file berganti)
+   - Nama kontak per file (sesuai berapa kali nama file berganti)
+   - Jumlah Kontak per File
+   - Jumlah File
+3. Setelah semua detail diberikan, bot akan mengonversi file .txt menjadi .vcf sesuai pengaturan sebelumnya dan dikirimkan kepada Anda.
+4. Untuk memulai konversi kembali, kirim perintah /convert2.
 
 Selamat menggunakan ~!
+
 """
 
 txt_convertvcf = """
