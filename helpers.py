@@ -29,11 +29,11 @@ def convert2(data):
         contact_names = data.get('contact_names', [])
         reset_contact_number = data.get('reset_contact_number', False)
 
-        # Cek apakah semua parameter sudah benar
-        logging.info(f"File: {filename}, Total Contacts per File: {totalc}, Total Files: {totalf}, "
-                     f"File Change Frequency: {file_change_frequency}, File Names: {file_names}, "
-                     f"Contact Names: {contact_names}, Reset Contact Number: {reset_contact_number}")
-
+        # Cek apakah contact_names tidak kosong
+        if not contact_names:
+            logging.error("Nama kontak tidak tersedia, tidak bisa melanjutkan proses konversi.")
+            return
+        
         # Baca file txt dan cek jumlah kontak
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
@@ -55,6 +55,10 @@ def convert2(data):
             file_number = (i % file_change_frequency) + 1
             vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
+
+            # Pastikan contact_names tidak kosong
+            if len(contact_names) == 0:
+                raise ValueError("Daftar contact_names kosong. Mohon pastikan nama kontak diinput dengan benar.")
 
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
@@ -84,6 +88,7 @@ def convert2(data):
     except Exception as e:
         logging.error("Error during conversion process: ", exc_info=True)
         raise e
+
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
