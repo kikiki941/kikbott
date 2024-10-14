@@ -9,6 +9,7 @@ class Convert2State(StatesGroup):
     file_change_frequency = State()  # Setiap berapa file nama file akan berganti
     file_names = State()  # Nama file yang akan digunakan
     contact_names = State()  # Nama kontak per file
+    reset_contact_number = State()
     totalc = State()  # Jumlah kontak per file
     totalf = State()  # Jumlah file Nama file yang akan digunakan saat perubahan nama
 
