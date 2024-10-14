@@ -1,129 +1,148 @@
 import logging
+import os
+from re import findall
+from asyncio import sleep
 from telebot.types import Message
+from telebot.apihelper import ApiTelegramException
 from bot import bot
-from helpers import generate_vcf_files
+from message import *
+from helpers import *
 from state import Convert2State
 
-@bot.message_handler(commands=['convert2'])
-async def convert2_command(message: Message):
+@bot.message_handler(commands='convert2')
+async def convert_command(message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
-        await bot.set_state(message.from_user.id, Convert2State.upload_file, message.chat.id)
-        await bot.reply_to(message, "Silakan kirim file .txt yang berisi daftar nomor telepon.")
+        await bot.set_state(message.from_user.id, ConvertState.filename, message.chat.id)
+        await bot.reply_to(message, txt2_convert)
     except Exception as e:
-        logging.error(f"Error in convert2_command: {e}", exc_info=True)
+        logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.upload_file, content_types=['document'])
-async def receive_txt_file(message: Message):
+@bot.message_handler(state=Convert2State.filename, content_types=['document'])
+async def txt_get(message: Message):
     try:
         if not message.document.file_name.endswith(".txt"):
-            return await bot.send_message(message.chat.id, "Kirim file dalam format .txt")
-        
-        file_info = await bot.get_file(message.document.file_id)
-        file_path = f"files/{message.document.file_name}"
-        
-        downloaded_file = await bot.download_file(file_info.file_path)
-        with open(file_path, 'wb') as file:
-            file.write(downloaded_file)
-        
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['file_path'] = file_path
-        
-        await bot.set_state(message.from_user.id, Convert2State.file_name_change, message.chat.id)
-        await bot.send_message(message.chat.id, "Apakah nama file akan berganti? (y/t)")
-    except Exception as e:
-        logging.error(f"Error in receive_txt_file: {e}", exc_info=True)
+            return await bot.send_message(message.chat.id, "Kirim file .txt")
 
-@bot.message_handler(state=Convert2State.file_name_change)
-async def file_name_change_response(message: Message):
-    try:
-        response = message.text.lower()
-        if response not in ['y', 't']:
-            return await bot.send_message(message.chat.id, "Jawaban harus y atau t.")
-        
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['file_name_change'] = response == 'y'
-        
-        if response == 'y':
-            await bot.set_state(message.from_user.id, Convert2State.file_name_count, message.chat.id)
-            await bot.send_message(message.chat.id, "Berapa kali nama file akan berganti? (1-10)")
-        else:
-            await bot.set_state(message.from_user.id, Convert2State.file_names, message.chat.id)
-            await bot.send_message(message.chat.id, "Masukkan nama file pertama:")
-    except Exception as e:
-        logging.error(f"Error in file_name_change_response: {e}", exc_info=True)
+        file = await bot.get_file(message.document.file_id)
+        filename = f"files/{message.document.file_name}"
 
-@bot.message_handler(state=Convert2State.file_name_count)
-async def file_name_count_response(message: Message):
-    try:
-        count = int(message.text)
-        if count < 1 or count > 10:
-            return await bot.send_message(message.chat.id, "Jumlah harus antara 1 hingga 10.")
-        
+        await bot.set_state(message.from_user.id, Convert2State.file_change_count, message.chat.id)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['file_name_count'] = count
-        
+            data['filename'] = filename
+
+        downloaded_file = await bot.download_file(file.file_path)
+        with open(filename, 'wb') as new_file:
+            new_file.write(downloaded_file)
+
+        await bot.send_message(message.chat.id, 'File diterima. Berapa kali nama file akan berganti?')
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
+
+@bot.message_handler(state=Convert2State.file_change_count, is_digit=True)
+async def file_change_count_get(message: Message):
+    try:
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['file_change_count'] = int(message.text)
+
+        await bot.send_message(message.chat.id, 'Setiap berapa file nama file akan berganti? (Masukkan angka)')
+        await bot.set_state(message.from_user.id, Convert2State.file_change_frequency, message.chat.id)
+
+    except Exception as e:
+        logging.error("Error in file_change_count_get: ", exc_info=True)
+
+@bot.message_handler(state=Convert2State.file_change_frequency, is_digit=True)
+async def file_change_frequency_get(message: Message):
+    try:
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['file_change_frequency'] = int(message.text)
+
+        await bot.send_message(message.chat.id, 'Masukkan nama file pertama:')
         await bot.set_state(message.from_user.id, Convert2State.file_names, message.chat.id)
-        await bot.send_message(message.chat.id, "Masukkan nama file pertama:")
+
     except Exception as e:
-        logging.error(f"Error in file_name_count_response: {e}", exc_info=True)
+        logging.error("Error in file_change_frequency_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.file_names)
-async def file_names_response(message: Message):
+async def file_names_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            if 'file_names_list' not in data:
-                data['file_names_list'] = []
-            
-            data['file_names_list'].append(message.text)
-            
-            if len(data['file_names_list']) < data.get('file_name_count', 1):
-                await bot.send_message(message.chat.id, "Masukkan nama file berikutnya:")
-            else:
-                await bot.set_state(message.from_user.id, Convert2State.contact_names, message.chat.id)
-                await bot.send_message(message.chat.id, "Masukkan nama kontak untuk file pertama:")
+            if 'file_names' not in data:
+                data['file_names'] = []
+            data['file_names'].append(message.text)
+
+        if len(data['file_names']) < data['file_change_count']:
+            await bot.send_message(message.chat.id, f'Masukkan nama file berikutnya ({len(data["file_names"]) + 1} dari {data["file_change_count"]}):')
+        else:
+            await bot.send_message(message.chat.id, 'Masukkan nama kontak per file:')
+            await bot.set_state(message.from_user.id, Convert2State.contact_names, message.chat.id)
+
     except Exception as e:
-        logging.error(f"Error in file_names_response: {e}", exc_info=True)
+        logging.error("Error in file_names_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.contact_names)
-async def contact_names_response(message: Message):
+async def contact_names_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            if 'contact_names_list' not in data:
-                data['contact_names_list'] = []
+            if 'contact_names' not in data:
+                data['contact_names'] = []
+            data['contact_names'].append(message.text)
 
-            data['contact_names_list'].append(message.text)
-            
-            if len(data['contact_names_list']) < len(data['file_names_list']):
-                await bot.send_message(message.chat.id, f"Masukkan nama kontak untuk file berikutnya (file {len(data['contact_names_list']) + 1}):")
-            else:
-                await bot.set_state(message.from_user.id, Convert2State.contacts_per_file, message.chat.id)
-                await bot.send_message(message.chat.id, "Berapa jumlah kontak per file?")
+        if len(data['contact_names']) < data['file_change_count']:
+            await bot.send_message(message.chat.id, f'Masukkan nama kontak berikutnya ({len(data["contact_names"]) + 1} dari {data["file_change_count"]}):')
+        else:
+            await bot.send_message(message.chat.id, 'Masukkan jumlah kontak per file:')
+            await bot.set_state(message.from_user.id, Convert2State.totalc, message.chat.id)
+
     except Exception as e:
-        logging.error(f"Error in contact_names_response: {e}", exc_info=True)
+        logging.error("Error in contact_names_get: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.contacts_per_file)
-async def contacts_per_file_response(message: Message):
+@bot.message_handler(state=Convert2State.totalc, is_digit=True)
+async def totalc_get(message: Message):
     try:
-        count = int(message.text)
+        await bot.send_message(message.chat.id, f'Jumlah kontak per file diatur menjadi: {message.text}. Silakan masukkan jumlah file:')
+        await bot.set_state(message.from_user.id, Convert2State.totalf, message.chat.id)
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['contacts_per_file'] = count
-        
-        await bot.send_message(message.chat.id, "Berapa jumlah file yang diinginkan?")
-        await bot.set_state(message.from_user.id, Convert2State.total_files, message.chat.id)
+            data['totalc'] = int(message.text)
+
     except Exception as e:
-        logging.error(f"Error in contacts_per_file_response: {e}", exc_info=True)
+        logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.total_files)
-async def total_files_response(message: Message):
+@bot.message_handler(state=Convert2State.totalf, is_digit=True)
+async def totalf_get(message: Message):
     try:
-        count = int(message.text)
+        await bot.send_message(message.chat.id, f'Jumlah file diatur menjadi: {message.text}. Mulai mengonversi...')
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['total_files'] = count
-        
-        await generate_vcf_files(data)
-        await bot.send_message(message.chat.id, "Proses konversi selesai, file VCF sedang dikirim.")
+            data['totalf'] = int(message.text)
+            vcf_files = convert(data)
+
+            os.remove(data['filename'])
+
+            for file in vcf_files:
+                try:
+                    await bot.send_document(message.chat.id, open(file, 'rb'))
+                    os.remove(file)
+
+                except ApiTelegramException as e:
+                    if "Too Many Requests" in e.description:
+                        delay = int(findall('\d+', e.description)[0])
+                        await sleep(delay)
+                    else:
+                        logging.error("Telegram API error: ", exc_info=True)
+
+                except Exception as e:
+                    logging.error("Error sending document: ", exc_info=True)
+
+            await bot.send_message(message.chat.id, "Convert selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
-    except Exception as e:
-        logging.error(f"Error in total_files_response: {e}", exc_info=True)
 
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
+
+@bot.message_handler(state=Convert2State.totalc, is_digit=False)
+@bot.message_handler(state=Convert2State.totalf, is_digit=False)
+async def invalid_input(message: Message):
+    try:
+        await bot.send_message(message.chat.id, 'Masukkan angka yang valid.')
+    except Exception as e:
+        logging.error("error: ", exc_info=True)
