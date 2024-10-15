@@ -43,14 +43,15 @@ def convert2(data):
 
         vcf_files = []
         current_contact_index = 0
-        current_file_number = 1
 
         for i in range(totalf):
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
 
-            vcf_filename = f"{file_names[file_index]} {current_file_number}.vcf"
+            # Reset penomoran file saat nama file berganti
+            file_number = (i % file_change_frequency) + 1
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
@@ -79,18 +80,16 @@ def convert2(data):
             else:
                 logging.info(f"File berhasil dibuat: {vcf_filename}")
 
-            # Update current_file_number untuk file berikutnya
-            current_file_number += 1
-
         # Jika masih ada kontak yang tersisa, lanjutkan ke file terakhir
         if current_contact_index < len(contacts):
             # Membuat file VCF terakhir dengan kontak yang tersisa
-            vcf_filename = f"{file_names[-1]} {current_file_number}.vcf"
+            file_number = (totalf % file_change_frequency) + 1  # Melanjutkan penomoran file
+            vcf_filename = f"{file_names[-1]} {file_number}.vcf"
             logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
             with open(vcf_filename, 'w') as vcf_file:
                 contact_name = contact_names[-1]  # Ambil nama terakhir
-                contact_number = 1  # Reset penomoran
+                contact_number = 1  # Reset penomoran kontak
 
                 while current_contact_index < len(contacts):
                     contact = contacts[current_contact_index]
@@ -113,6 +112,7 @@ def convert2(data):
     except Exception as e:
         logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
+
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
