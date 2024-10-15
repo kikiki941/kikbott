@@ -27,8 +27,14 @@ def convert2(data):
         file_names = data['file_names']
         contact_names = data['contact_names']
 
+        # Cek apakah file input ada
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File {filename} tidak ditemukan.")
+
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
+
+        logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
@@ -68,6 +74,9 @@ def convert2(data):
             # Reset penomoran untuk file berikutnya
             contact_number = 1
 
+            # Tambahkan nama file ke dalam daftar hasil
+            vcf_files.append(vcf_filename)
+
         # Menyimpan sisa kontak yang tidak terkonversi
         if current_contact_index < len(contacts):
             sisa = contacts[current_contact_index:]  # Ambil sisa kontak
@@ -78,11 +87,14 @@ def convert2(data):
                 file.write("\n".join(sisa) + "\n")
 
         logging.info("Proses konversi selesai.")
+        logging.info(f"File VCF yang dihasilkan: {vcf_files}")
+
         return vcf_files
 
     except Exception as e:
         logging.error("Error during conversion process: ", exc_info=True)
         raise e
+
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
