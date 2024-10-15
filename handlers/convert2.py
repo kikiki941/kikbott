@@ -125,20 +125,21 @@ async def totalf_get(message: Message):
             os.remove(data['filename'])
 
             for file in vcf_files:
-                try:
-                    await bot.send_document(message.chat.id, open(file, 'rb'))
-                    os.remove(file)
-
-                except ApiTelegramException as e:
-                    if "Too Many Requests" in e.description:
-                        delay = int(findall('\d+', e.description)[0])
-                        logging.info(f"Too many requests, delaying for {delay} seconds.")
-                        await sleep(delay)
-                    else:
-                        logging.error("Telegram API error: ", exc_info=True)
-
-                except Exception as e:
-                    logging.error("Error sending document: ", exc_info=True)
+                if os.path.exists(file):  # Cek apakah file ada
+                    try:
+                        await bot.send_document(message.chat.id, open(file, 'rb'))
+                        os.remove(file)  # Hapus file setelah berhasil dikirim
+                    except ApiTelegramException as e:
+                        if "Too Many Requests" in e.description:
+                            delay = int(findall('\d+', e.description)[0])
+                            logging.info(f"Too many requests, delaying for {delay} seconds.")
+                            await sleep(delay)
+                        else:
+                            logging.error("Telegram API error: ", exc_info=True)
+                    except Exception as e:
+                        logging.error("Error sending document: ", exc_info=True)
+                else:
+                    logging.error(f"File tidak ditemukan: {file}")  # Log jika file tidak ada
 
             await bot.send_message(message.chat.id, "Convert selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
