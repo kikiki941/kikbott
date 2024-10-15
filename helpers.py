@@ -43,9 +43,6 @@ def convert2(data):
         vcf_files = []
         current_contact_index = 0
 
-        # Penomoran kontak mulai dari 1
-        contact_number = 1
-
         for i in range(totalf):
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
@@ -59,6 +56,8 @@ def convert2(data):
             contact_name = contact_names[contact_name_index]
 
             with open(vcf_filename, 'w') as vcf_file:
+                # Reset penomoran kontak di sini
+                contact_number = 1  
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
@@ -70,11 +69,7 @@ def convert2(data):
                     logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
                     current_contact_index += 1
-                    contact_number += 1
-
-            # Reset penomoran jika opsi 'reset_numbering' diaktifkan
-            if reset_numbering and file_number == file_change_frequency:
-                contact_number = 1
+                    contact_number += 1  # Naikkan penomoran kontak
 
             vcf_files.append(vcf_filename)
 
@@ -91,7 +86,7 @@ def convert2(data):
     except Exception as e:
         logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
-
+        
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
     images = []
