@@ -26,6 +26,7 @@ def convert2(data):
         file_change_frequency = data['file_change_frequency']
         file_names = data['file_names']
         contact_names = data['contact_names']
+        reset_numbering = data.get('reset_numbering', False)  # Opsi untuk reset penomoran
 
         # Cek apakah file input ada
         if not os.path.exists(filename):
@@ -41,8 +42,6 @@ def convert2(data):
 
         vcf_files = []
         current_contact_index = 0
-
-        # Penomoran kontak mulai dari 1
         contact_number = 1
 
         for i in range(totalf):
@@ -51,7 +50,7 @@ def convert2(data):
                 file_index = len(file_names) - 1
 
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"  # Ganti _ dengan spasi
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
@@ -63,22 +62,20 @@ def convert2(data):
                         break
                     contact = contacts[current_contact_index]
 
-                    # Ganti penomoran kontak sesuai urutan per file
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
                     logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
                     current_contact_index += 1
-                    contact_number += 1  # Menambah penomoran kontak
+                    contact_number += 1
 
-            # Reset penomoran untuk file berikutnya
-            contact_number = 1
+            # Reset penomoran jika opsi 'reset_numbering' diaktifkan
+            if reset_numbering and (i + 1) % file_change_frequency == 0:
+                contact_number = 1
 
-            # Tambahkan nama file ke dalam daftar hasil
             vcf_files.append(vcf_filename)
 
-            # Cek apakah file berhasil dibuat
             if not os.path.exists(vcf_filename):
                 logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
             else:
@@ -86,7 +83,7 @@ def convert2(data):
 
         # Menyimpan sisa kontak yang tidak terkonversi
         if current_contact_index < len(contacts):
-            sisa = contacts[current_contact_index:]  # Ambil sisa kontak
+            sisa = contacts[current_contact_index:]
             file_txt = "files/sisa.txt"
             vcf_files.append(file_txt)
 
@@ -99,8 +96,9 @@ def convert2(data):
         return vcf_files
 
     except Exception as e:
-        logging.error("Error during conversion process: ", exc_info=True)
+        logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
+
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
