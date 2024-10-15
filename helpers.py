@@ -27,8 +27,15 @@ def convert2(data):
         file_names = data['file_names']
         contact_names = data['contact_names']
 
-        with open(filename, 'r') as f:
+        # Periksa keberadaan file input
+        if not os.path.exists(filename):
+            logging.error(f"File tidak ditemukan: {filename}")
+            raise FileNotFoundError(f"File {filename} tidak ditemukan.")
+
+        with open(filename, 'r', encoding='utf-8') as f:
             contacts = [line.strip() for line in f.readlines()]
+
+        logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
@@ -49,25 +56,29 @@ def convert2(data):
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
-            with open(vcf_filename, 'w') as vcf_file:
+            with open(vcf_filename, 'w', encoding='utf-8') as vcf_file:
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
                     contact = contacts[current_contact_index]
-
                     contact_number = j + 1
 
-                    # Ganti _ dengan spasi di sini
+                    # Buat konten VCF
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
-
                     current_contact_index += 1
+
+            vcf_files.append(vcf_filename)  # Menyimpan nama file VCF yang dibuat
 
         # Menyimpan sisa kontak yang tidak terkonversi
         if current_contact_index < len(contacts):
             sisa = contacts[current_contact_index:]  # Ambil sisa kontak
             file_txt = "files/sisa.txt"
             vcf_files.append(file_txt)
+
+            # Periksa direktori sebelum menyimpan
+            if not os.path.exists('files'):
+                os.makedirs('files')  # Buat direktori jika belum ada
 
             with open(file_txt, 'w', encoding='utf-8') as file:
                 file.write("\n".join(sisa) + "\n")
