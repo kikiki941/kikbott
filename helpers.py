@@ -16,6 +16,24 @@ from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
+def save_vcf(content: str, filename: str) -> str:
+    """Simpan konten VCF ke file dan kembalikan jalur filenya."""
+    # Tentukan direktori untuk menyimpan file
+    directory = 'files'
+    
+    # Buat direktori jika belum ada
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Tentukan jalur file lengkap
+    file_path = os.path.join(directory, filename)
+
+    # Simpan konten ke file
+    with open(file_path, 'w') as file:
+        file.write(content)
+
+    return file_path
+
 def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
