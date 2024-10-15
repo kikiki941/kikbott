@@ -6,6 +6,7 @@ async def set_commands():
   await bot.set_my_commands(
     commands=[
       BotCommand('convert', 'Mengonversi file dari format TXT ke VCF'),
+      BotCommand('convert2', 'Mengonversi file dari format TXT ke VCF dengan nama file yang berbeda'),
       BotCommand('pecahvcf', 'Membagi satu file VCF menjadi beberapa file'),
       BotCommand('pecahtxt', 'Membagi satu file TXT menjadi beberapa file'),
       BotCommand('convertxlsx', 'Mengonversi file dari format XLSX ke TXT'),
