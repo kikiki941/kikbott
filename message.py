@@ -165,13 +165,14 @@ txt_start = """
 
 <b>🔹 FITUR:</b>
 /convert - Mengonversi file dari format TXT ke VCF.
+/convert2 - Mengonversi file dari format TXT ke VCF dengan nama file yang berbeda.
 /pecahvcf - Membagi satu file VCF menjadi beberapa file.
 /pecahtxt - Membagi satu file TXT menjadi beberapa file.
 /convertxlsx - Mengonversi file dari format XLSX ke TXT.
 /convertvcf - Mengonversi file dari format XLSX ke VCF.
 /convertvcf_to_txt - Mengonversi file dari format VCF ke TXT.
 /gabungvcf - Menggabungkan Beberapa file vcf menjadi SATU.
-/chattotxt -mengonversi chat ke txt.
+/chattotxt - mengonversi chat ke txt.
 /wifiwps - mengekploitasi jaringan wifi.
 /gabungtxt - Menggabungkan Beberapa file txt menjadi SATU.
 /hapuss - menghapus file txt yang ada + dan spasi.
