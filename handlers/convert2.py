@@ -77,12 +77,11 @@ async def file_names_get(message: Message):
             await bot.send_message(message.chat.id, f'Masukkan nama file berikutnya ({len(data["file_names"]) + 1} dari {data["file_change_count"]}):')
         else:
             await bot.send_message(message.chat.id, 'Masukkan nama kontak per file:')
-            await bot.set_state(message.from_user.id, Convert2State.reset_contact_number, message.chat.id)
+            await bot.set_state(message.from_user.id, Convert2State.contact_names, message.chat.id)
 
     except Exception as e:
         logging.error("Error in file_names_get: ", exc_info=True)
 
-# Setelah mengumpulkan nama file:
 @bot.message_handler(state=Convert2State.contact_names)
 async def contact_names_get(message: Message):
     try:
@@ -94,28 +93,11 @@ async def contact_names_get(message: Message):
         if len(data['contact_names']) < data['file_change_count']:
             await bot.send_message(message.chat.id, f'Masukkan nama kontak berikutnya ({len(data["contact_names"]) + 1} dari {data["file_change_count"]}):')
         else:
-            await bot.send_message(message.chat.id, 'Apakah penomoran kontak akan direset per file? (y/t)')
-            await bot.set_state(message.from_user.id, Convert2State.reset_contact_number, message.chat.id)
+            await bot.send_message(message.chat.id, 'Masukkan jumlah kontak per file:')
+            await bot.set_state(message.from_user.id, Convert2State.totalc, message.chat.id)
 
     except Exception as e:
         logging.error("Error in contact_names_get: ", exc_info=True)
-
-# Tambahkan handler untuk state reset_contact_number:
-@bot.message_handler(state=Convert2State.reset_contact_number)
-async def reset_contact_number_get(message: Message):
-    try:
-        reset_contact = message.text.lower()
-        if reset_contact not in ['y', 't']:
-            return await bot.send_message(message.chat.id, 'Silakan masukkan "y" (ya) atau "t" (tidak).')
-
-        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['reset_contact_number'] = reset_contact == 'y'
-
-        await bot.send_message(message.chat.id, 'Masukkan jumlah kontak per file:')
-        await bot.set_state(message.from_user.id, Convert2State.totalc, message.chat.id)
-
-    except Exception as e:
-        logging.error("Error in reset_contact_number_get: ", exc_info=True)
 
 @bot.message_handler(state=Convert2State.totalc, is_digit=True)
 async def totalc_get(message: Message):
