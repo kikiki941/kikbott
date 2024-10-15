@@ -17,12 +17,13 @@ from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
 def convert2(data):
+def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
 
         filename = data['filename']
-        totalc = data['totalc']
-        totalf = data['totalf']
+        totalc = data['totalc']  # Jumlah kontak per file
+        totalf = data['totalf']  # Jumlah file
         file_change_frequency = data['file_change_frequency']
         file_names = data['file_names']
         contact_names = data['contact_names']
@@ -54,8 +55,11 @@ def convert2(data):
 
             # Buat file VCF dan isi dengan kontak
             with open(vcf_filename, 'w') as vcf_file:
-                contacts_to_write = min(totalc, total_contacts - current_contact_index)  # Pastikan tidak melebihi jumlah kontak yang ada
-                for j in range(contacts_to_write):
+                for j in range(totalc):
+                    if current_contact_index >= total_contacts:
+                        logging.warning(f"Kontak telah habis sebelum menyelesaikan file {vcf_filename}.")
+                        break  # Hentikan jika tidak ada kontak yang tersisa
+
                     # Ambil kontak
                     contact = contacts[current_contact_index]
 
@@ -68,10 +72,6 @@ def convert2(data):
                     logging.info(f"Menyimpan ke {vcf_filename}: {vcf_content.strip()}")
 
                     current_contact_index += 1
-
-                # Jika tidak ada kontak yang tersisa untuk ditulis, keluar dari loop
-                if current_contact_index >= total_contacts:
-                    break
 
             vcf_files.append(vcf_filename)  # Menyimpan nama file yang dibuat
 
