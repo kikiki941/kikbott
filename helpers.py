@@ -36,6 +36,7 @@ def convert2(data):
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
 
         vcf_files = []
+        total_contacts = len(contacts)
         current_contact_index = 0
 
         for i in range(totalf):
@@ -53,22 +54,24 @@ def convert2(data):
 
             # Buat file VCF dan isi dengan kontak
             with open(vcf_filename, 'w') as vcf_file:
-                for j in range(totalc):
-                    if current_contact_index >= len(contacts):
-                        break
-
+                contacts_to_write = min(totalc, total_contacts - current_contact_index)  # Pastikan tidak melebihi jumlah kontak yang ada
+                for j in range(contacts_to_write):
                     # Ambil kontak
                     contact = contacts[current_contact_index]
 
                     # Format nomor telepon dengan menambahkan + di depan
                     formatted_contact = f"+{contact}" if not contact.startswith('+') else contact
                     
-                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {j + 1}\nTEL:{formatted_contact}\nEND:VCARD\n"
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {current_contact_index + 1}\nTEL:{formatted_contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
                     logging.info(f"Menyimpan ke {vcf_filename}: {vcf_content.strip()}")
 
                     current_contact_index += 1
+
+                # Jika tidak ada kontak yang tersisa untuk ditulis, keluar dari loop
+                if current_contact_index >= total_contacts:
+                    break
 
             vcf_files.append(vcf_filename)  # Menyimpan nama file yang dibuat
 
