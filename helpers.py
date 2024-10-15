@@ -41,7 +41,6 @@ def convert2(data):
 
         vcf_files = []
         current_contact_index = 0
-        sisa = []
 
         # Penomoran kontak mulai dari 1
         contact_number = 1
@@ -68,6 +67,8 @@ def convert2(data):
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
+                    logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
+
                     current_contact_index += 1
                     contact_number += 1  # Menambah penomoran kontak
 
@@ -76,6 +77,12 @@ def convert2(data):
 
             # Tambahkan nama file ke dalam daftar hasil
             vcf_files.append(vcf_filename)
+
+            # Cek apakah file berhasil dibuat
+            if not os.path.exists(vcf_filename):
+                logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
+            else:
+                logging.info(f"File berhasil dibuat: {vcf_filename}")
 
         # Menyimpan sisa kontak yang tidak terkonversi
         if current_contact_index < len(contacts):
@@ -94,7 +101,6 @@ def convert2(data):
     except Exception as e:
         logging.error("Error during conversion process: ", exc_info=True)
         raise e
-
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
