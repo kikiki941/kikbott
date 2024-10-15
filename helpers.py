@@ -20,32 +20,22 @@ def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
 
-        # Retrieve data from bot
-        filename = data.get('filename')
-        totalc = data.get('totalc')
-        totalf = data.get('totalf')
-        file_change_frequency = data.get('file_change_frequency')
-        file_names = data.get('file_names', [])
-        contact_names = data.get('contact_names', [])
-        reset_contact_number = data.get('reset_contact_number', False)
+        filename = data['filename']
+        totalc = data['totalc']
+        totalf = data['totalf']
+        file_change_frequency = data['file_change_frequency']
+        file_names = data['file_names']
+        contact_names = data['contact_names']
 
-        # Cek apakah contact_names tidak kosong
-        if not contact_names:
-            logging.error("Nama kontak tidak tersedia, tidak bisa melanjutkan proses konversi.")
-            return
-        
-        # Baca file txt dan cek jumlah kontak
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
-
-        logging.info(f"Jumlah kontak yang ditemukan di file: {len(contacts)}")
 
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
 
         vcf_files = []
         current_contact_index = 0
-        global_contact_number = 1  # Global penomoran kontak
+        sisa = []
 
         for i in range(totalf):
             file_index = i // file_change_frequency
@@ -53,12 +43,8 @@ def convert2(data):
                 file_index = len(file_names) - 1
 
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"  # Ganti _ dengan spasi
             logging.info(f"Membuat file VCF: {vcf_filename}")
-
-            # Pastikan contact_names tidak kosong
-            if len(contact_names) == 0:
-                raise ValueError("Daftar contact_names kosong. Mohon pastikan nama kontak diinput dengan benar.")
 
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
@@ -69,18 +55,22 @@ def convert2(data):
                         break
                     contact = contacts[current_contact_index]
 
-                    if reset_contact_number and j == 0 and file_number == 1:
-                        global_contact_number = 1
+                    contact_number = j + 1
 
-                    contact_number = global_contact_number
-                    global_contact_number += 1
-
+                    # Ganti _ dengan spasi di sini
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
                     current_contact_index += 1
 
-            vcf_files.append(vcf_filename)
+        # Menyimpan sisa kontak yang tidak terkonversi
+        if current_contact_index < len(contacts):
+            sisa = contacts[current_contact_index:]  # Ambil sisa kontak
+            file_txt = "files/sisa.txt"
+            vcf_files.append(file_txt)
+
+            with open(file_txt, 'w', encoding='utf-8') as file:
+                file.write("\n".join(sisa) + "\n")
 
         logging.info("Proses konversi selesai.")
         return vcf_files
