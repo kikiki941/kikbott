@@ -21,11 +21,11 @@ def convert2(data):
         logging.info("Memulai proses konversi...")
 
         filename = data['filename']
-        totalc = data['totalc']
-        totalf = data['totalf']
-        file_change_frequency = data['file_change_frequency']
-        file_names = data['file_names']
-        contact_names = data['contact_names']
+        totalc = data['totalc']  # Jumlah kontak per file
+        totalf = data['totalf']  # Total file yang ingin dibuat
+        file_change_frequency = data['file_change_frequency']  # Berapa banyak file sebelum mengganti nama file
+        file_names = data['file_names']  # Nama file yang akan digunakan
+        contact_names = data['contact_names']  # Nama yang akan digunakan di setiap VCF
 
         # Cek apakah file input ada
         if not os.path.exists(filename):
@@ -36,16 +36,21 @@ def convert2(data):
 
         logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
+        # Hitung jumlah file yang dibutuhkan berdasarkan kontak yang tersedia
+        total_files_needed = (len(contacts) + totalc - 1) // totalc
+        # Pastikan totalf tidak melebihi total_files_needed
+        totalf = min(totalf, total_files_needed)
+
         vcf_files = []
         current_contact_index = 0
+        current_file_number = 1
 
         for i in range(totalf):
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
 
-            file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
+            vcf_filename = f"{file_names[file_index]} {current_file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
@@ -73,6 +78,32 @@ def convert2(data):
                 logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
             else:
                 logging.info(f"File berhasil dibuat: {vcf_filename}")
+
+            # Update current_file_number untuk file berikutnya
+            current_file_number += 1
+
+        # Jika masih ada kontak yang tersisa, lanjutkan ke file terakhir
+        if current_contact_index < len(contacts):
+            # Membuat file VCF terakhir dengan kontak yang tersisa
+            vcf_filename = f"{file_names[-1]} {current_file_number}.vcf"
+            logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
+
+            with open(vcf_filename, 'w') as vcf_file:
+                contact_name = contact_names[-1]  # Ambil nama terakhir
+                contact_number = 1  # Reset penomoran
+
+                while current_contact_index < len(contacts):
+                    contact = contacts[current_contact_index]
+
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                    vcf_file.write(vcf_content)
+
+                    logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
+
+                    current_contact_index += 1
+                    contact_number += 1
+
+            vcf_files.append(vcf_filename)
 
         logging.info("Proses konversi selesai.")
         logging.info(f"File VCF yang dihasilkan: {vcf_files}")
