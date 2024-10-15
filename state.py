@@ -5,11 +5,11 @@ from telebot.handler_backends import State, StatesGroup
 
 class ChatToVcfState(Enum):
     """Kelas untuk mendefinisikan state dalam proses chat ke VCF."""
-    waiting_for_admin_contact = state()
-    waiting_for_admin_phone_numbers = state()
-    waiting_for_navy_contact = state()
-    waiting_for_navy_phone_numbers = state()
-    waiting_for_filename = state()
+    waiting_for_admin_contact = State()
+    waiting_for_admin_phone_numbers = State()
+    waiting_for_navy_contact = State()
+    waiting_for_navy_phone_numbers = State()
+    waiting_for_filename = State()
 
 
 class Convert2State(StatesGroup):
