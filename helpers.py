@@ -17,7 +17,6 @@ from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
 def convert2(data):
-def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
 
