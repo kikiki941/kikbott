@@ -36,29 +36,23 @@ async def handle_admin_contact(message: Message):
     except Exception as e:
         logging.error("Error in handle_admin_contact: ", exc_info=True)
 
-# Handler untuk menerima nomor telepon admin
-@bot.message_handler(state=ChatToVcfState.waiting_for_admin_phone_numbers)
-async def handle_admin_phone_numbers(message: Message):
+# Handler untuk menerima input nama kontak admin
+@bot.message_handler(state=ChatToVcfState.waiting_for_admin_contact)
+async def handle_admin_contact(message: Message):
     try:
-        input_text = message.text
+        admin_contact_name = message.text
+        logging.info(f"Nama kontak admin diterima: {admin_contact_name}")
         
-        if input_text.lower() == '/done':
-            await bot.set_state(message.from_user.id, ChatToVcfState.waiting_for_navy_contact, message.chat.id)
-            await bot.send_message(message.chat.id, "Masukkan nama kontak navy.")
-        else:
-            async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-                phone_numbers = input_text.split('\n')
-                numbered_contacts = [f"{data['admin_contact_name']} {i+1}" for i in range(len(phone_numbers))]
-                contact_list = list(zip(numbered_contacts, phone_numbers))
+        async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
+            data['admin_contact_name'] = admin_contact_name
 
-                if 'admin_contacts' in data:
-                    data['admin_contacts'] += contact_list
-                else:
-                    data['admin_contacts'] = contact_list
-
-            await bot.send_message(message.chat.id, 'Nomor telepon admin ditambahkan. Kirim nomor lagi atau ketik /done jika sudah selesai.')
+        # Setel state berikutnya
+        await bot.set_state(message.from_user.id, ChatToVcfState.waiting_for_admin_phone_numbers, message.chat.id)
+        
+        # Kirim pesan kepada pengguna
+        await bot.send_message(message.chat.id, "Kirim nomor telepon kontak admin (masukkan nomor dalam baris terpisah, tekan enter di antara nomor), lalu klik /done jika sudah selesai.")
     except Exception as e:
-        logging.error("Error in handle_admin_phone_numbers: ", exc_info=True)
+        logging.error("Error in handle_admin_contact: ", exc_info=True)
 
 # Handler untuk menerima input nama kontak navy
 @bot.message_handler(state=ChatToVcfState.waiting_for_navy_contact)
