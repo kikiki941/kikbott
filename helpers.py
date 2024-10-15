@@ -31,6 +31,7 @@ def convert2(data):
             contacts = [line.strip() for line in f.readlines()]
             logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
+        # Pastikan jumlah kontak cukup
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
 
@@ -42,6 +43,7 @@ def convert2(data):
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
 
+            # Nama file VCF
             file_number = (i % file_change_frequency) + 1
             vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
@@ -49,29 +51,34 @@ def convert2(data):
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
+            # Buat file VCF dan isi dengan kontak
             with open(vcf_filename, 'w') as vcf_file:
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
+
+                    # Ambil kontak
                     contact = contacts[current_contact_index]
 
-                    contact_number = j + 1
-                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                    # Format nomor telepon dengan menambahkan + di depan
+                    formatted_contact = f"+{contact}" if not contact.startswith('+') else contact
+                    
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {j + 1}\nTEL:{formatted_contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
 
-                    current_contact_index += 1
                     logging.info(f"Menyimpan ke {vcf_filename}: {vcf_content.strip()}")
 
-            vcf_files.append(vcf_filename)  # Menambahkan file yang dibuat ke daftar
+                    current_contact_index += 1
+
+            vcf_files.append(vcf_filename)  # Menyimpan nama file yang dibuat
 
         logging.info(f"File VCF yang dihasilkan: {vcf_files}")
-        
+
         return vcf_files
 
     except Exception as e:
         logging.error("Error during conversion process: ", exc_info=True)
         raise e
-
 
 def extract_images_from_excel(file_path):
     ext = os.path.splitext(file_path)[1].lower()
