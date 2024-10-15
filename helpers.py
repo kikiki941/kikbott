@@ -70,19 +70,6 @@ def convert2(data):
 
             vcf_files.append(vcf_filename)  # Menyimpan nama file VCF yang dibuat
 
-        # Menyimpan sisa kontak yang tidak terkonversi
-        if current_contact_index < len(contacts):
-            sisa = contacts[current_contact_index:]  # Ambil sisa kontak
-            file_txt = "files/sisa.txt"
-            vcf_files.append(file_txt)
-
-            # Periksa direktori sebelum menyimpan
-            if not os.path.exists('files'):
-                os.makedirs('files')  # Buat direktori jika belum ada
-
-            with open(file_txt, 'w', encoding='utf-8') as file:
-                file.write("\n".join(sisa) + "\n")
-
         logging.info("Proses konversi selesai.")
         return vcf_files
 
