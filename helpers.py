@@ -27,15 +27,8 @@ def convert2(data):
         file_names = data['file_names']
         contact_names = data['contact_names']
 
-        # Periksa keberadaan file input
-        if not os.path.exists(filename):
-            logging.error(f"File tidak ditemukan: {filename}")
-            raise FileNotFoundError(f"File {filename} tidak ditemukan.")
-
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
-
-        logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
         if len(contacts) < totalc * totalf:
             raise ValueError(f"Jumlah kontak ({len(contacts)}) tidak cukup untuk membagi menjadi {totalf} file dengan {totalc} kontak per file.")
@@ -43,6 +36,9 @@ def convert2(data):
         vcf_files = []
         current_contact_index = 0
         sisa = []
+
+        # Penomoran kontak mulai dari 1
+        contact_number = 1
 
         for i in range(totalf):
             file_index = i // file_change_frequency
@@ -56,19 +52,30 @@ def convert2(data):
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
-            with open(vcf_filename, 'w', encoding='utf-8') as vcf_file:
+            with open(vcf_filename, 'w') as vcf_file:
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
                     contact = contacts[current_contact_index]
-                    contact_number = j + 1
 
-                    # Buat konten VCF
+                    # Ganti penomoran kontak sesuai urutan per file
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
-                    current_contact_index += 1
 
-            vcf_files.append(vcf_filename)  # Menyimpan nama file VCF yang dibuat
+                    current_contact_index += 1
+                    contact_number += 1  # Menambah penomoran kontak
+
+            # Reset penomoran untuk file berikutnya
+            contact_number = 1
+
+        # Menyimpan sisa kontak yang tidak terkonversi
+        if current_contact_index < len(contacts):
+            sisa = contacts[current_contact_index:]  # Ambil sisa kontak
+            file_txt = "files/sisa.txt"
+            vcf_files.append(file_txt)
+
+            with open(file_txt, 'w', encoding='utf-8') as file:
+                file.write("\n".join(sisa) + "\n")
 
         logging.info("Proses konversi selesai.")
         return vcf_files
