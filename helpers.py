@@ -61,6 +61,7 @@ def convert2(data):
 
         vcf_files = []
         current_contact_index = 0
+        file_counter = 1  # Untuk melanjutkan penomoran file
 
         for i in range(totalf):
             file_index = i // file_change_frequency
@@ -99,27 +100,31 @@ def convert2(data):
                 logging.info(f"File berhasil dibuat: {vcf_filename}")
 
         # Jika masih ada kontak yang tersisa, lanjutkan ke file terakhir
-        while current_contact_index < len(contacts):
-            file_number = (totalf % file_change_frequency) + 1  # Lanjutkan penomoran file
-            vcf_filename = f"{file_names[-1]} {file_number}.vcf"
-            logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
+        if current_contact_index < len(contacts):
+            while current_contact_index < len(contacts):
+                # Membuat file VCF terakhir dengan kontak yang tersisa
+                vcf_filename = f"{file_names[-1]} {file_counter}.vcf"
+                logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
-            with open(vcf_filename, 'w') as vcf_file:
-                contact_name = contact_names[-1]  # Gunakan nama terakhir
-                contact_number = 1  # Reset penomoran kontak
+                with open(vcf_filename, 'w') as vcf_file:
+                    contact_name = contact_names[-1]  # Ambil nama terakhir
+                    contact_number = 1  # Reset penomoran kontak
 
-                while current_contact_index < len(contacts):
-                    contact = contacts[current_contact_index]
+                    for j in range(totalc):
+                        if current_contact_index >= len(contacts):
+                            break
+                        contact = contacts[current_contact_index]
 
-                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
-                    vcf_file.write(vcf_content)
+                        vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                        vcf_file.write(vcf_content)
 
-                    logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
+                        logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
-                    current_contact_index += 1
-                    contact_number += 1
+                        current_contact_index += 1
+                        contact_number += 1  # Naikkan penomoran kontak
 
-            vcf_files.append(vcf_filename)
+                vcf_files.append(vcf_filename)
+                file_counter += 1  # Lanjutkan penomoran file
 
         logging.info("Proses konversi selesai.")
         logging.info(f"File VCF yang dihasilkan: {vcf_files}")
@@ -127,8 +132,9 @@ def convert2(data):
         return vcf_files
 
     except Exception as e:
-        logging.error("Terjadi kesalahan selama proses konversi: ", exc_info=True)
+        logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
+
 
 
 def extract_images_from_excel(file_path):
