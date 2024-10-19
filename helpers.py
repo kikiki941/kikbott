@@ -44,16 +44,21 @@ def convert2(data):
         file_change_frequency = data['file_change_frequency']  # Berapa banyak file sebelum mengganti nama file
         file_names = data['file_names']  # Nama file yang akan digunakan
         contact_names = data['contact_names']  # Nama yang akan digunakan di setiap VCF
-        output_dir = "/path/to/output/directory"  # Tentukan jalur direktori output
-
-        # Buat direktori jika belum ada
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        output_dir = '/tmp/'  # Use a writable directory (e.g., /tmp/)
 
         # Cek apakah file input ada
         if not os.path.exists(filename):
             raise FileNotFoundError(f"File {filename} tidak ditemukan.")
 
+        # Ensure the output directory exists
+        if not os.path.exists(output_dir):
+            try:
+                os.makedirs(output_dir)
+            except OSError as e:
+                logging.error(f"Cannot create directory {output_dir}: {e}")
+                raise e
+
+        # Read the contacts from the file
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
 
@@ -61,6 +66,7 @@ def convert2(data):
 
         # Hitung jumlah file yang dibutuhkan berdasarkan kontak yang tersedia
         total_files_needed = (len(contacts) + totalc - 1) // totalc
+        # Pastikan totalf tidak melebihi total_files_needed
         totalf = min(totalf, total_files_needed)
 
         vcf_files = []
@@ -68,25 +74,31 @@ def convert2(data):
         file_counter = 1  # Untuk melanjutkan penomoran file
 
         for i in range(totalf):
+            # Determine the current file name to use based on the change frequency
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
 
+            # Reset penomoran file saat nama file berganti
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = os.path.join(output_dir, f"{file_names[file_index]} {file_number}.vcf")
+            vcf_filename = f"{output_dir}{file_names[file_index]} {file_number}.vcf"
             logging.info(f"Membuat file VCF: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
+            # Create the VCF file
             with open(vcf_filename, 'w') as vcf_file:
-                contact_number = 1  # Reset penomoran kontak
+                # Reset penomoran kontak di sini
+                contact_number = 1
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
                     contact = contacts[current_contact_index]
+
                     vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                     vcf_file.write(vcf_content)
+
                     logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
                     current_contact_index += 1
@@ -94,7 +106,7 @@ def convert2(data):
 
             vcf_files.append(vcf_filename)
 
-            # Cek apakah file berhasil dibuat
+            # Verify the file was created successfully
             if not os.path.exists(vcf_filename):
                 logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
             else:
@@ -105,8 +117,9 @@ def convert2(data):
             logging.info(f"Masih ada sisa kontak, melanjutkan konversi ke file baru...")
 
             while current_contact_index < len(contacts):
+                # Penentuan nama file berikutnya setelah file sebelumnya selesai
                 file_number = (file_counter % file_change_frequency) + 1
-                vcf_filename = os.path.join(output_dir, f"{file_names[-1]} {file_counter}.vcf")
+                vcf_filename = f"{output_dir}{file_names[-1]} {file_counter}.vcf"
                 logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
                 with open(vcf_filename, 'w') as vcf_file:
@@ -120,10 +133,11 @@ def convert2(data):
 
                         vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
                         vcf_file.write(vcf_content)
+
                         logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
                         current_contact_index += 1
-                        contact_number += 1
+                        contact_number += 1  # Naikkan penomoran kontak
 
                 vcf_files.append(vcf_filename)
                 file_counter += 1  # Lanjutkan penomoran file
@@ -136,7 +150,7 @@ def convert2(data):
     except Exception as e:
         logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
-
+        
 def extract_images_from_excel(file_path):
 
     ext = os.path.splitext(file_path)[1].lower()
