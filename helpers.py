@@ -34,78 +34,6 @@ def save_vcf(content: str, filename: str) -> str:
 
     return file_path
 
-import pandas as pd
-
-import os
-
-import re
-
-import logging
-
-import subprocess
-
-from datetime import datetime
-
-import csv
-
-from bot import *
-
-from openpyxl.drawing.image import Image as OpenPyXLImage
-
-from telebot.types import Message
-
-from io import BytesIO
-
-import subprocess
-
-import io
-
-from PIL import Image as PILImage
-
-from openpyxl import load_workbook
-
-from openpyxl.drawing.image import Image as OpenPyxlImage
-
-import xlwings as xw
-
-
-
-def save_vcf(content: str, filename: str) -> str:
-
-    """Simpan konten VCF ke file dan kembalikan jalur filenya."""
-
-    # Tentukan direktori untuk menyimpan file
-
-    directory = 'files'
-
-    
-
-    # Buat direktori jika belum ada
-
-    if not os.path.exists(directory):
-
-        os.makedirs(directory)
-
-
-
-    # Tentukan jalur file lengkap
-
-    file_path = os.path.join(directory, filename)
-
-
-
-    # Simpan konten ke file
-
-    with open(file_path, 'w') as file:
-
-        file.write(content)
-
-
-
-    return file_path
-
-
-
 def convert2(data):
 
     try:
@@ -219,91 +147,108 @@ def convert2(data):
                     current_contact_index += 1
 
                     contact_number += 1  # Naikkan penomoran kontak
+def convert2(data):
+    try:
+        logging.info("Memulai proses konversi...")
 
+        filename = data['filename']
+        totalc = data['totalc']  # Jumlah kontak per file
+        totalf = data['totalf']  # Total file yang ingin dibuat
+        file_change_frequency = data['file_change_frequency']  # Berapa banyak file sebelum mengganti nama file
+        file_names = data['file_names']  # Nama file yang akan digunakan
+        contact_names = data['contact_names']  # Nama yang akan digunakan di setiap VCF
 
+        # Cek apakah file input ada
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File {filename} tidak ditemukan.")
+
+        with open(filename, 'r') as f:
+            contacts = [line.strip() for line in f.readlines()]
+
+        logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
+
+        # Hitung jumlah file yang dibutuhkan berdasarkan kontak yang tersedia
+        total_files_needed = (len(contacts) + totalc - 1) // totalc
+        # Pastikan totalf tidak melebihi total_files_needed
+        totalf = min(totalf, total_files_needed)
+
+        vcf_files = []
+        current_contact_index = 0
+        file_counter = 1  # Untuk melanjutkan penomoran file
+
+        for i in range(totalf):
+            file_index = i // file_change_frequency
+            if file_index >= len(file_names):
+                file_index = len(file_names) - 1
+
+            # Reset penomoran file saat nama file berganti
+            file_number = (i % file_change_frequency) + 1
+            vcf_filename = f"{file_names[file_index]} {file_number}.vcf"
+            logging.info(f"Membuat file VCF: {vcf_filename}")
+
+            contact_name_index = file_index % len(contact_names)
+            contact_name = contact_names[contact_name_index]
+
+            with open(vcf_filename, 'w') as vcf_file:
+                # Reset penomoran kontak di sini
+                contact_number = 1  
+                for j in range(totalc):
+                    if current_contact_index >= len(contacts):
+                        break
+                    contact = contacts[current_contact_index]
+
+                    vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                    vcf_file.write(vcf_content)
+
+                    logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
+
+                    current_contact_index += 1
+                    contact_number += 1  # Naikkan penomoran kontak
 
             vcf_files.append(vcf_filename)
 
-
-
             if not os.path.exists(vcf_filename):
-
                 logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
-
             else:
-
                 logging.info(f"File berhasil dibuat: {vcf_filename}")
 
-
-
         # Jika masih ada kontak yang tersisa, lanjutkan ke file terakhir
-
         if current_contact_index < len(contacts):
+            logging.info(f"Masih ada sisa kontak, melanjutkan konversi ke file baru...")
 
             while current_contact_index < len(contacts):
-
-                # Membuat file VCF terakhir dengan kontak yang tersisa
-
+                # Penentuan nama file berikutnya setelah file sebelumnya selesai
+                file_number = (file_counter % file_change_frequency) + 1
                 vcf_filename = f"{file_names[-1]} {file_counter}.vcf"
-
                 logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
-
-
                 with open(vcf_filename, 'w') as vcf_file:
-
                     contact_name = contact_names[-1]  # Ambil nama terakhir
-
                     contact_number = 1  # Reset penomoran kontak
 
-
-
                     for j in range(totalc):
-
                         if current_contact_index >= len(contacts):
-
                             break
-
                         contact = contacts[current_contact_index]
 
-
-
                         vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
-
                         vcf_file.write(vcf_content)
-
-
 
                         logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
 
-
-
                         current_contact_index += 1
-
                         contact_number += 1  # Naikkan penomoran kontak
 
-
-
                 vcf_files.append(vcf_filename)
-
                 file_counter += 1  # Lanjutkan penomoran file
 
-
-
         logging.info("Proses konversi selesai.")
-
         logging.info(f"File VCF yang dihasilkan: {vcf_files}")
-
-
 
         return vcf_files
 
-
-
     except Exception as e:
-
         logging.error("Error selama proses konversi: ", exc_info=True)
-
         raise e
 
 
