@@ -99,14 +99,13 @@ def convert2(data):
                 logging.info(f"File berhasil dibuat: {vcf_filename}")
 
         # Jika masih ada kontak yang tersisa, lanjutkan ke file terakhir
-        if current_contact_index < len(contacts):
-            # Membuat file VCF terakhir dengan kontak yang tersisa
-            file_number = (totalf % file_change_frequency) + 1  # Melanjutkan penomoran file
+        while current_contact_index < len(contacts):
+            file_number = (totalf % file_change_frequency) + 1  # Lanjutkan penomoran file
             vcf_filename = f"{file_names[-1]} {file_number}.vcf"
             logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
             with open(vcf_filename, 'w') as vcf_file:
-                contact_name = contact_names[-1]  # Ambil nama terakhir
+                contact_name = contact_names[-1]  # Gunakan nama terakhir
                 contact_number = 1  # Reset penomoran kontak
 
                 while current_contact_index < len(contacts):
@@ -128,7 +127,7 @@ def convert2(data):
         return vcf_files
 
     except Exception as e:
-        logging.error("Error selama proses konversi: ", exc_info=True)
+        logging.error("Terjadi kesalahan selama proses konversi: ", exc_info=True)
         raise e
 
 
