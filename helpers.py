@@ -25,6 +25,11 @@ def rename_vcf_files_and_contacts(vcf_files, new_file_prefix, new_contact_name, 
             else:
                 new_file_name = f"{new_file_prefix} {start_number + index}.vcf"  # Multiple files with numbering
 
+            # Check if the new file name already exists
+            if os.path.exists(new_file_name):
+                print(f"File already exists: {new_file_name}. Skipping renaming.")
+                continue
+
             # Read the content of the old file and write to the new file
             with open(old_file, 'r') as file:
                 lines = file.readlines()
@@ -47,7 +52,6 @@ def rename_vcf_files_and_contacts(vcf_files, new_file_prefix, new_contact_name, 
         
     except Exception as e:
         print(f"Terjadi error: {e}")
-
 
 def save_vcf(content: str, filename: str) -> str:
     """Simpan konten VCF ke file dan kembalikan jalur filenya."""
