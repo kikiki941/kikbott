@@ -38,27 +38,31 @@ def convert2(data):
     try:
         logging.info("Memulai proses konversi...")
 
+        # Extract data from input
         filename = data['filename']
-        totalc = data['totalc']
-        totalf = data['totalf']
+        totalc = data['totalc']  # Jumlah kontak per file
+        totalf = data['totalf']  # Total file yang ingin dibuat
         file_change_frequency = data['file_change_frequency']
         file_names = data['file_names']
         contact_names = data['contact_names']
         output_dir = data.get('output_dir', '')
 
-        # Cek apakah direktori output ada
+        # Check and create output directory if it doesn't exist
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
+            logging.info(f"Membuat direktori output: {output_dir}")
 
-        # Cek apakah file input ada
+        # Check if input file exists
         if not os.path.exists(filename):
             raise FileNotFoundError(f"File {filename} tidak ditemukan.")
 
+        # Read contacts from the input file
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
 
         logging.info(f"Jumlah kontak yang dibaca: {len(contacts)}")
 
+        # Calculate how many files are needed
         total_files_needed = (len(contacts) + totalc - 1) // totalc
         totalf = min(totalf, total_files_needed)
 
@@ -66,14 +70,15 @@ def convert2(data):
         current_contact_index = 0
         file_counter = 1
 
+        # Process each requested file
         for i in range(totalf):
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
 
             file_number = (i % file_change_frequency) + 1
-            vcf_filename = f"{output_dir}{file_names[file_index]} {file_number}.vcf"
-            logging.info(f"Membuat file VCF: {vcf_filename}")
+            vcf_filename = os.path.join(output_dir, f"{file_names[file_index]} {file_number}.vcf")
+            logging.info(f"Path file VCF yang akan dibuat: {vcf_filename}")
 
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
@@ -85,12 +90,12 @@ def convert2(data):
                         if current_contact_index >= len(contacts):
                             break
                         contact = contacts[current_contact_index]
-
-                        vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                        vcf_content = (f"BEGIN:VCARD\nVERSION:3.0\n"
+                                       f"FN:{contact_name} {contact_number}\n"
+                                       f"TEL:{contact}\nEND:VCARD\n")
                         vcf_file.write(vcf_content)
 
                         logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
-
                         current_contact_index += 1
                         contact_number += 1
 
@@ -104,12 +109,13 @@ def convert2(data):
             except IOError as io_err:
                 logging.error(f"Gagal membuat file {vcf_filename}: {io_err}")
 
+        # Process remaining contacts if any
         if current_contact_index < len(contacts):
             logging.info(f"Masih ada sisa kontak, melanjutkan konversi ke file baru...")
 
             while current_contact_index < len(contacts):
                 file_number = (file_counter % file_change_frequency) + 1
-                vcf_filename = f"{output_dir}{file_names[-1]} {file_counter}.vcf"
+                vcf_filename = os.path.join(output_dir, f"{file_names[-1]} {file_counter}.vcf")
                 logging.info(f"Membuat file VCF untuk sisa kontak: {vcf_filename}")
 
                 try:
@@ -121,12 +127,12 @@ def convert2(data):
                             if current_contact_index >= len(contacts):
                                 break
                             contact = contacts[current_contact_index]
-
-                            vcf_content = f"BEGIN:VCARD\nVERSION:3.0\nFN:{contact_name} {contact_number}\nTEL:{contact}\nEND:VCARD\n"
+                            vcf_content = (f"BEGIN:VCARD\nVERSION:3.0\n"
+                                           f"FN:{contact_name} {contact_number}\n"
+                                           f"TEL:{contact}\nEND:VCARD\n")
                             vcf_file.write(vcf_content)
 
                             logging.info(f"Menyimpan kontak ke {vcf_filename}: {vcf_content.strip()}")
-
                             current_contact_index += 1
                             contact_number += 1
 
