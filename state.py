@@ -6,7 +6,7 @@ from telebot.handler_backends import State, StatesGroup
 class RenameState(StatesGroup):
     file_names = State()  # New state for directory input
     new_file_prefix = State()
-    new_contact_name = State()
+    contact_name = State()
     start_number = State()
 
 class ChatToVcfState(Enum):
