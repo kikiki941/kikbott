@@ -44,21 +44,12 @@ def convert2(data):
         file_change_frequency = data['file_change_frequency']  # Berapa banyak file sebelum mengganti nama file
         file_names = data['file_names']  # Nama file yang akan digunakan
         contact_names = data['contact_names']  # Nama yang akan digunakan di setiap VCF
-        output_dir = '/tmp/'  # Use a writable directory (e.g., /tmp/)
+        output_dir = data.get('output_dir', '')  # Direktori output jika ada
 
         # Cek apakah file input ada
         if not os.path.exists(filename):
             raise FileNotFoundError(f"File {filename} tidak ditemukan.")
 
-        # Ensure the output directory exists
-        if not os.path.exists(output_dir):
-            try:
-                os.makedirs(output_dir)
-            except OSError as e:
-                logging.error(f"Cannot create directory {output_dir}: {e}")
-                raise e
-
-        # Read the contacts from the file
         with open(filename, 'r') as f:
             contacts = [line.strip() for line in f.readlines()]
 
@@ -74,7 +65,6 @@ def convert2(data):
         file_counter = 1  # Untuk melanjutkan penomoran file
 
         for i in range(totalf):
-            # Determine the current file name to use based on the change frequency
             file_index = i // file_change_frequency
             if file_index >= len(file_names):
                 file_index = len(file_names) - 1
@@ -87,10 +77,9 @@ def convert2(data):
             contact_name_index = file_index % len(contact_names)
             contact_name = contact_names[contact_name_index]
 
-            # Create the VCF file
             with open(vcf_filename, 'w') as vcf_file:
                 # Reset penomoran kontak di sini
-                contact_number = 1
+                contact_number = 1  
                 for j in range(totalc):
                     if current_contact_index >= len(contacts):
                         break
@@ -106,7 +95,6 @@ def convert2(data):
 
             vcf_files.append(vcf_filename)
 
-            # Verify the file was created successfully
             if not os.path.exists(vcf_filename):
                 logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
             else:
