@@ -38,36 +38,38 @@ async def vcf_file_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=RenameState.new_file_prefix)  # Changed here
-async def new_file_prefix_get(message: Message):
+@bot.message_handler(state=RenameState.prefix)
+async def prefix_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['new_file_prefix'] = message.text
+            data['new_file_prefix'] = message.text  # Save the new file prefix
 
-        await bot.send_message(message.chat.id, 'Masukkan nama kontak untuk file .vcf:')
-        await bot.set_state(message.from_user.id, RenameState.contact_name, message.chat.id)  # Changed here
+        await bot.send_message(message.chat.id, 'Masukkan nama kontak yang baru:')
+        await bot.set_state(message.from_user.id, RenameState.contact_name, message.chat.id)
+
     except Exception as e:
-        logging.error("error: ", exc_info=True)
+        logging.error("Error in prefix_get: ", exc_info=True)
 
-@bot.message_handler(state=RenameState.contact_name)  # Changed here
+@bot.message_handler(state=RenameState.contact_name)
 async def contact_name_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
-            data['contact_name'] = message.text
+            data['contact_name'] = message.text  # Save the contact name
 
         await bot.send_message(message.chat.id, 'Masukkan angka untuk memulai penomoran:')
-        await bot.set_state(message.from_user.id, RenameState.start_number, message.chat.id)  # Changed here
-    except Exception as e:
-        logging.error("error: ", exc_info=True)
+        await bot.set_state(message.from_user.id, RenameState.start_number, message.chat.id)
 
-@bot.message_handler(state=RenameState.start_number, is_digit=True)  # Changed here
+    except Exception as e:
+        logging.error("Error in contact_name_get: ", exc_info=True)
+
+@bot.message_handler(state=RenameState.start_number, is_digit=True)
 async def start_number_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['start_number'] = int(message.text)
 
-        # Get the file path from the saved data
-        vcf_file_path = data['vcf_file']
+        # Assuming you have the path to the .vcf file saved in data
+        vcf_file_path = data['vcf_file']  # Ensure this is set earlier in the process
 
         # Call the rename function
         rename_vcf_files_and_contacts([vcf_file_path], data['new_file_prefix'], data['contact_name'], data['start_number'])
@@ -75,12 +77,5 @@ async def start_number_get(message: Message):
         await bot.send_message(message.chat.id, "Proses rename selesai!")
         await bot.delete_state(message.from_user.id, message.chat.id)
 
-    except Exception as e:
-        logging.error("error: ", exc_info=True)
-
-@bot.message_handler(state=RenameState.start_number, is_digit=False)  # Changed here
-async def invalid_start_number(message: Message):
-    try:
-        await bot.send_message(message.chat.id, 'Masukkan angka yang valid untuk memulai penomoran.')
     except Exception as e:
         logging.error("error: ", exc_info=True)
