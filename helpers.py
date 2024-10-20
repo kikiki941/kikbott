@@ -16,6 +16,56 @@ from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as OpenPyxlImage
 import xlwings as xw
 
+def rename_vcf_files_and_contacts(directory, new_file_prefix, new_contact_name, start_number):
+    try:
+        # List and sort all .vcf files in the specified directory
+        vcf_files = sorted([f for f in os.listdir(directory) if f.endswith('.vcf')])
+        file_count = len(vcf_files)
+
+        for index, old_file in enumerate(vcf_files):
+            old_path = os.path.join(directory, old_file)
+
+            # Determine new file name based on the number of files
+            if file_count == 1:
+                new_file_name = f"{new_file_prefix}.vcf"  # Single file
+            else:
+                new_file_name = f"{new_file_prefix} {start_number + index}.vcf"  # Multiple files with numbering
+
+            new_path = os.path.join(directory, new_file_name)
+
+            # Initialize contact number for the current file
+            contact_number = 1  
+
+            with open(old_path, 'r') as file:
+                lines = file.readlines()
+
+            with open(new_path, 'w') as new_file:
+                for line in lines:
+                    # Update contact name format
+                    if line.startswith("FN:"):
+                        line = f"FN:{new_contact_name} {contact_number}\n"
+                        contact_number += 1
+                    new_file.write(line)
+
+            # Remove the old file after renaming
+            os.remove(old_path)
+            print(f"Renamed and updated contacts in: {old_file} -> {new_file_name}")
+
+        print("Proses selesai.")
+        
+    except Exception as e:
+        print(f"Terjadi error: {e}")
+
+# Example usage
+if __name__ == "__main__":
+    directory = input("Masukkan direktori tempat file .vcf berada: ")  # User input for directory
+    new_file_prefix = input("Masukkan prefix nama file baru: ")         # User input for new file prefix
+    new_contact_name = input("Masukkan nama kontak baru: ")             # User input for new contact name
+    start_number = int(input("Masukkan angka untuk memulai penomoran: "))  # User input for starting number
+
+    rename_vcf_files_and_contacts(directory, new_file_prefix, new_contact_name, start_number)
+
+
 def save_vcf(content: str, filename: str) -> str:
     """Simpan konten VCF ke file dan kembalikan jalur filenya."""
     # Tentukan direktori untuk menyimpan file
