@@ -4,7 +4,7 @@ from enum import Enum
 from telebot.handler_backends import State, StatesGroup
 
 class RenameState(StatesGroup):
-    directory = State()  # New state for directory input
+    file_names = State()  # New state for directory input
     new_file_prefix = State()
     new_contact_name = State()
     start_number = State()
