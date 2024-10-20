@@ -4,18 +4,18 @@ from telebot.apihelper import ApiTelegramException
 from bot import bot
 from message import *
 from helpers import rename_vcf_files_and_contacts
-from state import Convert2State
+from state import RenameState  # Changed here
 
 @bot.message_handler(commands='rename')
 async def rename_command(message):
     try:
         await bot.delete_state(message.from_user.id, message.chat.id)
-        await bot.set_state(message.from_user.id, Convert2State.file_names, message.chat.id)
+        await bot.set_state(message.from_user.id, RenameState.file_names, message.chat.id)  # Changed here
         await bot.reply_to(message, "Silakan kirim file .vcf yang ingin diubah.")
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.file_names, content_types=['document'])
+@bot.message_handler(state=RenameState.file_names, content_types=['document'])  # Changed here
 async def vcf_file_get(message: Message):
     try:
         if not message.document.file_name.endswith(".vcf"):
@@ -34,33 +34,33 @@ async def vcf_file_get(message: Message):
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['vcf_file'] = filename
 
-        await bot.set_state(message.from_user.id, Convert2State.new_file_prefix, message.chat.id)
+        await bot.set_state(message.from_user.id, RenameState.new_file_prefix, message.chat.id)  # Changed here
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.new_file_prefix)
+@bot.message_handler(state=RenameState.new_file_prefix)  # Changed here
 async def new_file_prefix_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['new_file_prefix'] = message.text
 
         await bot.send_message(message.chat.id, 'Masukkan nama kontak untuk file .vcf:')
-        await bot.set_state(message.from_user.id, Convert2State.contact_name, message.chat.id)
+        await bot.set_state(message.from_user.id, RenameState.contact_name, message.chat.id)  # Changed here
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.contact_name)
+@bot.message_handler(state=RenameState.contact_name)  # Changed here
 async def contact_name_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
             data['contact_name'] = message.text
 
         await bot.send_message(message.chat.id, 'Masukkan angka untuk memulai penomoran:')
-        await bot.set_state(message.from_user.id, Convert2State.start_number, message.chat.id)
+        await bot.set_state(message.from_user.id, RenameState.start_number, message.chat.id)  # Changed here
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.start_number, is_digit=True)
+@bot.message_handler(state=RenameState.start_number, is_digit=True)  # Changed here
 async def start_number_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
@@ -78,7 +78,7 @@ async def start_number_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=Convert2State.start_number, is_digit=False)
+@bot.message_handler(state=RenameState.start_number, is_digit=False)  # Changed here
 async def invalid_start_number(message: Message):
     try:
         await bot.send_message(message.chat.id, 'Masukkan angka yang valid untuk memulai penomoran.')
