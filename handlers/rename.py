@@ -38,7 +38,7 @@ async def vcf_file_get(message: Message):
     except Exception as e:
         logging.error("error: ", exc_info=True)
 
-@bot.message_handler(state=RenameState.prefix)
+@bot.message_handler(state=RenameState.new_file_prefix)
 async def prefix_get(message: Message):
     try:
         async with bot.retrieve_data(message.from_user.id, message.chat.id) as data:
