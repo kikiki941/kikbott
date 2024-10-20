@@ -99,12 +99,12 @@ def convert2(data):
                         current_contact_index += 1
                         contact_number += 1
 
-                vcf_files.append(vcf_filename)
-
-                if not os.path.exists(vcf_filename):
-                    logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
-                else:
+                # Check if the file was successfully created
+                if os.path.exists(vcf_filename):
+                    vcf_files.append(vcf_filename)
                     logging.info(f"File berhasil dibuat: {vcf_filename}")
+                else:
+                    logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
 
             except IOError as io_err:
                 logging.error(f"Gagal membuat file {vcf_filename}: {io_err}")
@@ -136,7 +136,13 @@ def convert2(data):
                             current_contact_index += 1
                             contact_number += 1
 
-                    vcf_files.append(vcf_filename)
+                    # Check if the file was successfully created
+                    if os.path.exists(vcf_filename):
+                        vcf_files.append(vcf_filename)
+                        logging.info(f"File berhasil dibuat: {vcf_filename}")
+                    else:
+                        logging.error(f"File tidak ditemukan setelah pembuatan: {vcf_filename}")
+
                     file_counter += 1  
 
                 except IOError as io_err:
@@ -150,6 +156,7 @@ def convert2(data):
     except Exception as e:
         logging.error("Error selama proses konversi: ", exc_info=True)
         raise e
+
         
 def extract_images_from_excel(file_path):
 
