@@ -1,14 +1,9 @@
-from pytz import timezone
-from logging import ERROR
 from telebot import logger
-from telebot.asyncio_filters import *
 from telebot.async_telebot import AsyncTeleBot
+from telebot.asyncio_filters import *
 from telebot.asyncio_storage import StateMemoryStorage
+from logging import ERROR
 
-owner = [6203222756]
-whitelist = {}
-datetime_format = f"%H:%M:%S %d-%m-%Y"
-wib = timezone('Asia/Jakarta')
 bot_token = '7873964366:AAE1RkzZ1QAxiJPLwq46NqoqadzXvF6u-v4'
 bot = AsyncTeleBot(bot_token, parse_mode='HTML', state_storage=StateMemoryStorage())
 
