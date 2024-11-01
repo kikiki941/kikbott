@@ -4,7 +4,7 @@ from telebot.asyncio_filters import *
 from telebot.asyncio_storage import StateMemoryStorage
 from logging import ERROR
 
-bot_token = '7873964366:AAE1RkzZ1QAxiJPLwq46NqoqadzXvF6u-v4'
+bot_token = '7750101476:AAEO7DJGxpFk9Nf7C50w8yuavhA-b1dn6Fo'
 bot = AsyncTeleBot(bot_token, parse_mode='HTML', state_storage=StateMemoryStorage())
 
 bot.add_custom_filter(StateFilter(bot))
